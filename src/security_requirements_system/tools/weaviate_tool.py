@@ -6,6 +6,7 @@ from typing import Optional, Type
 import weaviate
 from crewai.tools import BaseTool
 from pydantic import BaseModel, Field
+from weaviate.classes.query import Filter
 
 
 class WeaviateQueryInput(BaseModel):
@@ -53,7 +54,7 @@ class WeaviateQueryTool(BaseTool):
 
                 if standard_filter:
                     response = collection.query.near_text(
-                        query=query, limit=limit, where={"path": ["standard"], "operator": "Equal", "valueText": standard_filter}
+                        query=query, limit=limit, filters=Filter().by_property("standard").equal(standard_filter)
                     )
                 else:
                     response = collection.query.near_text(**query_kwargs)
