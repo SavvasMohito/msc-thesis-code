@@ -88,8 +88,10 @@ class SecurityRequirementsFlow(Flow[SecurityRequirementsState]):
     """
 
     # Load from config.yaml or use defaults
-    MAX_ITERATIONS = CONFIG.get("flow", {}).get("max_iterations", 3)
-    VALIDATION_THRESHOLD = CONFIG.get("flow", {}).get("validation_threshold", 0.8)
+    # MAX_ITERATIONS = CONFIG.get("flow", {}).get("max_iterations", 3)
+    MAX_ITERATIONS = 3
+    # VALIDATION_THRESHOLD = CONFIG.get("flow", {}).get("validation_threshold", 0.7)
+    VALIDATION_THRESHOLD = 0.7
 
     @start()
     def load_requirements(self):
@@ -267,93 +269,157 @@ class SecurityRequirementsFlow(Flow[SecurityRequirementsState]):
     def generate_final_output(self):
         """Generate final security requirements document."""
         # Only generate output if validation passed or max iterations reached
-        if not self.state.should_generate_output:
-            return  # Skip output generation when retrying
+        # TODO: this does not work as expected, we should generate output even if validation failed
+        # if not self.state.should_generate_output:
+        #     return  # Skip output generation when retrying
 
         print("\n" + "=" * 80)
         print("STEP 8: Generating Final Security Requirements Document")
         print("=" * 80)
 
-        # Compile all outputs into a comprehensive document
-        final_doc = {
-            "metadata": {
-                "validation_score": self.state.validation_score,
-                "validation_passed": self.state.validation_passed,
-                "iterations": self.state.iteration_count,
-            },
-            "original_requirements": self.state.requirements_text,
-            "requirements_analysis": self.state.analyzed_requirements,
-            "security_controls": self.state.security_controls,
-            "ai_ml_security": self.state.ai_security,
-            "compliance_requirements": self.state.compliance_requirements,
-            "validation_report": self.state.validation_report,
-        }
+        # Generate timestamp for unique filenames
+        from datetime import datetime
 
-        self.state.final_requirements = json.dumps(final_doc, indent=2)
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
         # Save to output file
         output_dir = Path("outputs")
         output_dir.mkdir(exist_ok=True)
 
-        output_file = output_dir / "security_requirements.json"
-        with open(output_file, "w", encoding="utf-8") as f:
-            f.write(self.state.final_requirements)
+        # Generate markdown as primary output
+        md_file = output_dir / f"security_requirements_{timestamp}.md"
+        self._generate_markdown_summary(md_file)
+
+        # # Compile all outputs into a comprehensive document (for backup)
+        # final_doc = {
+        #     "metadata": {
+        #         "validation_score": self.state.validation_score,
+        #         "validation_passed": self.state.validation_passed,
+        #         "iterations": self.state.iteration_count,
+        #         "timestamp": timestamp,
+        #     },
+        #     "original_requirements": self.state.requirements_text,
+        #     "requirements_analysis": self.state.analyzed_requirements,
+        #     "security_controls": self.state.security_controls,
+        #     "ai_ml_security": self.state.ai_security,
+        #     "compliance_requirements": self.state.compliance_requirements,
+        #     "validation_report": self.state.validation_report,
+        # }
+
+        # self.state.final_requirements = json.dumps(final_doc, indent=2)
+
+        # # Save JSON backup
+        # json_file = output_dir / f"security_requirements_{timestamp}.json"
+        # with open(json_file, "w", encoding="utf-8") as f:
+        #     f.write(self.state.final_requirements)
 
         print("\n✓ Security requirements generated successfully!")
-        print(f"  Output saved to: {output_file}")
+        print(f"  Primary output (Markdown): {md_file}")
+        # print(f"  Backup (JSON): {json_file}")
         print(f"  Validation Score: {self.state.validation_score:.2f}")
         print(f"  Total Iterations: {self.state.iteration_count}")
-
-        # Also generate a markdown summary
-        self._generate_markdown_summary(output_dir / "security_requirements.md")
 
     def _generate_markdown_summary(self, output_path: Path):
         """Generate a human-readable markdown summary."""
         try:
-            data = json.loads(self.state.final_requirements)
+            from datetime import datetime
+
+            # Parse metadata first
+            validation_score = self.state.validation_score
+            validation_passed = self.state.validation_passed
+            iterations = self.state.iteration_count
 
             markdown = f"""# Security Requirements Report
+*Generated: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}*
 
 ## Metadata
-- **Validation Score**: {data['metadata']['validation_score']:.2f}
-- **Validation Passed**: {data['metadata']['validation_passed']}
-- **Iterations**: {data['metadata']['iterations']}
+- **Validation Score**: {validation_score:.2f}
+- **Validation Passed**: {validation_passed}
+- **Iterations**: {iterations}
+
+---
 
 ## Original Requirements
-{data['original_requirements']}
+
+{self.state.requirements_text}
 
 ---
 
 ## Requirements Analysis
-{data['requirements_analysis']}
 
----
-
-## Security Controls Mapping
-{data['security_controls']}
-
----
-
-## AI/ML Security Requirements
-{data['ai_ml_security']}
-
----
-
-## Compliance Requirements
-{data['compliance_requirements']}
-
----
-
-## Validation Report
-{data['validation_report']}
 """
+
+            # Parse requirements analysis (remove markdown code blocks if present)
+            analysis_text = self.state.analyzed_requirements
+            if "```json" in analysis_text:
+                start = analysis_text.find("```json") + 7
+                end = analysis_text.rfind("```")
+                if start > 7 and end > start:
+                    analysis_text = analysis_text[start:end].strip()
+
+            markdown += analysis_text + "\n\n---\n\n"
+
+            markdown += "## Security Controls Mapping\n\n"
+
+            # Try to parse and format security controls nicely
+            try:
+                controls_text = self.state.security_controls
+                # Remove markdown code blocks
+                if "```" in controls_text:
+                    start = controls_text.find("```")
+                    if start >= 0:
+                        # Find the first { after ```
+                        start = controls_text.find("{", start)
+                        end = controls_text.rfind("}")
+                        if start >= 0 and end > start:
+                            controls_text = controls_text[start : end + 1]  # noqa: E203
+
+                security_controls = json.loads(controls_text)
+
+                if "requirements_mapping" in security_controls:
+                    for idx, mapping in enumerate(security_controls["requirements_mapping"], 1):
+                        markdown += f"### {idx}. {mapping.get('high_level_requirement', 'Security Requirement')}\n\n"
+                        markdown += f"**Security Concern:** {mapping.get('security_concern', 'N/A')}\n\n"
+
+                        if "owasp_controls" in mapping and mapping["owasp_controls"]:
+                            markdown += "**Corresponding OWASP ASVS Requirements:**\n\n"
+                            for owasp in mapping["owasp_controls"]:
+                                markdown += f"#### [{owasp.get('req_id', 'N/A')}] - {owasp.get('level', 'N/A')}\n\n"
+                                markdown += f"- **Chapter:** {owasp.get('chapter', 'N/A')}\n"
+                                markdown += f"- **Section:** {owasp.get('section', 'N/A')}\n"
+                                markdown += f"- **Requirement:** {owasp.get('requirement', 'N/A')}\n"
+                                markdown += f"- **Relevance:** {owasp.get('relevance', 'N/A')}\n\n"
+                        else:
+                            markdown += "*No OWASP controls mapped.*\n\n"
+
+                        markdown += "---\n\n"
+                else:
+                    # Fallback to raw text
+                    markdown += self.state.security_controls + "\n\n---\n\n"
+            except (json.JSONDecodeError, KeyError, ValueError) as e:
+                # Fallback to raw text if parsing fails
+                print(f"  Note: Could not parse security controls as JSON: {e}")
+                markdown += self.state.security_controls + "\n\n---\n\n"
+
+            # Add remaining sections
+            markdown += "\n## AI/ML Security Requirements\n\n"
+            markdown += self.state.ai_security + "\n\n---\n\n"
+
+            markdown += "## Compliance Requirements\n\n"
+            markdown += self.state.compliance_requirements + "\n\n---\n\n"
+
+            markdown += "## Validation Report\n\n"
+            markdown += self.state.validation_report + "\n"
 
             with open(output_path, "w", encoding="utf-8") as f:
                 f.write(markdown)
 
-            print(f"  Markdown summary: {output_path}")
+            print("  ✓ Markdown report saved successfully")
         except Exception as e:
-            print(f"  Warning: Could not generate markdown summary: {e}")
+            print(f"  ⚠ Warning: Could not generate markdown summary: {e}")
+            import traceback
+
+            traceback.print_exc()
 
 
 def kickoff():

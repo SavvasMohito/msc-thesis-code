@@ -14,7 +14,7 @@ class WeaviateQueryInput(BaseModel):
 
     query: str = Field(..., description="The search query to find relevant security controls")
     limit: int = Field(default=5, description="Number of results to return")
-    standard_filter: Optional[str] = Field(default=None, description="Filter by specific standard (e.g., 'OWASP', 'NIST', 'ISO27001')")
+    standard_filter: Optional[str] = Field(default="OWASP", description="Filter by specific standard (e.g., 'OWASP', 'NIST', 'ISO27001')")
 
 
 class WeaviateQueryTool(BaseTool):
@@ -54,7 +54,7 @@ class WeaviateQueryTool(BaseTool):
 
                 if standard_filter:
                     response = collection.query.near_text(
-                        query=query, limit=limit, filters=Filter().by_property("standard").equal(standard_filter)
+                        query=query, limit=limit, filters=Filter.by_property("standard").equal(standard_filter)
                     )
                 else:
                     response = collection.query.near_text(**query_kwargs)

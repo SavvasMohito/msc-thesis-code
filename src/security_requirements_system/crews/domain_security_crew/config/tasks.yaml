@@ -4,29 +4,53 @@ map_security_controls:
     
     {analyzed_requirements}
     
-    Use the security standards database to find and recommend relevant controls:
+    CRITICAL INSTRUCTIONS:
+    - You MUST use the "Query Security Standards Database" tool for EVERY security requirement
+    - You MUST NOT make up or invent OWASP requirement IDs
+    - You MUST copy the EXACT text returned by the database tool
+    - ALL OWASP data MUST come from actual tool queries - no fabrication allowed
     
-    For each security concern and feature identified:
-    1. Query the security standards database for relevant controls
-    2. Identify applicable OWASP, NIST, and ISO 27001 controls
-    3. Explain how each control addresses the specific risk
-    4. Prioritize controls based on risk severity
-    5. Recommend implementation approaches
+    For each identified security concern or requirement:
+    1. State the high-level security requirement clearly
+    2. Use the tool to query for relevant OWASP controls (use multiple queries if needed)
+    3. Copy the EXACT requirement IDs, chapters, sections, and text from the tool results
+    4. Only include requirements that were actually returned by the tool
+    5. Explain the relevance of each requirement
     
-    Consider controls for:
-    - Authentication and access control
-    - Data protection (at rest and in transit)
-    - Input validation and output encoding
-    - Session management
-    - Cryptography
-    - Error handling and logging
-    - API security
-    - Configuration management
+    Example queries to use:
+    - "authentication security"
+    - "SQL injection prevention"
+    - "session management"
+    - "input validation"
+    - "password security"
+    - "access control"
+    
+    IMPORTANT: Query the database multiple times with different search terms to find all relevant controls.
   expected_output: >
-    A comprehensive security controls mapping document in JSON format containing:
-    - mapped_controls: List of applicable controls with justifications
-    - control_priorities: Priority levels for each control
-    - implementation_notes: Specific implementation guidance
-    - coverage_analysis: Which security concerns are addressed by which controls
+    A structured JSON document with this exact format:
+    {
+      "requirements_mapping": [
+        {
+          "high_level_requirement": "Clear statement of the security requirement",
+          "security_concern": "What risk this addresses",
+          "owasp_controls": [
+            {
+              "req_id": "EXACT ID from tool output (e.g., V6.2.1)",
+              "chapter": "EXACT chapter from tool output",
+              "section": "EXACT section from tool output",
+              "level": "EXACT level from tool output (e.g., L1, L2, L3)",
+              "requirement": "EXACT requirement text from tool output - DO NOT MODIFY",
+              "relevance": "Your explanation of how this requirement applies"
+            }
+          ]
+        }
+      ]
+    }
+    
+    VALIDATION RULES:
+    - Every req_id must be in format V[number].[number].[number] (e.g., V1.2.4, V6.3.5)
+    - Chapter IDs must be V1 through V18 only
+    - All requirement text must be copied verbatim from tool results
+    - Include 3-5 OWASP controls per high-level requirement
   agent: domain_security_expert
 
