@@ -1,56 +1,33 @@
 map_security_controls:
   description: >
-    Based on the requirements analysis:
-    
-    {analyzed_requirements}
-    
+    You have been provided with a list of high-level functional requirements:
+
+    {high_level_requirements}
+
+    Your task is to analyze EACH requirement ONE BY ONE and map it to specific,
+    relevant OWASP ASVS security controls.
+
     CRITICAL INSTRUCTIONS:
-    - You MUST use the "Query Security Standards Database" tool for EVERY security requirement
-    - You MUST NOT make up or invent OWASP requirement IDs
-    - You MUST copy the EXACT text returned by the database tool
-    - ALL OWASP data MUST come from actual tool queries - no fabrication allowed
-    
-    For each identified security concern or requirement:
-    1. State the high-level security requirement clearly
-    2. Use the tool to query for relevant OWASP controls (use multiple queries if needed)
-    3. Copy the EXACT requirement IDs, chapters, sections, and text from the tool results
-    4. Only include requirements that were actually returned by the tool
-    5. Explain the relevance of each requirement
-    
-    Example queries to use:
-    - "authentication security"
-    - "SQL injection prevention"
-    - "session management"
-    - "input validation"
-    - "password security"
-    - "access control"
-    
-    IMPORTANT: Query the database multiple times with different search terms to find all relevant controls.
+    1.  Iterate through each high-level requirement from the input list.
+    2.  For each requirement, formulate SEVERAL specific, targeted search queries
+        that capture the essence of the security risks for that feature.
+        - BAD QUERY (generic): "authentication security"
+        - GOOD QUERY (specific): "secure multi-factor authentication implementation"
+        - GOOD QUERY (specific): "protection against credential stuffing attacks"
+    3.  Use the "Query Security Standards Database" tool with these specific queries
+        to find relevant OWASP controls. You MUST query the database for EACH
+        high-level requirement.
+    4.  From the tool's results, select the 3-5 MOST relevant OWASP controls
+        that apply directly to the high-level requirement being analyzed.
+    5.  For each selected control, you MUST provide:
+        - The EXACT `req_id`, `chapter`, `section`, `level`, and `requirement` text
+          from the tool output. DO NOT MODIFY OR FABRICATE THIS DATA.
+        - A detailed `relevance` explanation, clearly describing WHY this specific
+          control is critical for the high-level requirement.
+        - Actionable `integration_tips` on how a development team could
+          implement this security control in practice.
+    6.  Structure the final output as a valid JSON object as specified below.
   expected_output: >
-    A structured JSON document with this exact format:
-    {
-      "requirements_mapping": [
-        {
-          "high_level_requirement": "Clear statement of the security requirement",
-          "security_concern": "What risk this addresses",
-          "owasp_controls": [
-            {
-              "req_id": "EXACT ID from tool output (e.g., V6.2.1)",
-              "chapter": "EXACT chapter from tool output",
-              "section": "EXACT section from tool output",
-              "level": "EXACT level from tool output (e.g., L1, L2, L3)",
-              "requirement": "EXACT requirement text from tool output - DO NOT MODIFY",
-              "relevance": "Your explanation of how this requirement applies"
-            }
-          ]
-        }
-      ]
-    }
-    
-    VALIDATION RULES:
-    - Every req_id must be in format V[number].[number].[number] (e.g., V1.2.4, V6.3.5)
-    - Chapter IDs must be V1 through V18 only
-    - All requirement text must be copied verbatim from tool results
-    - Include 3-5 OWASP controls per high-level requirement
+    A JSON object matching the DomainSecurityOutput schema.
   agent: domain_security_expert
 

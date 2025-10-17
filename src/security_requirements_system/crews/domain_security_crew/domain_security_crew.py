@@ -1,9 +1,10 @@
 from typing import List
 
-from crewai import Agent, Crew, Process, Task
+from crewai import Agent, Crew, Task
 from crewai.agents.agent_builder.base_agent import BaseAgent
 from crewai.project import CrewBase, agent, crew, task
 
+from security_requirements_system.data_models import DomainSecurityOutput
 from security_requirements_system.tools.weaviate_tool import WeaviateQueryTool
 
 
@@ -28,7 +29,9 @@ class DomainSecurityCrew:
     @task
     def map_security_controls(self) -> Task:
         return Task(
+            name="map_security_controls",
             config=self.tasks_config["map_security_controls"],
+            output_pydantic=DomainSecurityOutput,
         )
 
     @crew
@@ -37,6 +40,5 @@ class DomainSecurityCrew:
         return Crew(
             agents=self.agents,
             tasks=self.tasks,
-            process=Process.sequential,
             verbose=True,
         )

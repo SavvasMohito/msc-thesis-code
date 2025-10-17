@@ -1,27 +1,43 @@
 analyze_requirements:
   description: >
     Analyze the following product manager requirements:
-    
+
     {requirements_text}
-    
-    Extract and identify:
-    1. Core business functionality and features
-    2. Data that will be collected, processed, or stored
-    3. User roles and access patterns
-    4. System integrations and external dependencies
-    5. Authentication and authorization needs
-    6. Potential security-sensitive operations
-    7. Compliance or regulatory hints (e.g., mentions of personal data, health data, financial data)
-    
-    For each identified aspect, explain why it has security implications.
+
+    Your goal is to understand the application's purpose and break it down into
+    a list of specific, high-level functional requirements.
+
+    CRITICAL INSTRUCTIONS:
+    1. Read the requirements carefully to understand the core functionality.
+    2. Write a concise, one-paragraph summary of the application's main purpose.
+    3. Decompose the requirements into a list of specific features. Each item
+       in the list should represent a distinct capability of the system.
+       - Example: "User registration and login with multi-factor authentication"
+       - Example: "A searchable product catalog with detailed item descriptions"
+    4. Ensure the output is a valid JSON object.
   expected_output: >
-    A structured analysis report in JSON format containing:
-    - business_features: List of main features with security implications
-    - data_elements: Types of data involved and their sensitivity levels
-    - user_roles: Identified user types and their access needs
-    - integrations: External systems or APIs mentioned
-    - auth_requirements: Authentication and authorization needs
-    - security_concerns: Specific security concerns identified
-    - compliance_hints: Any regulatory or compliance indicators
+    A JSON object matching the AnalysisOutput schema.
   agent: requirements_analyst
+
+analyze_architecture:
+  description: >
+    Based on the following product manager requirements:
+
+    {requirements_text}
+
+    Your goal is to create a high-level system architecture overview.
+
+    CRITICAL INSTRUCTIONS:
+    1.  Analyze the components, data flows, and user interactions described
+        in the requirements.
+    2.  Write a brief, one-paragraph summary of the proposed system architecture.
+        Describe the main components (e.g., frontend, backend, database) and how
+        they interact.
+    3.  Generate a Mermaid diagram (using `graph TD` syntax) to visually represent
+        the high-level architecture. The diagram should be simple and clear,
+        showing the key components and their relationships.
+    4.  Ensure the output is a valid JSON object.
+  expected_output: >
+    A JSON object matching the ArchitectureOutput schema.
+  agent: system_architect
 

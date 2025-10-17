@@ -48,13 +48,6 @@ validate_security_requirements:
     
     If score < 0.8, provide specific, actionable feedback on what to improve.
   expected_output: >
-    A validation report in JSON format containing:
-    - overall_score: Float between 0 and 1
-    - dimension_scores: Individual scores for completeness, consistency, correctness, implementability, alignment
-    - validation_passed: Boolean (true if overall_score >= 0.8)
-    - gaps_identified: List of missing or inadequate areas
-    - conflicts_found: List of contradictions or conflicts
-    - recommendations: Specific improvements needed (only if validation failed)
-    - strengths: What was done well
+    A JSON object matching the ValidationOutput schema.
   agent: validation_expert
 

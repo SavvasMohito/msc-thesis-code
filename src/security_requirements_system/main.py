@@ -21,6 +21,7 @@ from security_requirements_system.crews.domain_security_crew import DomainSecuri
 from security_requirements_system.crews.llm_security_crew import LLMSecurityCrew
 from security_requirements_system.crews.requirements_analysis_crew import RequirementsAnalysisCrew
 from security_requirements_system.crews.validation_crew import ValidationCrew
+from security_requirements_system.data_models import AnalysisOutput, ArchitectureOutput, ValidationOutput
 
 load_dotenv()
 
@@ -56,7 +57,12 @@ class SecurityRequirementsState(BaseModel):
     input_file: Optional[str] = None
 
     # Analysis outputs
-    analyzed_requirements: str = ""
+    application_summary: str = ""
+    high_level_requirements: list[str] = []
+    architecture_summary: str = ""
+    architecture_diagram: str = ""
+
+    # Enriched requirements
     security_controls: str = ""
     ai_security: str = ""
     compliance_requirements: str = ""
@@ -129,8 +135,21 @@ class SecurityRequirementsFlow(Flow[SecurityRequirementsState]):
 
         result = RequirementsAnalysisCrew().crew().kickoff(inputs={"requirements_text": context})
 
-        self.state.analyzed_requirements = result.raw
-        print("\n✓ Requirements analysis complete")
+        # Access tasks' outputs from CrewOutput
+        analysis_task_output = next(filter(lambda x: x.name == "analyze_requirements", result.tasks_output))
+        architecture_task_output = next(filter(lambda x: x.name == "analyze_architecture", result.tasks_output))
+
+        analysis_output: AnalysisOutput = analysis_task_output.pydantic  # type: ignore[assignment]
+        architecture_output: ArchitectureOutput = architecture_task_output.pydantic  # type: ignore[assignment]
+
+        self.state.application_summary = analysis_output.application_summary
+        self.state.high_level_requirements = analysis_output.high_level_requirements
+        self.state.architecture_summary = architecture_output.architecture_summary
+        self.state.architecture_diagram = architecture_output.architecture_diagram
+
+        print("\n✓ Requirements analysis and architecture mapping complete")
+        print(f"  - Application Summary: {self.state.application_summary[:100]}...")
+        print(f"  - Found {len(self.state.high_level_requirements)} high-level requirements.")
 
     @listen(analyze_requirements)
     def map_security_controls(self):
@@ -139,9 +158,15 @@ class SecurityRequirementsFlow(Flow[SecurityRequirementsState]):
         print("STEP 3: Mapping to Security Standards (OWASP, NIST, ISO 27001)")
         print("=" * 80)
 
-        result = DomainSecurityCrew().crew().kickoff(inputs={"analyzed_requirements": self.state.analyzed_requirements})
+        result = (
+            DomainSecurityCrew()
+            .crew()
+            .kickoff(inputs={"high_level_requirements": json.dumps(self.state.high_level_requirements, indent=2)})
+        )
 
-        self.state.security_controls = result.raw
+        # Domain crew returns a single TaskOutput as CrewOutput.output
+        domain_output = result.tasks_output[0]
+        self.state.security_controls = domain_output.pydantic.model_dump_json(indent=2)  # type: ignore[union-attr]
         print("\n✓ Security controls mapped")
 
     @listen(map_security_controls)
@@ -157,7 +182,7 @@ class SecurityRequirementsFlow(Flow[SecurityRequirementsState]):
             .kickoff(
                 inputs={
                     "requirements_text": self.state.requirements_text,
-                    "analyzed_requirements": self.state.analyzed_requirements,
+                    "analyzed_requirements": f"Application Summary: {self.state.application_summary}\nHigh-Level Requirements: {self.state.high_level_requirements}",
                 }
             )
         )
@@ -178,7 +203,7 @@ class SecurityRequirementsFlow(Flow[SecurityRequirementsState]):
             .kickoff(
                 inputs={
                     "requirements_text": self.state.requirements_text,
-                    "analyzed_requirements": self.state.analyzed_requirements,
+                    "analyzed_requirements": f"Application Summary: {self.state.application_summary}\nHigh-Level Requirements: {self.state.high_level_requirements}",
                 }
             )
         )
@@ -199,7 +224,7 @@ class SecurityRequirementsFlow(Flow[SecurityRequirementsState]):
             .kickoff(
                 inputs={
                     "requirements_text": self.state.requirements_text,
-                    "analyzed_requirements": self.state.analyzed_requirements,
+                    "analyzed_requirements": f"Application Summary: {self.state.application_summary}\nHigh-Level Requirements: {self.state.high_level_requirements}",
                     "security_controls": self.state.security_controls,
                     "ai_security": self.state.ai_security,
                     "compliance_requirements": self.state.compliance_requirements,
@@ -207,28 +232,11 @@ class SecurityRequirementsFlow(Flow[SecurityRequirementsState]):
             )
         )
 
-        self.state.validation_report = result.raw
-
-        # Parse validation result to extract score and pass/fail
-        try:
-            # Try to parse as JSON
-            validation_data = json.loads(result.raw)
-            self.state.validation_score = validation_data.get("overall_score", 0.0)
-            self.state.validation_passed = validation_data.get("validation_passed", False)
-        except json.JSONDecodeError:
-            # If not JSON, try to extract score from text
-            import re
-
-            score_match = re.search(r"overall_score[\"']?\s*:\s*([0-9.]+)", result.raw)
-            passed_match = re.search(r"validation_passed[\"']?\s*:\s*(true|false)", result.raw, re.IGNORECASE)
-
-            if score_match:
-                self.state.validation_score = float(score_match.group(1))
-            if passed_match:
-                self.state.validation_passed = passed_match.group(1).lower() == "true"
-            else:
-                # Fallback: if score >= threshold, consider passed
-                self.state.validation_passed = self.state.validation_score >= self.VALIDATION_THRESHOLD
+        validation_task_output = result.tasks_output[0]
+        validation_output: ValidationOutput = validation_task_output.pydantic  # type: ignore[assignment]
+        self.state.validation_report = validation_output.model_dump_json(indent=2)
+        self.state.validation_score = validation_output.overall_score
+        self.state.validation_passed = validation_output.validation_passed
 
         print("\n✓ Validation complete")
         print(f"  Score: {self.state.validation_score:.2f}")
@@ -324,7 +332,6 @@ class SecurityRequirementsFlow(Flow[SecurityRequirementsState]):
         try:
             from datetime import datetime
 
-            # Parse metadata first
             validation_score = self.state.validation_score
             validation_passed = self.state.validation_passed
             iterations = self.state.iteration_count
@@ -332,84 +339,83 @@ class SecurityRequirementsFlow(Flow[SecurityRequirementsState]):
             markdown = f"""# Security Requirements Report
 *Generated: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}*
 
-## Metadata
+## 1. Executive Summary
+
+### 1.1. Metadata
 - **Validation Score**: {validation_score:.2f}
-- **Validation Passed**: {validation_passed}
+- **Validation Passed**: {"✅ Yes" if validation_passed else "❌ No"}
 - **Iterations**: {iterations}
 
----
-
-## Original Requirements
-
-{self.state.requirements_text}
+### 1.2. Application Summary
+{self.state.application_summary}
 
 ---
 
-## Requirements Analysis
+## 2. System Architecture Overview
 
+### 2.1. Architectural Summary
+{self.state.architecture_summary}
+
+### 2.2. Architecture Diagram
+```mermaid
+{self.state.architecture_diagram}
+```
+
+---
+
+## 3. Detailed Security Control Analysis
 """
 
-            # Parse requirements analysis (remove markdown code blocks if present)
-            analysis_text = self.state.analyzed_requirements
-            if "```json" in analysis_text:
-                start = analysis_text.find("```json") + 7
-                end = analysis_text.rfind("```")
-                if start > 7 and end > start:
-                    analysis_text = analysis_text[start:end].strip()
-
-            markdown += analysis_text + "\n\n---\n\n"
-
-            markdown += "## Security Controls Mapping\n\n"
-
-            # Try to parse and format security controls nicely
+            # Parse and format the detailed security controls
             try:
-                controls_text = self.state.security_controls
-                # Remove markdown code blocks
-                if "```" in controls_text:
-                    start = controls_text.find("```")
-                    if start >= 0:
-                        # Find the first { after ```
-                        start = controls_text.find("{", start)
-                        end = controls_text.rfind("}")
-                        if start >= 0 and end > start:
-                            controls_text = controls_text[start : end + 1]  # noqa: E203
+                security_controls_data = json.loads(self.state.security_controls)
+                mappings = security_controls_data.get("requirements_mapping", [])
 
-                security_controls = json.loads(controls_text)
+                if not mappings:
+                    markdown += "\n*No security control mappings were generated.*\n"
 
-                if "requirements_mapping" in security_controls:
-                    for idx, mapping in enumerate(security_controls["requirements_mapping"], 1):
-                        markdown += f"### {idx}. {mapping.get('high_level_requirement', 'Security Requirement')}\n\n"
-                        markdown += f"**Security Concern:** {mapping.get('security_concern', 'N/A')}\n\n"
+                for i, mapping in enumerate(mappings, 1):
+                    req = mapping.get("high_level_requirement", "N/A")
+                    markdown += f"\n### 3.{i}. High-Level Requirement: {req}\n"
 
-                        if "owasp_controls" in mapping and mapping["owasp_controls"]:
-                            markdown += "**Corresponding OWASP ASVS Requirements:**\n\n"
-                            for owasp in mapping["owasp_controls"]:
-                                markdown += f"#### [{owasp.get('req_id', 'N/A')}] - {owasp.get('level', 'N/A')}\n\n"
-                                markdown += f"- **Chapter:** {owasp.get('chapter', 'N/A')}\n"
-                                markdown += f"- **Section:** {owasp.get('section', 'N/A')}\n"
-                                markdown += f"- **Requirement:** {owasp.get('requirement', 'N/A')}\n"
-                                markdown += f"- **Relevance:** {owasp.get('relevance', 'N/A')}\n\n"
-                        else:
-                            markdown += "*No OWASP controls mapped.*\n\n"
+                    controls = mapping.get("owasp_controls", [])
+                    if not controls:
+                        markdown += "\n*No specific OWASP controls were mapped for this requirement.*\n"
+                        continue
 
-                        markdown += "---\n\n"
-                else:
-                    # Fallback to raw text
-                    markdown += self.state.security_controls + "\n\n---\n\n"
-            except (json.JSONDecodeError, KeyError, ValueError) as e:
-                # Fallback to raw text if parsing fails
-                print(f"  Note: Could not parse security controls as JSON: {e}")
-                markdown += self.state.security_controls + "\n\n---\n\n"
+                    for j, control in enumerate(controls, 1):
+                        markdown += f"""
+#### 3.{i}.{j}. Control: `{control.get('req_id', 'N/A')}` - {control.get('requirement', 'N/A')}
+
+- **Chapter:** {control.get('chapter', 'N/A')}
+- **Section:** {control.get('section', 'N/A')}
+- **Level:** {control.get('level', 'N/A')}
+
+**Relevance:**
+{control.get('relevance', 'No relevance explanation provided.')}
+
+**Integration Tips:**
+{control.get('integration_tips', 'No integration tips provided.')}
+"""
+                markdown += "\n---"
+
+            except (json.JSONDecodeError, KeyError) as e:
+                print(f"  Note: Could not parse detailed security controls as JSON: {e}")
+                markdown += "\n**Could not parse security controls output. Raw output provided below:**\n"
+                markdown += f"\n```\n{self.state.security_controls}\n```\n"
 
             # Add remaining sections
-            markdown += "\n## AI/ML Security Requirements\n\n"
+            markdown += "\n\n## 4. AI/ML Security Requirements\n\n"
             markdown += self.state.ai_security + "\n\n---\n\n"
 
-            markdown += "## Compliance Requirements\n\n"
+            markdown += "## 5. Compliance Requirements\n\n"
             markdown += self.state.compliance_requirements + "\n\n---\n\n"
 
-            markdown += "## Validation Report\n\n"
-            markdown += self.state.validation_report + "\n"
+            markdown += "## 6. Validation Report\n\n"
+            markdown += self.state.validation_report + "\n\n---\n\n"
+
+            markdown += "## 7. Original Requirements Document\n\n"
+            markdown += f"```\n{self.state.requirements_text}\n```\n"
 
             with open(output_path, "w", encoding="utf-8") as f:
                 f.write(markdown)
