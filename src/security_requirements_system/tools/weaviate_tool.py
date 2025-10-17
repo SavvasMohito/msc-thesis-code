@@ -67,10 +67,11 @@ class WeaviateQueryTool(BaseTool):
                 for i, obj in enumerate(response.objects, 1):
                     props = obj.properties
                     result = (
-                        f"{i}. [{props.get('standard', 'Unknown')}] "
-                        f"{props.get('control_id', 'N/A')}: {props.get('title', 'No title')}\n"
-                        f"   Description: {props.get('description', 'No description')}\n"
-                        f"   Category: {props.get('category', 'Uncategorized')}\n"
+                        f"{i}. [{props.get('standard', 'Unknown')}] {props.get('req_id', 'N/A')}\n"
+                        f"   Chapter: {props.get('chapter_id', '')} - {props.get('chapter_name', '')}\n"
+                        f"   Section: {props.get('section_id', '')} - {props.get('section_name', '')}\n"
+                        f"   Level: {props.get('level', 'N/A')}\n"
+                        f"   Requirement: {props.get('req_description', 'No description')}\n"
                     )
                     results.append(result)
 

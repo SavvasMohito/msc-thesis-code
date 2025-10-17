@@ -36,24 +36,39 @@ def setup_weaviate_schema():
                     description="The security standard (e.g., OWASP, NIST, ISO27001)",
                 ),
                 wvc.config.Property(
-                    name="control_id",
+                    name="req_id",
                     data_type=wvc.config.DataType.TEXT,
-                    description="Unique identifier for the control",
+                    description="Unique requirement identifier",
                 ),
                 wvc.config.Property(
-                    name="title",
+                    name="req_description",
                     data_type=wvc.config.DataType.TEXT,
-                    description="Title of the security control",
+                    description="Detailed description of the requirement",
                 ),
                 wvc.config.Property(
-                    name="description",
+                    name="chapter_id",
                     data_type=wvc.config.DataType.TEXT,
-                    description="Detailed description of the control",
+                    description="Chapter identifier (e.g., V1)",
                 ),
                 wvc.config.Property(
-                    name="category",
+                    name="chapter_name",
                     data_type=wvc.config.DataType.TEXT,
-                    description="Category or domain of the control",
+                    description="Chapter name/title",
+                ),
+                wvc.config.Property(
+                    name="section_id",
+                    data_type=wvc.config.DataType.TEXT,
+                    description="Section identifier (e.g., V1.1)",
+                ),
+                wvc.config.Property(
+                    name="section_name",
+                    data_type=wvc.config.DataType.TEXT,
+                    description="Section name/title",
+                ),
+                wvc.config.Property(
+                    name="level",
+                    data_type=wvc.config.DataType.TEXT,
+                    description="Requirement level (e.g., L1, L2, L3)",
                 ),
                 wvc.config.Property(
                     name="full_text",
@@ -100,14 +115,22 @@ def ingest_security_standards(data_dir: str = "src/security_requirements_system/
             objects_to_insert = []
             for control in controls:
                 # Combine fields for better vectorization
-                full_text = f"{control.get('title', '')} " f"{control.get('description', '')} " f"{control.get('category', '')}"
+                full_text = (
+                    f"{control.get('chapter_name', '')} "
+                    f"{control.get('section_name', '')} "
+                    f"{control.get('req_id', '')}: "
+                    f"{control.get('req_description', '')}"
+                )
 
                 obj = {
-                    "standard": control.get("standard_name", "Unknown"),
-                    "control_id": control.get("control_id", ""),
-                    "title": control.get("title", ""),
-                    "description": control.get("description", ""),
-                    "category": control.get("category", ""),
+                    "standard": control.get("standard", "Unknown"),
+                    "req_id": control.get("req_id", ""),
+                    "req_description": control.get("req_description", ""),
+                    "chapter_id": control.get("chapter_id", ""),
+                    "chapter_name": control.get("chapter_name", ""),
+                    "section_id": control.get("section_id", ""),
+                    "section_name": control.get("section_name", ""),
+                    "level": control.get("level", ""),
                     "full_text": full_text,
                 }
                 objects_to_insert.append(obj)
