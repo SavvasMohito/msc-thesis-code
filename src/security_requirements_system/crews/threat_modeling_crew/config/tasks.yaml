@@ -1,0 +1,53 @@
+perform_threat_modeling:
+  description: >
+    Based on the following information:
+
+    Application Requirements:
+    {requirements_text}
+
+    Architecture Summary:
+    {architecture_summary}
+
+    Components:
+    {components}
+
+    Your goal is to perform comprehensive threat modeling using the STRIDE methodology.
+
+    CRITICAL INSTRUCTIONS:
+    1. Use STRIDE (Spoofing, Tampering, Repudiation, Information Disclosure, 
+       Denial of Service, Elevation of Privilege) as your primary methodology.
+    
+    2. For EACH component and high-level requirement, identify potential threats:
+       - Assign unique threat IDs (THR-001, THR-002, etc.)
+       - Identify which component or requirement the threat applies to
+       - Categorize by STRIDE category
+       - Provide a clear description of the threat scenario
+       - Assess likelihood (High, Medium, Low) based on attack complexity and exposure
+       - Assess impact (High, Medium, Low) based on potential damage
+       - Calculate risk level (Critical, High, Medium, Low) based on likelihood × impact
+       - Recommend specific mitigation strategies
+    
+    3. Consider common threat scenarios:
+       - Authentication bypass and credential theft
+       - SQL injection and code injection
+       - Cross-site scripting (XSS) and CSRF
+       - Broken access control and privilege escalation
+       - Sensitive data exposure
+       - API abuse and rate limiting issues
+       - Third-party integration risks
+       - Cloud infrastructure misconfigurations
+    
+    4. Provide a risk_summary highlighting:
+       - The most critical threats requiring immediate attention
+       - Overall risk posture
+       - Key attack vectors and entry points
+       - Recommended priority areas for security controls
+    
+    5. Think from an attacker's perspective and consider realistic attack scenarios
+    
+    6. Ensure the output is a valid JSON object matching the ThreatModelingOutput schema.
+  expected_output: >
+    A comprehensive JSON object matching the ThreatModelingOutput schema with identified threats
+    categorized by STRIDE, assessed for risk, and mapped to mitigation strategies.
+  agent: threat_modeling_expert
+

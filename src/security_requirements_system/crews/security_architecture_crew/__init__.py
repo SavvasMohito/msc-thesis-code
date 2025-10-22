@@ -1,0 +1,3 @@
+from security_requirements_system.crews.security_architecture_crew.security_architecture_crew import SecurityArchitectureCrew
+
+__all__ = ["SecurityArchitectureCrew"]

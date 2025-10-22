@@ -1,0 +1,56 @@
+design_security_architecture:
+  description: >
+    Based on the following information:
+
+    Requirements:
+    {requirements_text}
+
+    Architecture:
+    {architecture_summary}
+
+    Components:
+    {components}
+
+    Security Controls:
+    {security_controls}
+
+    Your goal is to design comprehensive security architecture recommendations.
+
+    CRITICAL INSTRUCTIONS:
+    1. Define architectural_principles that should guide the implementation:
+       - Zero Trust Architecture principles
+       - Defense in Depth
+       - Principle of Least Privilege
+       - Secure by Default/Design
+       - Separation of Duties
+       - Fail Secure
+       - Complete Mediation
+       - Any other relevant principles
+    
+    2. For EACH major component identified in the architecture, provide component_controls:
+       - Component name
+       - List of required security controls specific to that component
+       - Recommended architectural patterns (e.g., API Gateway with OAuth2,
+         Encrypted Database with TDE, WAF for Web Frontend, etc.)
+    
+    3. Design a comprehensive data_protection_strategy:
+       - Data classification scheme (Public, Internal, Confidential, Restricted)
+       - Encryption requirements (algorithms, key lengths) for data at rest and in transit
+       - Data retention policies aligned with compliance requirements
+       - Data handling procedures (access, transmission, storage, deletion)
+    
+    4. For third_party_integrations (external APIs, payment gateways, EHR systems, etc.):
+       - Identify each integration from the requirements
+       - List specific security requirements (API keys, OAuth, mTLS, IP whitelisting, etc.)
+       - Provide risk assessment for each integration
+       - Recommend security controls (rate limiting, input validation, monitoring, etc.)
+    
+    5. Think holistically about how these elements work together to create a secure system
+    
+    6. Ensure the output is a valid JSON object matching the SecurityArchitectureOutput schema.
+  expected_output: >
+    A comprehensive JSON object matching the SecurityArchitectureOutput schema with
+    architectural principles, component controls, data protection strategy, and
+    third-party integration security.
+  agent: security_architect
+

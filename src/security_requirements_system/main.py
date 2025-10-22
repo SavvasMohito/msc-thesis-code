@@ -20,8 +20,22 @@ from security_requirements_system.crews.compliance_crew import ComplianceCrew
 from security_requirements_system.crews.domain_security_crew import DomainSecurityCrew
 from security_requirements_system.crews.llm_security_crew import LLMSecurityCrew
 from security_requirements_system.crews.requirements_analysis_crew import RequirementsAnalysisCrew
+from security_requirements_system.crews.roadmap_crew import RoadmapCrew
+from security_requirements_system.crews.security_architecture_crew import SecurityArchitectureCrew
+from security_requirements_system.crews.stakeholder_crew import StakeholderCrew
+from security_requirements_system.crews.threat_modeling_crew import ThreatModelingCrew
 from security_requirements_system.crews.validation_crew import ValidationCrew
-from security_requirements_system.data_models import AnalysisOutput, ArchitectureOutput, ValidationOutput
+from security_requirements_system.crews.verification_crew import VerificationCrew
+from security_requirements_system.data_models import (
+    AnalysisOutput,
+    ArchitectureOutput,
+    ImplementationRoadmapOutput,
+    SecurityArchitectureOutput,
+    StakeholderAnalysisOutput,
+    ThreatModelingOutput,
+    ValidationOutput,
+    VerificationTestingOutput,
+)
 
 load_dotenv()
 
@@ -56,16 +70,45 @@ class SecurityRequirementsState(BaseModel):
     requirements_text: str = ""
     input_file: Optional[str] = None
 
-    # Analysis outputs
+    # Requirements Analysis outputs
     application_summary: str = ""
     high_level_requirements: list[str] = []
+    detailed_requirements: str = ""  # JSON string of RequirementDetail list
+    security_context: str = ""
+    assumptions: str = ""  # JSON string of list
+    constraints: str = ""  # JSON string of list
+
+    # Architecture outputs
     architecture_summary: str = ""
     architecture_diagram: str = ""
+    components: str = ""  # JSON string of Component list
+    data_flow_description: str = ""
+    trust_boundaries: str = ""  # JSON string of TrustBoundary list
+    attack_surface_analysis: str = ""
 
-    # Enriched requirements
-    security_controls: str = ""
+    # Stakeholder Analysis
+    stakeholders: str = ""  # JSON string of StakeholderAnalysisOutput
+
+    # Threat Modeling
+    threats: str = ""  # JSON string of ThreatModelingOutput
+
+    # Security controls mapping
+    security_controls: str = ""  # JSON string of DomainSecurityOutput
+
+    # AI/ML security
     ai_security: str = ""
+
+    # Compliance requirements
     compliance_requirements: str = ""
+
+    # Security Architecture
+    security_architecture: str = ""  # JSON string of SecurityArchitectureOutput
+
+    # Implementation Roadmap
+    implementation_roadmap: str = ""  # JSON string of ImplementationRoadmapOutput
+
+    # Verification and Testing
+    verification_testing: str = ""  # JSON string of VerificationTestingOutput
 
     # Validation
     validation_report: str = ""
@@ -142,20 +185,96 @@ class SecurityRequirementsFlow(Flow[SecurityRequirementsState]):
         analysis_output: AnalysisOutput = analysis_task_output.pydantic  # type: ignore[assignment]
         architecture_output: ArchitectureOutput = architecture_task_output.pydantic  # type: ignore[assignment]
 
+        # Store basic analysis outputs
         self.state.application_summary = analysis_output.application_summary
         self.state.high_level_requirements = analysis_output.high_level_requirements
+
+        # Store enhanced analysis outputs
+        if analysis_output.detailed_requirements:
+            self.state.detailed_requirements = json.dumps([r.model_dump() for r in analysis_output.detailed_requirements], indent=2)
+        if analysis_output.security_context:
+            self.state.security_context = analysis_output.security_context
+        if analysis_output.assumptions:
+            self.state.assumptions = json.dumps(analysis_output.assumptions, indent=2)
+        if analysis_output.constraints:
+            self.state.constraints = json.dumps(analysis_output.constraints, indent=2)
+
+        # Store architecture outputs
         self.state.architecture_summary = architecture_output.architecture_summary
         self.state.architecture_diagram = architecture_output.architecture_diagram
+
+        # Store enhanced architecture outputs
+        if architecture_output.components:
+            self.state.components = json.dumps([c.model_dump() for c in architecture_output.components], indent=2)
+        if architecture_output.data_flow_description:
+            self.state.data_flow_description = architecture_output.data_flow_description
+        if architecture_output.trust_boundaries:
+            self.state.trust_boundaries = json.dumps([t.model_dump() for t in architecture_output.trust_boundaries], indent=2)
+        if architecture_output.attack_surface_analysis:
+            self.state.attack_surface_analysis = architecture_output.attack_surface_analysis
 
         print("\n✓ Requirements analysis and architecture mapping complete")
         print(f"  - Application Summary: {self.state.application_summary[:100]}...")
         print(f"  - Found {len(self.state.high_level_requirements)} high-level requirements.")
+        if analysis_output.detailed_requirements:
+            print(f"  - Detailed {len(analysis_output.detailed_requirements)} requirements with metadata")
+        if architecture_output.components:
+            print(f"  - Identified {len(architecture_output.components)} system components")
 
     @listen(analyze_requirements)
+    def analyze_stakeholders(self):
+        """Analyze stakeholders and trust boundaries using Stakeholder Crew."""
+        print("\n" + "=" * 80)
+        print("STEP 3: Analyzing Stakeholders and Trust Boundaries")
+        print("=" * 80)
+
+        result = (
+            StakeholderCrew()
+            .crew()
+            .kickoff(
+                inputs={
+                    "requirements_text": self.state.requirements_text,
+                    "architecture_summary": self.state.architecture_summary,
+                }
+            )
+        )
+
+        stakeholder_output: StakeholderAnalysisOutput = result.tasks_output[0].pydantic  # type: ignore[assignment]
+        self.state.stakeholders = stakeholder_output.model_dump_json(indent=2)
+
+        print("\n✓ Stakeholder analysis complete")
+        print(f"  - Identified {len(stakeholder_output.stakeholders)} stakeholder roles")
+
+    @listen(analyze_stakeholders)
+    def perform_threat_modeling(self):
+        """Perform threat modeling using Threat Modeling Crew."""
+        print("\n" + "=" * 80)
+        print("STEP 4: Performing Threat Modeling (STRIDE)")
+        print("=" * 80)
+
+        result = (
+            ThreatModelingCrew()
+            .crew()
+            .kickoff(
+                inputs={
+                    "requirements_text": self.state.requirements_text,
+                    "architecture_summary": self.state.architecture_summary,
+                    "components": self.state.components if self.state.components else "No detailed components available",
+                }
+            )
+        )
+
+        threat_output: ThreatModelingOutput = result.tasks_output[0].pydantic  # type: ignore[assignment]
+        self.state.threats = threat_output.model_dump_json(indent=2)
+
+        print("\n✓ Threat modeling complete")
+        print(f"  - Identified {len(threat_output.threats)} threats")
+
+    @listen(perform_threat_modeling)
     def map_security_controls(self):
         """Map requirements to security standards using Domain Security Crew."""
         print("\n" + "=" * 80)
-        print("STEP 3: Mapping to Security Standards (OWASP, NIST, ISO 27001)")
+        print("STEP 5: Mapping to Security Standards (OWASP ASVS)")
         print("=" * 80)
 
         result = (
@@ -173,7 +292,7 @@ class SecurityRequirementsFlow(Flow[SecurityRequirementsState]):
     def identify_ai_security(self):
         """Identify AI/ML security requirements using LLM Security Crew."""
         print("\n" + "=" * 80)
-        print("STEP 4: Identifying AI/ML Security Requirements")
+        print("STEP 6: Identifying AI/ML Security Requirements")
         print("=" * 80)
 
         result = (
@@ -194,7 +313,7 @@ class SecurityRequirementsFlow(Flow[SecurityRequirementsState]):
     def assess_compliance(self):
         """Assess compliance requirements using Compliance Crew."""
         print("\n" + "=" * 80)
-        print("STEP 5: Assessing Compliance Requirements")
+        print("STEP 7: Assessing Compliance Requirements")
         print("=" * 80)
 
         result = (
@@ -212,10 +331,89 @@ class SecurityRequirementsFlow(Flow[SecurityRequirementsState]):
         print("\n✓ Compliance assessment complete")
 
     @listen(assess_compliance)
+    def design_security_architecture(self):
+        """Design security architecture using Security Architecture Crew."""
+        print("\n" + "=" * 80)
+        print("STEP 8: Designing Security Architecture")
+        print("=" * 80)
+
+        result = (
+            SecurityArchitectureCrew()
+            .crew()
+            .kickoff(
+                inputs={
+                    "requirements_text": self.state.requirements_text,
+                    "architecture_summary": self.state.architecture_summary,
+                    "components": self.state.components if self.state.components else "No detailed components available",
+                    "security_controls": self.state.security_controls,
+                }
+            )
+        )
+
+        arch_output: SecurityArchitectureOutput = result.tasks_output[0].pydantic  # type: ignore[assignment]
+        self.state.security_architecture = arch_output.model_dump_json(indent=2)
+
+        print("\n✓ Security architecture design complete")
+        print(f"  - Defined {len(arch_output.architectural_principles)} architectural principles")
+        print(f"  - Component controls for {len(arch_output.component_controls)} components")
+
+    @listen(design_security_architecture)
+    def create_implementation_roadmap(self):
+        """Create implementation roadmap using Roadmap Crew."""
+        print("\n" + "=" * 80)
+        print("STEP 9: Creating Implementation Roadmap")
+        print("=" * 80)
+
+        result = (
+            RoadmapCrew()
+            .crew()
+            .kickoff(
+                inputs={
+                    "requirements_text": self.state.requirements_text,
+                    "security_controls": self.state.security_controls,
+                    "threats": self.state.threats,
+                    "compliance_requirements": self.state.compliance_requirements,
+                }
+            )
+        )
+
+        roadmap_output: ImplementationRoadmapOutput = result.tasks_output[0].pydantic  # type: ignore[assignment]
+        self.state.implementation_roadmap = roadmap_output.model_dump_json(indent=2)
+
+        print("\n✓ Implementation roadmap created")
+        print(f"  - Defined {len(roadmap_output.phases)} implementation phases")
+
+    @listen(create_implementation_roadmap)
+    def design_verification_strategy(self):
+        """Design verification and testing strategy using Verification Crew."""
+        print("\n" + "=" * 80)
+        print("STEP 10: Designing Verification and Testing Strategy")
+        print("=" * 80)
+
+        result = (
+            VerificationCrew()
+            .crew()
+            .kickoff(
+                inputs={
+                    "security_controls": self.state.security_controls,
+                    "compliance_requirements": self.state.compliance_requirements,
+                    "owasp_controls": self.state.security_controls,  # Same as security_controls for now
+                }
+            )
+        )
+
+        verification_output: VerificationTestingOutput = result.tasks_output[0].pydantic  # type: ignore[assignment]
+        self.state.verification_testing = verification_output.model_dump_json(indent=2)
+
+        print("\n✓ Verification strategy designed")
+        print(f"  - Defined {len(verification_output.testing_methods)} testing methods")
+        print(f"  - Defined {len(verification_output.kpis)} KPIs for monitoring")
+
+    @listen(design_verification_strategy)
     def validate_requirements(self):
         """Validate all generated requirements using Validation Crew."""
         print("\n" + "=" * 80)
-        print("STEP 6: Validating Security Requirements")
+        print("STEP 11: Validating Security Requirements")
         print("=" * 80)
 
         result = (
@@ -251,7 +449,7 @@ class SecurityRequirementsFlow(Flow[SecurityRequirementsState]):
         - Accept current version (if max iterations reached)
         """
         print("\n" + "=" * 80)
-        print("STEP 7: Self-Evaluation Decision")
+        print("STEP 12: Self-Evaluation Decision")
         print("=" * 80)
 
         self.state.iteration_count += 1
@@ -282,7 +480,7 @@ class SecurityRequirementsFlow(Flow[SecurityRequirementsState]):
         #     return  # Skip output generation when retrying
 
         print("\n" + "=" * 80)
-        print("STEP 8: Generating Final Security Requirements Document")
+        print("STEP 13: Generating Final Security Requirements Document")
         print("=" * 80)
 
         # Generate timestamp for unique filenames
@@ -328,99 +526,379 @@ class SecurityRequirementsFlow(Flow[SecurityRequirementsState]):
         print(f"  Total Iterations: {self.state.iteration_count}")
 
     def _generate_markdown_summary(self, output_path: Path):
-        """Generate a human-readable markdown summary."""
+        """Generate a comprehensive, professional markdown summary following recommended structure."""
         try:
             from datetime import datetime
 
             validation_score = self.state.validation_score
             validation_passed = self.state.validation_passed
             iterations = self.state.iteration_count
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-            markdown = f"""# Security Requirements Report
-*Generated: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}*
+            # Start building the comprehensive report
+            markdown = f"""# Security Requirements Analysis Report
+*Generated: {timestamp}*
+*Report Version: 2.0 - Comprehensive Security Analysis*
+
+---
 
 ## 1. Executive Summary
 
-### 1.1. Metadata
-- **Validation Score**: {validation_score:.2f}
-- **Validation Passed**: {"✅ Yes" if validation_passed else "❌ No"}
-- **Iterations**: {iterations}
+### 1.1. Purpose and Scope
 
-### 1.2. Application Summary
-{self.state.application_summary}
+**Purpose:** This document presents a comprehensive security requirements analysis for the proposed application, mapping high-level business requirements to specific, actionable security controls based on industry standards (OWASP ASVS, NIST CSF, ISO 27001).
 
----
+**Scope:** This analysis covers all functional requirements provided, including stakeholder analysis, threat modeling, security control mapping, compliance requirements, architectural security recommendations, implementation planning, and verification strategies.
 
-## 2. System Architecture Overview
+### 1.2. Key Findings
 
-### 2.1. Architectural Summary
-{self.state.architecture_summary}
+- **Validation Score**: {validation_score:.2f}/1.0
+- **Validation Status**: {"✅ Passed" if validation_passed else "❌ Needs Review"}
+- **Analysis Iterations**: {iterations}
+- **Requirements Analyzed**: {len(self.state.high_level_requirements)}
 
-### 2.2. Architecture Diagram
-```mermaid
-{self.state.architecture_diagram}
-```
+**Summary:** {self.state.application_summary}
 
 ---
 
-## 3. Detailed Security Control Analysis
+## 2. Requirements Understanding
+
+### 2.1. High-Level Requirements Analysis
+
+The following high-level functional requirements have been identified and analyzed:
+
 """
+            # Add high-level requirements list
+            for idx, req in enumerate(self.state.high_level_requirements, 1):
+                markdown += f"{idx}. {req}\n"
 
-            # Parse and format the detailed security controls
+            # Add detailed requirements if available
+            if self.state.detailed_requirements:
+                try:
+                    detailed_reqs = json.loads(self.state.detailed_requirements)
+                    markdown += "\n### 2.2. Detailed Requirements Breakdown\n\n"
+                    markdown += "| Req ID | Requirement | Business Category | Security Sensitivity | Data Classification |\n"
+                    markdown += "|--------|-------------|-------------------|---------------------|---------------------|\n"
+                    for req in detailed_reqs:
+                        markdown += f"| {req.get('requirement_id', 'N/A')} | {req.get('requirement_text', 'N/A')[:50]}... | {req.get('business_category', 'N/A')} | {req.get('security_sensitivity', 'N/A')} | {req.get('data_classification', 'N/A')} |\n"
+                except Exception:
+                    pass
+
+            # Add security context
+            if self.state.security_context:
+                markdown += f"\n### 2.3. Security Context and Regulatory Obligations\n\n{self.state.security_context}\n"
+
+            # Add assumptions and constraints
+            if self.state.assumptions:
+                try:
+                    assumptions = json.loads(self.state.assumptions)
+                    markdown += "\n### 2.4. Assumptions\n\n"
+                    for assumption in assumptions:
+                        markdown += f"- {assumption}\n"
+                except Exception:
+                    pass
+
+            if self.state.constraints:
+                try:
+                    constraints = json.loads(self.state.constraints)
+                    markdown += "\n### 2.5. Constraints\n\n"
+                    for constraint in constraints:
+                        markdown += f"- {constraint}\n"
+                except Exception:
+                    pass
+
+            markdown += "\n---\n\n"
+
+            # Section 3: Stakeholder Analysis
+            markdown += "## 3. Stakeholder Analysis\n\n"
+            if self.state.stakeholders:
+                try:
+                    stakeholder_data = json.loads(self.state.stakeholders)
+                    markdown += "### 3.1. Identified Stakeholders and User Personas\n\n"
+                    markdown += "| Role | Privilege Level | Trust Level | Key Security Concerns |\n"
+                    markdown += "|------|-----------------|-------------|----------------------|\n"
+                    for stakeholder in stakeholder_data.get("stakeholders", []):
+                        concerns = ", ".join(stakeholder.get("security_concerns", [])[:2])
+                        markdown += f"| {stakeholder.get('role_name', 'N/A')} | {stakeholder.get('privilege_level', 'N/A')} | {stakeholder.get('trust_level', 'N/A')} | {concerns}... |\n"
+
+                    markdown += f"\n### 3.2. Trust Model\n\n{stakeholder_data.get('trust_model', 'No trust model defined.')}\n"
+                except Exception as e:
+                    markdown += f"*Error parsing stakeholder data: {e}*\n"
+            else:
+                markdown += "*Stakeholder analysis not available.*\n"
+
+            markdown += "\n---\n\n"
+
+            # Section 4: System Architecture Analysis
+            markdown += "## 4. System Architecture Analysis\n\n"
+            markdown += f"### 4.1. Architectural Overview\n\n{self.state.architecture_summary}\n\n"
+
+            markdown += "### 4.2. Architecture Diagram\n\n```mermaid\n"
+            markdown += self.state.architecture_diagram
+            markdown += "\n```\n\n"
+
+            # Add component breakdown if available
+            if self.state.components:
+                try:
+                    components = json.loads(self.state.components)
+                    markdown += "### 4.3. Component Breakdown\n\n"
+                    markdown += "| Component | Responsibility | Security Criticality | External Dependencies |\n"
+                    markdown += "|-----------|----------------|---------------------|----------------------|\n"
+                    for comp in components:
+                        deps = ", ".join(comp.get("external_dependencies", [])[:2])
+                        markdown += f"| {comp.get('name', 'N/A')} | {comp.get('responsibility', 'N/A')[:40]}... | {comp.get('security_criticality', 'N/A')} | {deps} |\n"
+                except Exception:
+                    pass
+
+            if self.state.data_flow_description:
+                markdown += f"\n### 4.4. Data Flow Analysis\n\n{self.state.data_flow_description}\n"
+
+            if self.state.attack_surface_analysis:
+                markdown += f"\n### 4.5. Attack Surface Analysis\n\n{self.state.attack_surface_analysis}\n"
+
+            markdown += "\n---\n\n"
+
+            # Section 5: Threat Modeling
+            markdown += "## 5. Threat Modeling\n\n"
+            if self.state.threats:
+                try:
+                    threat_data = json.loads(self.state.threats)
+                    markdown += f"### 5.1. Methodology\n\n{threat_data.get('methodology', 'STRIDE')}\n\n"
+                    markdown += "### 5.2. Identified Threats\n\n"
+                    markdown += "| Threat ID | Component | Category | Risk Level | Description |\n"
+                    markdown += "|-----------|-----------|----------|------------|-------------|\n"
+                    for threat in threat_data.get("threats", [])[:20]:  # Limit to top 20 threats
+                        markdown += f"| {threat.get('threat_id', 'N/A')} | {threat.get('component', 'N/A')} | {threat.get('threat_category', 'N/A')} | {threat.get('risk_level', 'N/A')} | {threat.get('description', 'N/A')[:50]}... |\n"
+
+                    if len(threat_data.get("threats", [])) > 20:
+                        markdown += (
+                            f"\n*Showing 20 of {len(threat_data.get('threats', []))} total threats. See appendix for complete list.*\n"
+                        )
+
+                    markdown += f"\n### 5.3. Risk Summary\n\n{threat_data.get('risk_summary', 'No risk summary available.')}\n"
+                except Exception as e:
+                    markdown += f"*Error parsing threat data: {e}*\n"
+            else:
+                markdown += "*Threat modeling not available.*\n"
+
+            markdown += "\n---\n\n"
+
+            # Section 6: OWASP ASVS Security Requirements Mapping
+            markdown += "## 6. OWASP ASVS Security Requirements Mapping\n\n"
+
             try:
                 security_controls_data = json.loads(self.state.security_controls)
-                mappings = security_controls_data.get("requirements_mapping", [])
 
-                if not mappings:
-                    markdown += "\n*No security control mappings were generated.*\n"
+                # Add recommended ASVS level
+                if security_controls_data.get("recommended_asvs_level"):
+                    markdown += "### 6.1. Recommended ASVS Compliance Level\n\n"
+                    markdown += f"**Recommended Level:** {security_controls_data.get('recommended_asvs_level')}\n\n"
+
+                markdown += "### 6.2. Requirements Mapping\n\n"
+                markdown += "The following table maps each high-level requirement to specific OWASP ASVS controls:\n\n"
+
+                mappings = security_controls_data.get("requirements_mapping", [])
 
                 for i, mapping in enumerate(mappings, 1):
                     req = mapping.get("high_level_requirement", "N/A")
-                    markdown += f"\n### 3.{i}. High-Level Requirement: {req}\n"
+                    req_id = mapping.get("requirement_id", f"REQ-{i:03d}")
+                    markdown += f"\n#### 6.2.{i}. {req_id}: {req}\n\n"
 
                     controls = mapping.get("owasp_controls", [])
                     if not controls:
-                        markdown += "\n*No specific OWASP controls were mapped for this requirement.*\n"
+                        markdown += "*No specific OWASP controls mapped.*\n"
                         continue
 
+                    markdown += "| Control ID | Level | Priority | Requirement |\n"
+                    markdown += "|------------|-------|----------|-------------|\n"
+                    for control in controls:
+                        markdown += f"| {control.get('req_id', 'N/A')} | {control.get('level', 'N/A')} | {control.get('priority', 'Medium')} | {control.get('requirement', 'N/A')[:60]}... |\n"
+
+                    # Add detailed control information
                     for j, control in enumerate(controls, 1):
-                        markdown += f"""
-#### 3.{i}.{j}. Control: `{control.get('req_id', 'N/A')}` - {control.get('requirement', 'N/A')}
+                        markdown += f"\n##### Control {control.get('req_id', 'N/A')}\n\n"
+                        markdown += f"**Requirement:** {control.get('requirement', 'N/A')}\n\n"
+                        markdown += f"**Chapter/Section:** {control.get('chapter', 'N/A')} / {control.get('section', 'N/A')}\n\n"
+                        markdown += f"**Level:** {control.get('level', 'N/A')} | **Priority:** {control.get('priority', 'Medium')}\n\n"
+                        markdown += f"**Relevance:**\n{control.get('relevance', 'No relevance explanation provided.')}\n\n"
+                        markdown += f"**Integration Tips:**\n{control.get('integration_tips', 'No integration tips provided.')}\n\n"
+                        if control.get("verification_method"):
+                            markdown += f"**Verification Method:** {control.get('verification_method')}\n\n"
 
-- **Chapter:** {control.get('chapter', 'N/A')}
-- **Section:** {control.get('section', 'N/A')}
-- **Level:** {control.get('level', 'N/A')}
-
-**Relevance:**
-{control.get('relevance', 'No relevance explanation provided.')}
-
-**Integration Tips:**
-{control.get('integration_tips', 'No integration tips provided.')}
-"""
-                markdown += "\n---"
+                # Add cross-functional controls
+                if security_controls_data.get("cross_functional_controls"):
+                    markdown += "\n### 6.3. Cross-Functional Security Controls\n\n"
+                    markdown += "The following controls apply globally across all system components:\n\n"
+                    for control in security_controls_data.get("cross_functional_controls", []):
+                        markdown += f"**{control.get('control_name', 'N/A')}**\n\n"
+                        markdown += f"*Description:* {control.get('description', 'N/A')}\n\n"
+                        markdown += f"*Applies to:* {', '.join(control.get('applies_to', []))}\n\n"
+                        markdown += f"*Implementation Guidance:* {control.get('implementation_guidance', 'N/A')}\n\n"
 
             except (json.JSONDecodeError, KeyError) as e:
-                print(f"  Note: Could not parse detailed security controls as JSON: {e}")
-                markdown += "\n**Could not parse security controls output. Raw output provided below:**\n"
-                markdown += f"\n```\n{self.state.security_controls}\n```\n"
+                markdown += f"*Error parsing security controls: {e}*\n"
 
-            # Add remaining sections
-            markdown += "\n\n## 4. AI/ML Security Requirements\n\n"
-            markdown += self.state.ai_security + "\n\n---\n\n"
+            markdown += "\n---\n\n"
 
-            markdown += "## 5. Compliance Requirements\n\n"
-            markdown += self.state.compliance_requirements + "\n\n---\n\n"
+            # Section 7: AI/ML Security Requirements
+            markdown += "## 7. AI/ML Security Requirements\n\n"
+            markdown += self.state.ai_security if self.state.ai_security else "*No AI/ML components detected.*"
+            markdown += "\n\n---\n\n"
 
-            markdown += "## 6. Validation Report\n\n"
-            markdown += self.state.validation_report + "\n\n---\n\n"
+            # Section 8: Compliance Requirements
+            markdown += "## 8. Compliance Requirements\n\n"
+            markdown += (
+                self.state.compliance_requirements if self.state.compliance_requirements else "*No compliance requirements identified.*"
+            )
+            markdown += "\n\n---\n\n"
 
-            markdown += "## 7. Original Requirements Document\n\n"
-            markdown += f"```\n{self.state.requirements_text}\n```\n"
+            # Section 9: Security Architecture Recommendations
+            markdown += "## 9. Security Architecture Recommendations\n\n"
+            if self.state.security_architecture:
+                try:
+                    arch_data = json.loads(self.state.security_architecture)
+
+                    markdown += "### 9.1. Architectural Security Principles\n\n"
+                    for principle in arch_data.get("architectural_principles", []):
+                        markdown += f"- **{principle}**\n"
+
+                    markdown += "\n### 9.2. Component-Level Security Controls\n\n"
+                    for comp_control in arch_data.get("component_controls", []):
+                        markdown += f"#### {comp_control.get('component_name', 'N/A')}\n\n"
+                        markdown += "**Required Controls:**\n"
+                        for control in comp_control.get("required_controls", []):
+                            markdown += f"- {control}\n"
+                        markdown += "\n**Recommended Patterns:**\n"
+                        for pattern in comp_control.get("architectural_patterns", []):
+                            markdown += f"- {pattern}\n"
+                        markdown += "\n"
+
+                    markdown += "### 9.3. Data Protection Strategy\n\n"
+                    data_protection = arch_data.get("data_protection_strategy", {})
+                    markdown += f"**Data Classification:** {data_protection.get('data_classification_scheme', 'N/A')}\n\n"
+                    markdown += f"**Encryption Requirements:** {data_protection.get('encryption_requirements', 'N/A')}\n\n"
+                    markdown += f"**Retention Policies:** {data_protection.get('retention_policies', 'N/A')}\n\n"
+                    markdown += f"**Handling Procedures:** {data_protection.get('handling_procedures', 'N/A')}\n\n"
+
+                    if arch_data.get("third_party_integrations"):
+                        markdown += "### 9.4. Third-Party Integration Security\n\n"
+                        for integration in arch_data.get("third_party_integrations", []):
+                            markdown += f"**{integration.get('integration_name', 'N/A')}**\n\n"
+                            markdown += "*Security Requirements:*\n"
+                            for req in integration.get("security_requirements", []):
+                                markdown += f"- {req}\n"
+                            markdown += f"\n*Risk Assessment:* {integration.get('risk_assessment', 'N/A')}\n\n"
+
+                except Exception as e:
+                    markdown += f"*Error parsing security architecture: {e}*\n"
+            else:
+                markdown += "*Security architecture recommendations not available.*\n"
+
+            markdown += "\n---\n\n"
+
+            # Section 10: Implementation Roadmap
+            markdown += "## 10. Implementation Roadmap\n\n"
+            if self.state.implementation_roadmap:
+                try:
+                    roadmap_data = json.loads(self.state.implementation_roadmap)
+
+                    markdown += f"### 10.1. Prioritization Framework\n\n{roadmap_data.get('prioritization_criteria', 'N/A')}\n\n"
+
+                    markdown += "### 10.2. Phased Implementation Plan\n\n"
+                    for phase in roadmap_data.get("phases", []):
+                        markdown += f"#### Phase: {phase.get('phase_name', 'N/A')}\n\n"
+                        markdown += f"**Timeline:** {phase.get('timeline', 'N/A')}\n\n"
+                        markdown += f"**Rationale:** {phase.get('rationale', 'N/A')}\n\n"
+                        markdown += "**Controls to Implement:**\n"
+                        for control in phase.get("controls", []):
+                            markdown += f"- {control}\n"
+                        if phase.get("dependencies"):
+                            markdown += "\n**Dependencies:**\n"
+                            for dep in phase.get("dependencies", []):
+                                markdown += f"- {dep}\n"
+                        markdown += "\n"
+
+                    if roadmap_data.get("resource_requirements"):
+                        markdown += f"### 10.3. Resource Requirements\n\n{roadmap_data.get('resource_requirements')}\n\n"
+
+                except Exception as e:
+                    markdown += f"*Error parsing implementation roadmap: {e}*\n"
+            else:
+                markdown += "*Implementation roadmap not available.*\n"
+
+            markdown += "\n---\n\n"
+
+            # Section 11: Verification and Testing Strategy
+            markdown += "## 11. Verification and Testing Strategy\n\n"
+            if self.state.verification_testing:
+                try:
+                    verification_data = json.loads(self.state.verification_testing)
+
+                    markdown += f"### 11.1. Testing Approach\n\n{verification_data.get('testing_approach', 'N/A')}\n\n"
+
+                    markdown += "### 11.2. Testing Methods\n\n"
+                    markdown += "| Method | Frequency | Tools |\n"
+                    markdown += "|--------|-----------|-------|\n"
+                    for method in verification_data.get("testing_methods", []):
+                        tools = ", ".join(method.get("tools", [])[:3])
+                        markdown += f"| {method.get('method_name', 'N/A')} | {method.get('frequency', 'N/A')} | {tools} |\n"
+
+                    markdown += f"\n### 11.3. Compliance Verification\n\n{verification_data.get('compliance_verification', 'N/A')}\n\n"
+                    markdown += f"### 11.4. Continuous Monitoring\n\n{verification_data.get('continuous_monitoring', 'N/A')}\n\n"
+
+                    if verification_data.get("kpis"):
+                        markdown += "### 11.5. Key Performance Indicators (KPIs)\n\n"
+                        for kpi in verification_data.get("kpis", []):
+                            markdown += f"- {kpi}\n"
+
+                except Exception as e:
+                    markdown += f"*Error parsing verification strategy: {e}*\n"
+            else:
+                markdown += "*Verification and testing strategy not available.*\n"
+
+            markdown += "\n---\n\n"
+
+            # Section 12: Validation Report
+            markdown += "## 12. Validation Report\n\n"
+            markdown += self.state.validation_report
+            markdown += "\n\n---\n\n"
+
+            # Appendices
+            markdown += "## Appendix A: Original Requirements Document\n\n"
+            markdown += f"```\n{self.state.requirements_text}\n```\n\n"
+
+            markdown += "---\n\n"
+            markdown += "## Appendix B: Glossary\n\n"
+            markdown += "| Term | Definition |\n"
+            markdown += "|------|------------|\n"
+            markdown += "| ASVS | Application Security Verification Standard (OWASP) |\n"
+            markdown += "| STRIDE | Spoofing, Tampering, Repudiation, Information Disclosure, Denial of Service, Elevation of Privilege |\n"
+            markdown += "| SAST | Static Application Security Testing |\n"
+            markdown += "| DAST | Dynamic Application Security Testing |\n"
+            markdown += "| MFA | Multi-Factor Authentication |\n"
+            markdown += "| RBAC | Role-Based Access Control |\n"
+            markdown += "| PII | Personally Identifiable Information |\n"
+            markdown += "| PHI | Protected Health Information |\n"
+            markdown += "| GDPR | General Data Protection Regulation |\n"
+            markdown += "| HIPAA | Health Insurance Portability and Accountability Act |\n"
+            markdown += "| PCI-DSS | Payment Card Industry Data Security Standard |\n\n"
+
+            markdown += "---\n\n"
+            markdown += "## Appendix C: References\n\n"
+            markdown += "- [OWASP ASVS 5.0](https://owasp.org/www-project-application-security-verification-standard/)\n"
+            markdown += "- [NIST Cybersecurity Framework](https://www.nist.gov/cyberframework)\n"
+            markdown += "- [ISO/IEC 27001:2022](https://www.iso.org/standard/27001)\n"
+            markdown += "- [OWASP Top 10](https://owasp.org/www-project-top-ten/)\n"
+            markdown += "- [MITRE ATT&CK Framework](https://attack.mitre.org/)\n\n"
+
+            markdown += "---\n\n"
+            markdown += "*End of Report - Generated by Security Requirements Analysis System v2.0*\n"
+            markdown += f"*Generated: {timestamp}*\n"
 
             with open(output_path, "w", encoding="utf-8") as f:
                 f.write(markdown)
 
-            print("  ✓ Markdown report saved successfully")
+            print("  ✓ Comprehensive markdown report saved successfully")
         except Exception as e:
             print(f"  ⚠ Warning: Could not generate markdown summary: {e}")
             import traceback

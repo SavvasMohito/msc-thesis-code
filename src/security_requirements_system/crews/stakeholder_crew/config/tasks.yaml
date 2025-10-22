@@ -1,0 +1,40 @@
+analyze_stakeholders:
+  description: >
+    Based on the following application requirements:
+
+    {requirements_text}
+
+    And the following architecture analysis:
+
+    {architecture_summary}
+
+    Your goal is to perform a comprehensive stakeholder analysis.
+
+    CRITICAL INSTRUCTIONS:
+    1. Identify ALL stakeholders and user personas in the system. For each, provide:
+       - Role name (e.g., "Patient", "Healthcare Provider", "System Administrator")
+       - Description of the role and their typical activities
+       - Privilege level (e.g., Admin, User, Guest, Service Account)
+       - Key security concerns specific to this role
+       - Trust level (Trusted, Partially Trusted, Untrusted)
+    
+    2. Consider both human and automated stakeholders:
+       - End users (patients, customers, etc.)
+       - Administrative users
+       - Third-party integrators
+       - Service accounts and APIs
+       - External systems
+    
+    3. Describe the trust model:
+       - How are trust boundaries established?
+       - What security mechanisms enforce boundaries (authentication, authorization, network segmentation)?
+       - Which stakeholders can access which data/functionality?
+       - How does the principle of least privilege apply?
+    
+    4. Think about privilege escalation risks and cross-boundary access patterns
+    
+    5. Ensure the output is a valid JSON object matching the StakeholderAnalysisOutput schema.
+  expected_output: >
+    A comprehensive JSON object matching the StakeholderAnalysisOutput schema.
+  agent: stakeholder_analyst
+

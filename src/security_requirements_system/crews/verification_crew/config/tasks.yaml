@@ -1,0 +1,101 @@
+design_verification_strategy:
+  description: >
+    Based on all security controls and requirements identified:
+
+    Security Controls:
+    {security_controls}
+
+    Compliance Requirements:
+    {compliance_requirements}
+
+    OWASP Controls:
+    {owasp_controls}
+
+    Your goal is to design a comprehensive security verification and testing strategy.
+
+    CRITICAL INSTRUCTIONS:
+    1. Define the overall testing_approach:
+       - How testing integrates into the SDLC
+       - Balance between automated and manual testing
+       - Risk-based testing prioritization
+       - Shift-left security principles
+    
+    2. For each major testing method, provide detailed testing_methods:
+       
+       a) STATIC APPLICATION SECURITY TESTING (SAST):
+          - Description: Analyze source code for vulnerabilities
+          - Applicable controls: Input validation, injection flaws, hardcoded secrets
+          - Frequency: Every commit/build
+          - Tools: SonarQube, Semgrep, Checkmarx, CodeQL
+       
+       b) DYNAMIC APPLICATION SECURITY TESTING (DAST):
+          - Description: Test running application for vulnerabilities
+          - Applicable controls: Authentication, authorization, XSS, CSRF, SQL injection
+          - Frequency: Nightly/weekly
+          - Tools: OWASP ZAP, Burp Suite, Acunetix
+       
+       c) DEPENDENCY SCANNING:
+          - Description: Identify vulnerabilities in third-party libraries
+          - Applicable controls: Supply chain security
+          - Frequency: Every build
+          - Tools: Snyk, Dependabot, OWASP Dependency-Check
+       
+       d) SECRETS SCANNING:
+          - Description: Detect exposed credentials and API keys
+          - Applicable controls: Cryptographic protection
+          - Frequency: Every commit
+          - Tools: TruffleHog, GitLeaks, GitHub Secret Scanning
+       
+       e) CONTAINER/INFRASTRUCTURE SCANNING:
+          - Description: Scan containers and infrastructure as code
+          - Applicable controls: Configuration management
+          - Frequency: Every deployment
+          - Tools: Trivy, Clair, Prowler, ScoutSuite
+       
+       f) PENETRATION TESTING:
+          - Description: Manual security assessment by ethical hackers
+          - Applicable controls: All high-risk controls
+          - Frequency: Quarterly or before major releases
+          - Tools: Custom scripts, Metasploit, Burp Suite Pro
+       
+       g) SECURITY CODE REVIEW:
+          - Description: Manual review of critical security code
+          - Applicable controls: Authentication, authorization, crypto implementations
+          - Frequency: For critical features
+          - Tools: GitHub/GitLab code review, security checklists
+       
+       h) COMPLIANCE SCANNING:
+          - Description: Automated compliance checks
+          - Applicable controls: All compliance-related controls
+          - Frequency: Continuous
+          - Tools: AWS Config, Azure Policy, Cloud Custodian
+    
+    3. Define compliance_verification:
+       - How OWASP ASVS compliance will be verified
+       - Regulatory audit preparation (HIPAA, GDPR, PCI-DSS, etc.)
+       - Evidence collection and documentation
+       - Third-party audit recommendations
+    
+    4. Define continuous_monitoring strategy:
+       - Security Information and Event Management (SIEM)
+       - Intrusion Detection/Prevention Systems (IDS/IPS)
+       - Log aggregation and analysis
+       - Anomaly detection and behavioral analytics
+       - Incident response integration
+    
+    5. Define kpis (Key Performance Indicators):
+       - Mean time to detect (MTTD) security issues
+       - Mean time to remediate (MTTR) vulnerabilities
+       - Percentage of critical vulnerabilities patched within SLA
+       - Security test coverage percentage
+       - False positive rate in automated scanning
+       - Compliance audit pass rate
+    
+    6. Map each testing method to specific OWASP controls it verifies
+    
+    7. Ensure the output is a valid JSON object matching the VerificationTestingOutput schema.
+  expected_output: >
+    A comprehensive JSON object matching the VerificationTestingOutput schema with
+    testing approach, methods, compliance verification, continuous monitoring, and KPIs.
+  agent: security_testing_expert
+

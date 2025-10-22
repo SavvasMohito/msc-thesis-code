@@ -1,0 +1,77 @@
+create_implementation_roadmap:
+  description: >
+    Based on all the security analysis performed:
+
+    Requirements:
+    {requirements_text}
+
+    Security Controls:
+    {security_controls}
+
+    Threats:
+    {threats}
+
+    Compliance Requirements:
+    {compliance_requirements}
+
+    Your goal is to create a comprehensive, prioritized implementation roadmap.
+
+    CRITICAL INSTRUCTIONS:
+    1. Define prioritization_criteria:
+       - Risk level (from threat modeling)
+       - Compliance deadlines and regulatory requirements
+       - Technical complexity and dependencies
+       - Resource availability
+       - Business impact
+       - Cost-benefit analysis
+    
+    2. Create implementation phases (typically 4-5 phases):
+       a) IMMEDIATE (0-1 months): Critical, high-risk items that must be addressed now
+          - Critical vulnerabilities
+          - Essential authentication/authorization
+          - Basic encryption for sensitive data
+          - Compliance blockers
+       
+       b) SHORT-TERM (1-3 months): High-priority controls that build on immediate work
+          - Enhanced authentication (MFA)
+          - Comprehensive access controls
+          - Security logging and monitoring
+          - API security
+       
+       c) MEDIUM-TERM (3-6 months): Important controls that require more planning
+          - Advanced threat detection
+          - Security testing automation
+          - Third-party security audits
+          - Enhanced data protection
+       
+       d) LONG-TERM (6-12 months): Strategic initiatives and continuous improvement
+          - Security maturity enhancements
+          - Advanced AI/ML security controls
+          - Comprehensive penetration testing
+          - Security awareness programs
+       
+       e) ONGOING: Continuous activities
+          - Security monitoring
+          - Patch management
+          - Compliance audits
+          - Incident response readiness
+    
+    3. For EACH phase, provide:
+       - Phase name and timeline
+       - Specific security controls to implement
+       - Rationale for why these controls are in this phase
+       - Dependencies on other phases or external factors
+    
+    4. Include resource_requirements:
+       - Required skills (security engineers, architects, developers, etc.)
+       - Recommended tools and technologies
+       - Estimated effort and budget considerations
+    
+    5. Consider technical dependencies (e.g., must implement authentication before authorization)
+    
+    6. Ensure the output is a valid JSON object matching the ImplementationRoadmapOutput schema.
+  expected_output: >
+    A comprehensive JSON object matching the ImplementationRoadmapOutput schema with
+    prioritization criteria, phased implementation plan, and resource requirements.
+  agent: implementation_planner
+

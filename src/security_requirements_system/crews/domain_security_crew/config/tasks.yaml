@@ -4,30 +4,60 @@ map_security_controls:
 
     {high_level_requirements}
 
-    Your task is to analyze EACH requirement ONE BY ONE and map it to specific,
-    relevant OWASP ASVS security controls.
+    Your task is to analyze EVERY SINGLE requirement and map it to specific,
+    relevant OWASP ASVS security controls. You MUST process ALL requirements - no exceptions.
 
     CRITICAL INSTRUCTIONS:
-    1.  Iterate through each high-level requirement from the input list.
+    1.  Iterate through EACH AND EVERY high-level requirement from the input list.
+        DO NOT skip any requirements. You must provide mappings for ALL of them.
+    
     2.  For each requirement, formulate SEVERAL specific, targeted search queries
         that capture the essence of the security risks for that feature.
         - BAD QUERY (generic): "authentication security"
         - GOOD QUERY (specific): "secure multi-factor authentication implementation"
         - GOOD QUERY (specific): "protection against credential stuffing attacks"
+        - GOOD QUERY (specific): "secure session management after login"
+    
     3.  Use the "Query Security Standards Database" tool with these specific queries
-        to find relevant OWASP controls. You MUST query the database for EACH
-        high-level requirement.
+        to find relevant OWASP controls. You MUST query the database multiple times
+        for EACH high-level requirement to ensure comprehensive coverage.
+    
     4.  From the tool's results, select the 3-5 MOST relevant OWASP controls
         that apply directly to the high-level requirement being analyzed.
+        Aim for comprehensive coverage across different security aspects.
+    
     5.  For each selected control, you MUST provide:
         - The EXACT `req_id`, `chapter`, `section`, `level`, and `requirement` text
           from the tool output. DO NOT MODIFY OR FABRICATE THIS DATA.
-        - A detailed `relevance` explanation, clearly describing WHY this specific
-          control is critical for the high-level requirement.
-        - Actionable `integration_tips` on how a development team could
-          implement this security control in practice.
-    6.  Structure the final output as a valid JSON object as specified below.
+        - A detailed `relevance` explanation (2-3 sentences), clearly describing WHY
+          this specific control is critical for the high-level requirement and what
+          risks it mitigates.
+        - Actionable `integration_tips` (2-3 sentences) on how a development team
+          could implement this security control in practice, with specific technical guidance.
+        - A `priority` level (Critical, High, Medium, Low) based on risk and compliance needs
+        - A `verification_method` describing how to verify this control is properly implemented
+          (e.g., "Automated SAST scanning", "Manual penetration testing", "Code review")
+    
+    6.  Additionally, identify cross_functional_controls that apply globally across the system:
+        - Logging and monitoring controls that apply everywhere
+        - Encryption standards for all data transmission
+        - Error handling patterns across all components
+        - Security headers for all web responses
+    
+    7.  Recommend an overall recommended_asvs_level (L1, L2, or L3) based on:
+        - Data sensitivity (higher for healthcare, financial data)
+        - Regulatory requirements (HIPAA, PCI-DSS, GDPR)
+        - Threat landscape and risk level
+    
+    8.  Structure the final output as a valid JSON object as specified below.
+    
+    QUALITY CHECK BEFORE SUBMITTING:
+    - Count the number of high-level requirements in the input
+    - Count the number of mappings in your output
+    - THESE NUMBERS MUST MATCH. If they don't, you've missed requirements.
+    - Each requirement should have 3-5 OWASP controls mapped to it
   expected_output: >
-    A JSON object matching the DomainSecurityOutput schema.
+    A comprehensive JSON object matching the DomainSecurityOutput schema with mappings
+    for EVERY requirement, cross-functional controls, and recommended ASVS level.
   agent: domain_security_expert
 
