@@ -26,13 +26,29 @@ assess_compliance_requirements:
     - Identify breach notification requirements
     - Specify audit and logging needs
   expected_output: >
-    A comprehensive compliance requirements document in JSON format containing:
-    - applicable_regulations: List of regulations and why they apply
-    - compliance_controls: Specific controls required for compliance
-    - data_subject_rights: Rights that must be implemented (access, deletion, portability)
-    - privacy_requirements: Consent, notices, privacy by design
-    - audit_requirements: Logging, monitoring, and reporting needs
-    - data_handling_rules: Retention, encryption, geographic restrictions
-    - risk_assessment: Compliance risks if requirements not met
+    A comprehensive compliance requirements document in MARKDOWN format with the following structure:
+    
+    ### 8.1. Applicable Regulations
+    Introduction sentence followed by a markdown table with columns: Regulation | Applicability Reason
+    
+    ### 8.2. Compliance Controls by Regulation
+    For each regulation, create a subsection (####) with bullet-pointed controls.
+    
+    ### 8.3. Data Subject Rights
+    A markdown table with columns: Right | Description
+    
+    ### 8.4. Privacy Requirements
+    Bold requirement types followed by descriptions (e.g., **Consent:** description).
+    
+    ### 8.5. Audit and Monitoring Requirements
+    Bold requirement types followed by descriptions (e.g., **Logging:** description).
+    
+    ### 8.6. Data Handling Rules
+    Bold rule types followed by descriptions (e.g., **Retention:** description).
+    
+    ### 8.7. Compliance Risk Assessment
+    Introduction followed by **Key Compliance Risks:** with bullet-pointed list.
+    
+    If no compliance requirements identified, return: "*No compliance requirements identified.*"
   agent: compliance_expert
 

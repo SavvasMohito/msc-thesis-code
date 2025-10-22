@@ -29,13 +29,24 @@ identify_ai_security_requirements:
     - Supply chain security for models
     - Bias and fairness considerations
   expected_output: >
-    A specialized AI/ML security requirements document in JSON format containing:
-    - ai_components_detected: List of AI/ML features identified
-    - ai_threat_model: Specific threats for each AI component
-    - ai_security_controls: Specialized controls for AI/ML risks
-    - integration_notes: How AI controls integrate with standard controls
-    - monitoring_requirements: AI-specific monitoring and alerting needs
+    A specialized AI/ML security requirements document in MARKDOWN format with the following structure:
     
-    If no AI/ML components detected, return a brief note stating this.
+    ### 7.1. AI/ML Components Detected
+    List each identified AI/ML component as numbered items.
+    
+    ### 7.2. AI/ML Threat Model
+    A markdown table with columns: Component | Identified Threats
+    List threats as bullet points within table cells.
+    
+    ### 7.3. AI/ML Security Controls
+    For each component, create a subsection (####) with control names in bold followed by descriptions.
+    
+    ### 7.4. Integration with Existing Security Controls
+    Explain how AI controls integrate with standard security practices.
+    
+    ### 7.5. AI/ML Monitoring Requirements
+    A markdown table with columns: Monitoring Area | Description
+    
+    If no AI/ML components detected, return: "*No AI/ML components detected in the system.*"
   agent: llm_security_specialist
 

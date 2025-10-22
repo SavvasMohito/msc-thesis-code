@@ -742,15 +742,25 @@ The following high-level functional requirements have been identified and analyz
 
             # Section 7: AI/ML Security Requirements
             markdown += "## 7. AI/ML Security Requirements\n\n"
-            markdown += self.state.ai_security if self.state.ai_security else "*No AI/ML components detected.*"
-            markdown += "\n\n---\n\n"
+
+            if self.state.ai_security:
+                # Crew now outputs markdown directly
+                markdown += self.state.ai_security + "\n\n"
+            else:
+                markdown += "*No AI/ML components detected in the system.*\n\n"
+
+            markdown += "---\n\n"
 
             # Section 8: Compliance Requirements
             markdown += "## 8. Compliance Requirements\n\n"
-            markdown += (
-                self.state.compliance_requirements if self.state.compliance_requirements else "*No compliance requirements identified.*"
-            )
-            markdown += "\n\n---\n\n"
+
+            if self.state.compliance_requirements:
+                # Crew now outputs markdown directly
+                markdown += self.state.compliance_requirements + "\n\n"
+            else:
+                markdown += "*No compliance requirements identified.*\n\n"
+
+            markdown += "---\n\n"
 
             # Section 9: Security Architecture Recommendations
             markdown += "## 9. Security Architecture Recommendations\n\n"
@@ -860,8 +870,102 @@ The following high-level functional requirements have been identified and analyz
 
             # Section 12: Validation Report
             markdown += "## 12. Validation Report\n\n"
-            markdown += self.state.validation_report
-            markdown += "\n\n---\n\n"
+
+            try:
+                validation_data = json.loads(self.state.validation_report)
+
+                # Overall Score and Status
+                markdown += "### 12.1. Overall Assessment\n\n"
+                score = validation_data.get("overall_score", 0)
+                passed = validation_data.get("validation_passed", False)
+
+                markdown += f"**Overall Score:** {score:.2f}/1.0\n\n"
+                markdown += f"**Validation Status:** {'✅ PASSED' if passed else '❌ NEEDS IMPROVEMENT'}\n\n"
+
+                # Dimension Scores (if available)
+                if validation_data.get("dimension_scores"):
+                    markdown += "### 12.2. Dimension Scores\n\n"
+                    markdown += "| Dimension | Score | Status |\n"
+                    markdown += "|-----------|-------|--------|\n"
+
+                    for dimension, dim_score in validation_data.get("dimension_scores", {}).items():
+                        status = "✅" if dim_score >= 0.8 else "⚠️" if dim_score >= 0.7 else "❌"
+                        markdown += f"| {dimension.capitalize()} | {dim_score:.2f} | {status} |\n"
+                    markdown += "\n"
+
+                    # Score interpretation guide
+                    markdown += "**Score Interpretation:**\n"
+                    markdown += "- ✅ 0.8-1.0: Excellent\n"
+                    markdown += "- ⚠️ 0.7-0.79: Acceptable (minor improvements needed)\n"
+                    markdown += "- ❌ <0.7: Needs significant improvement\n\n"
+
+                # Detailed Feedback
+                markdown += "### 12.3. Detailed Feedback\n\n"
+                feedback = validation_data.get("feedback", "No feedback provided.")
+
+                # Try to parse feedback into structured sections
+                if "1." in feedback or "COMPLETENESS:" in feedback.upper():
+                    # Feedback appears to be structured
+                    sections = []
+                    for section in ["COMPLETENESS", "CONSISTENCY", "CORRECTNESS", "IMPLEMENTABILITY", "ALIGNMENT"]:
+                        if section in feedback.upper():
+                            sections.append(section)
+
+                    if sections:
+                        for section in sections:
+                            markdown += f"**{section.title()}**\n\n"
+                            # Extract the section content (simplified - would need better parsing)
+                            start = feedback.upper().find(section)
+                            if start != -1:
+                                # Find next section or end
+                                end = len(feedback)
+                                for next_section in sections:
+                                    next_start = feedback.upper().find(next_section, start + len(section))
+                                    if next_start != -1 and next_start < end:
+                                        end = next_start
+
+                                section_content = feedback[start:end].strip()
+                                # Remove the section header from content
+                                section_content = section_content[len(section) :].strip()
+                                if section_content.startswith(":"):
+                                    section_content = section_content[1:].strip()
+
+                                markdown += f"{section_content}\n\n"
+                    else:
+                        markdown += f"{feedback}\n\n"
+                else:
+                    markdown += f"{feedback}\n\n"
+
+                # Recommendations (if score < 0.8)
+                if score < 0.8:
+                    markdown += "### 12.4. Recommendations for Improvement\n\n"
+                    markdown += "Based on the validation results, consider the following actions:\n\n"
+
+                    if validation_data.get("dimension_scores"):
+                        low_scores = {k: v for k, v in validation_data["dimension_scores"].items() if v < 0.8}
+                        if low_scores:
+                            markdown += "**Priority Areas:**\n\n"
+                            for dimension, dim_score in sorted(low_scores.items(), key=lambda x: x[1]):
+                                markdown += f"- **{dimension.capitalize()}** (Score: {dim_score:.2f}): "
+
+                                # Dimension-specific recommendations
+                                recommendations = {
+                                    "completeness": "Add missing security controls and expand coverage for all requirements",
+                                    "consistency": "Ensure uniform terminology and control application across all sections",
+                                    "correctness": "Verify technical accuracy of controls and implementation guidance",
+                                    "implementability": "Provide more specific, actionable implementation guidance",
+                                    "alignment": "Better align security controls with business objectives and risk profile",
+                                }
+                                markdown += recommendations.get(dimension.lower(), "Review and enhance this dimension")
+                                markdown += "\n"
+                            markdown += "\n"
+
+            except (json.JSONDecodeError, KeyError) as e:
+                # Fallback to raw output
+                markdown += self.state.validation_report
+                markdown += "\n\n"
+
+            markdown += "---\n\n"
 
             # Appendices
             markdown += "## Appendix A: Original Requirements Document\n\n"
