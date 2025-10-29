@@ -1,0 +1,33 @@
+{
+  "raw": "{\n  \"overall_score\": 0.76,\n  \"validation_passed\": false,\n  \"feedback\": \"The security requirements show some gaps in coverage, especially around specific authentication and data protection requirements. Ensure additional focus on data encryption practices beyond what is mentioned, especially concerning product catalog management. Improve the consistency of handling similar controls, particularly regarding sensitive data handling across different functionalities. Additionally, specify actions on ambiguous requirements to enhance implementability. Lastly, align all security requirements closely with the identified business needs to avoid over-engineering.\",\n  \"dimension_scores\": {\n    \"completeness\": 0.7,\n    \"consistency\": 0.8,\n    \"correctness\": 0.8,\n    \"implementability\": 0.6,\n    \"alignment\": 0.7\n  }\n}",
+  "pydantic": {
+    "overall_score": 0.76,
+    "validation_passed": false,
+    "feedback": "The security requirements show some gaps in coverage, especially around specific authentication and data protection requirements. Ensure additional focus on data encryption practices beyond what is mentioned, especially concerning product catalog management. Improve the consistency of handling similar controls, particularly regarding sensitive data handling across different functionalities. Additionally, specify actions on ambiguous requirements to enhance implementability. Lastly, align all security requirements closely with the identified business needs to avoid over-engineering.",
+    "dimension_scores": {
+      "completeness": 0.7,
+      "consistency": 0.8,
+      "correctness": 0.8,
+      "implementability": 0.6,
+      "alignment": 0.7
+    }
+  },
+  "tasks": [
+    {
+      "name": "validate_security_requirements",
+      "raw": "{\n  \"overall_score\": 0.76,\n  \"validation_passed\": false,\n  \"feedback\": \"The security requirements show some gaps in coverage, especially around specific authentication and data protection requirements. Ensure additional focus on data encryption practices beyond what is mentioned, especially concerning product catalog management. Improve the consistency of handling similar controls, particularly regarding sensitive data handling across different functionalities. Additionally, specify actions on ambiguous requirements to enhance implementability. Lastly, align all security requirements closely with the identified business needs to avoid over-engineering.\",\n  \"dimension_scores\": {\n    \"completeness\": 0.7,\n    \"consistency\": 0.8,\n    \"correctness\": 0.8,\n    \"implementability\": 0.6,\n    \"alignment\": 0.7\n  }\n}",
+      "pydantic": {
+        "overall_score": 0.76,
+        "validation_passed": false,
+        "feedback": "The security requirements show some gaps in coverage, especially around specific authentication and data protection requirements. Ensure additional focus on data encryption practices beyond what is mentioned, especially concerning product catalog management. Improve the consistency of handling similar controls, particularly regarding sensitive data handling across different functionalities. Additionally, specify actions on ambiguous requirements to enhance implementability. Lastly, align all security requirements closely with the identified business needs to avoid over-engineering.",
+        "dimension_scores": {
+          "completeness": 0.7,
+          "consistency": 0.8,
+          "correctness": 0.8,
+          "implementability": 0.6,
+          "alignment": 0.7
+        }
+      }
+    }
+  ]
+}
