@@ -36,6 +36,47 @@ from security_requirements_system.data_models import (
 
 load_dotenv()
 
+# Common stop words for text matching (used in traceability matrix)
+_STOP_WORDS = {
+    "the",
+    "a",
+    "an",
+    "and",
+    "or",
+    "but",
+    "in",
+    "on",
+    "at",
+    "to",
+    "for",
+    "of",
+    "with",
+    "by",
+    "from",
+    "as",
+    "is",
+    "are",
+    "was",
+    "were",
+    "be",
+    "been",
+    "being",
+    "have",
+    "has",
+    "had",
+    "do",
+    "does",
+    "did",
+    "will",
+    "would",
+    "should",
+    "could",
+    "may",
+    "might",
+    "must",
+    "can",
+}
+
 
 def load_config():
     """Load configuration from config.yaml."""
@@ -479,30 +520,100 @@ class SecurityRequirementsFlow(Flow[SecurityRequirementsState]):
             threats_list = threats_data.get("threats", []) if isinstance(threats_data, dict) else []
             requirements_mapping = controls_data.get("requirements_mapping", []) if isinstance(controls_data, dict) else []
 
+            # Create lookup dictionaries for better matching
+            # Map requirement text to requirement ID
+            req_text_to_id = {}
+            for req in detailed_reqs:
+                req_text = req.get("requirement_text", "").strip().lower()
+                req_id = req.get("requirement_id", "")
+                if req_text and req_id:
+                    req_text_to_id[req_text] = req_id
+
+            # Populate requirement_ids in mappings if missing
+            for mapping in requirements_mapping:
+                if not mapping.get("requirement_id"):
+                    high_level_req = mapping.get("high_level_requirement", "").strip().lower()
+                    mapping["requirement_id"] = req_text_to_id.get(high_level_req, "")
+
+            # Create a mapping from requirement text (normalized) to requirements_mapping entries
+            controls_lookup = {}
+            for rm in requirements_mapping:
+                high_level_req = rm.get("high_level_requirement", "").strip().lower()
+                req_id = rm.get("requirement_id", "")
+                controls_lookup[high_level_req] = rm
+                if req_id:
+                    controls_lookup[req_id.lower()] = rm
+
             # Build traceability entries
             entries = []
 
             for req in detailed_reqs:
-                req_text = req.get("requirement", "")
+                req_text = req.get("requirement_text", "")  # Fixed: use requirement_text, not requirement
                 req_id = req.get("requirement_id", "")
+                req_text_lower = req_text.strip().lower()
 
-                # Find related threats
-                related_threats = [
-                    t
-                    for t in threats_list
-                    if req_id in t.get("component", "")
-                    or any(keyword in t.get("description", "").lower() for keyword in req_text.lower().split()[:5])
-                ]
+                # Find related threats by matching keywords and component relevance
+                # Threats are linked to components, so we need to match based on:
+                # 1. Keywords in threat description
+                # 2. Component name relevance to requirement text
+                related_threats = []
+                req_keywords = set(req_text_lower.split())
 
-                # Find related OWASP controls
-                req_mapping = next(
-                    (
-                        rm
-                        for rm in requirements_mapping
-                        if rm.get("high_level_requirement", "") == req_text or rm.get("requirement_id", "") == req_id
-                    ),
-                    None,
-                )
+                for t in threats_list:
+                    threat_desc = t.get("description", "").lower()
+                    threat_component = t.get("component", "").lower()
+
+                    # Check if requirement keywords appear in threat description
+                    # Filter meaningful keywords (longer than 3 chars, not stop words)
+                    meaningful_keywords = {kw for kw in req_keywords if len(kw) > 3 and kw not in _STOP_WORDS}
+                    keyword_matches = sum(1 for kw in meaningful_keywords if kw in threat_desc)
+
+                    # Check if component name overlaps with requirement keywords
+                    component_match = any(kw in threat_component for kw in meaningful_keywords)
+
+                    # Check if threat component matches business category or key terms
+                    business_category = req.get("business_category", "").lower()
+                    category_match = business_category in threat_component or threat_component in business_category
+
+                    # Also check if requirement text contains component name or vice versa
+                    component_in_req = any(word in req_text_lower for word in threat_component.split() if len(word) > 3)
+
+                    # Lower threshold: match if 1+ keywords OR component match OR category match
+                    if keyword_matches >= 1 or component_match or category_match or component_in_req:
+                        related_threats.append(t)
+
+                # Find related OWASP controls using multiple matching strategies
+                req_mapping = None
+
+                # Strategy 1: Exact match on requirement_id
+                if req_id:
+                    req_mapping = controls_lookup.get(req_id.lower())
+
+                # Strategy 2: Exact match on requirement text (normalized)
+                if not req_mapping:
+                    req_mapping = controls_lookup.get(req_text_lower)
+
+                # Strategy 3: Fuzzy match - check if requirement text is similar
+                if not req_mapping:
+                    # Only check text-based keys (skip ID keys for fuzzy matching)
+                    for rm_text, rm in controls_lookup.items():
+                        # Skip if this is an ID key (starts with "req-")
+                        if rm_text.startswith("req-") and len(rm_text) < 10:
+                            continue
+
+                        # Check if requirement texts share significant keywords
+                        rm_keywords = set(rm_text.split())
+                        # Filter out common stop words
+                        req_keywords_filtered = {kw for kw in req_keywords if kw not in _STOP_WORDS and len(kw) > 2}
+                        rm_keywords_filtered = {kw for kw in rm_keywords if kw not in _STOP_WORDS and len(kw) > 2}
+
+                        overlap = req_keywords_filtered.intersection(rm_keywords_filtered)
+
+                        # If significant keywords overlap (lower threshold for fuzzy matching)
+                        if len(overlap) >= max(2, min(len(req_keywords_filtered), len(rm_keywords_filtered)) * 0.3):
+                            req_mapping = rm
+                            break
+
                 owasp_controls = req_mapping.get("owasp_controls", []) if req_mapping else []
 
                 # Extract verification methods from controls
@@ -519,7 +630,7 @@ class SecurityRequirementsFlow(Flow[SecurityRequirementsState]):
                 entry = TraceabilityEntry(
                     req_id=req_id or f"REQ-{len(entries) + 1:03d}",
                     high_level_requirement=req_text,
-                    functional_category=req.get("functional_category", "General"),
+                    functional_category=req.get("business_category", req.get("functional_category", "General")),
                     security_sensitivity=req.get("security_sensitivity", "Medium"),
                     threat_ids=[t.get("threat_id", "") for t in related_threats[:10]],  # Limit to top 10
                     threat_descriptions=[
@@ -560,6 +671,13 @@ class SecurityRequirementsFlow(Flow[SecurityRequirementsState]):
             print(f"  - Requirements with threats: {with_threats}")
             print(f"  - Requirements with controls: {with_controls}")
             print(f"  - Coverage: {coverage_pct:.1f}%")
+
+            # Debug output if coverage is low (helpful for troubleshooting)
+            if coverage_pct < 50 and total_reqs > 0:
+                print("\n⚠️  Low coverage detected. Please check:")
+                print(f"  - Total threats available: {len(threats_list)}")
+                print(f"  - Total control mappings available: {len(requirements_mapping)}")
+                print(f"  - Total detailed requirements: {len(detailed_reqs)}")
 
         except Exception as e:
             print(f"\n⚠ Error building traceability matrix: {e}")
@@ -642,11 +760,27 @@ class SecurityRequirementsFlow(Flow[SecurityRequirementsState]):
             matrix_data = json.loads(self.state.traceability_matrix) if self.state.traceability_matrix else {}
             validation_data = json.loads(self.state.validation_report) if self.state.validation_report else {}
 
+            # Create a lookup dictionary from detailed requirements text to requirement ID
+            req_text_to_id = {}
+            if detailed_reqs:
+                # Handle both list and dict structures
+                reqs_list = detailed_reqs if isinstance(detailed_reqs, list) else detailed_reqs.get("detailed_requirements", [])
+                for req in reqs_list:
+                    req_text = req.get("requirement_text", "").strip().lower()
+                    req_id = req.get("requirement_id", "")
+                    if req_text and req_id:
+                        req_text_to_id[req_text] = req_id
+
             # 1. ASVS Mapping (control_id, v_category, requirement_id, level, priority)
             asvs_mapping = []
             mappings = controls_data.get("requirements_mapping", [])
             for mapping in mappings:
-                req_id = mapping.get("requirement_id", "")
+                # Get requirement_id from mapping, or look it up from detailed_reqs
+                req_id = mapping.get("requirement_id")
+                if not req_id:
+                    high_level_req = mapping.get("high_level_requirement", "").strip().lower()
+                    req_id = req_text_to_id.get(high_level_req, "")
+
                 for control in mapping.get("owasp_controls", []):
                     asvs_mapping.append(
                         {
@@ -1058,7 +1192,7 @@ try:
     fig_comp.update_layout(showlegend=True, yaxis_visible=False, yaxis_showticklabels=False)
     fig_comp.update_traces(textposition='inside')
     fig_comp.show()
-            except Exception as e:
+except Exception as e:
     print(f"⚠️ Could not generate compliance chart: {{e}}")
     print("\\nCompliance Status (Static):")
     for _, row in compliance.iterrows():
@@ -1443,6 +1577,18 @@ The following high-level functional requirements have been identified and analyz
             try:
                 security_controls_data = json.loads(self.state.security_controls)
 
+                # Create a lookup dictionary from detailed requirements text to requirement ID
+                req_text_to_id = {}
+                detailed_reqs = json.loads(self.state.detailed_requirements) if self.state.detailed_requirements else []
+                if detailed_reqs:
+                    # Handle both list and dict structures
+                    reqs_list = detailed_reqs if isinstance(detailed_reqs, list) else detailed_reqs.get("detailed_requirements", [])
+                    for req in reqs_list:
+                        req_text = req.get("requirement_text", "").strip().lower()
+                        req_id = req.get("requirement_id", "")
+                        if req_text and req_id:
+                            req_text_to_id[req_text] = req_id
+
                 # Add recommended ASVS level
                 if security_controls_data.get("recommended_asvs_level"):
                     markdown += "### 6.1. Recommended ASVS Compliance Level\n\n"
@@ -1455,7 +1601,11 @@ The following high-level functional requirements have been identified and analyz
 
                 for i, mapping in enumerate(mappings, 1):
                     req = mapping.get("high_level_requirement", "N/A")
-                    req_id = mapping.get("requirement_id", f"REQ-{i:03d}")
+                    # Get requirement_id from mapping, or look it up from detailed_reqs
+                    req_id = mapping.get("requirement_id")
+                    if not req_id:
+                        high_level_req = mapping.get("high_level_requirement", "").strip().lower()
+                        req_id = req_text_to_id.get(high_level_req, f"REQ-{i:03d}")
                     markdown += f"\n#### 6.2.{i}. {req_id}: {req}\n\n"
 
                     controls = mapping.get("owasp_controls", [])
