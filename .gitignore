@@ -36,9 +36,10 @@ ENV/
 *.swo
 *~
 
+src/security_requirements_system/data/prepared/*
+src/security_requirements_system/data/raw/*
 # Output files
 outputs/
-*.json
 *.md
 !README.md
 !QUICKSTART.md
