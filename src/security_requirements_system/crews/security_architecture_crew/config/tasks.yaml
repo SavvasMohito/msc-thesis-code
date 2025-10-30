@@ -58,11 +58,14 @@ design_security_architecture:
     
     ### 9.1. Architectural Security Principles
     
-    A bulleted list of principles (each in bold):
-    - **Zero Trust Architecture principles**
-    - **Defense in Depth**
-    - **Principle of Least Privilege**
-    - **Secure by Default/Design**
+    Begin with an introduction paragraph explaining that architectural security principles provide the foundational philosophy guiding all security design decisions. These principles ensure consistent security posture across all system components and guide the selection and implementation of security controls. Then provide a bulleted list of principles (each in bold) with a brief explanation (1-2 sentences) of what each principle means and why it's important:
+    
+    - **Zero Trust Architecture principles**: Never trust, always verify. All access requests are authenticated and authorized regardless of location or network.
+    - **Defense in Depth**: Multiple layers of security controls provide redundancy so that if one control fails, others provide protection.
+    - **Principle of Least Privilege**: Users and systems are granted only the minimum access necessary to perform their functions.
+    - **Secure by Default/Design**: Security is built into the system architecture from the ground up, not added as an afterthought.
+    
+    Include any other relevant principles specific to the system's security needs.
     
     ### 9.2. Component-Level Security Controls
     

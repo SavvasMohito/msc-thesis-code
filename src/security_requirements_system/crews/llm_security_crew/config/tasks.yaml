@@ -34,7 +34,8 @@ identify_ai_security_requirements:
     IMPORTANT: Output the markdown content directly. DO NOT wrap your output in ```markdown code blocks.
     
     ### 7.1. AI/ML Components Detected
-    List each identified AI/ML component as numbered items.
+    
+    Begin with a brief introduction explaining that this section identifies all AI/ML components within the system that require specialized security controls. Then list each identified AI/ML component as numbered items, providing a brief description of each component's purpose and AI/ML capabilities (e.g., "1. **Chatbot Interface**: Natural language processing chatbot providing customer support using large language models").
     
     ### 7.2. AI/ML Threat Model
     A markdown table with columns: Component | Identified Threats

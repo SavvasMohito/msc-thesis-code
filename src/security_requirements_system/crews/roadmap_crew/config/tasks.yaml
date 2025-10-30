@@ -76,7 +76,18 @@ create_implementation_roadmap:
     
     ### 10.1. Prioritization Framework
     
-    A sentence or paragraph listing the criteria (e.g., "Risk level (from threat modeling), Compliance deadlines and regulatory requirements, Technical complexity and dependencies, Resource availability, Business impact")
+    Provide a comprehensive explanation of the prioritization approach used to organize security controls into implementation phases. 
+    Begin with a paragraph explaining why prioritization is critical for effective security implementation, then explain each criterion:
+    
+    **Prioritization Criteria:**
+    - **Risk Level**: Controls addressing critical and high-risk threats (identified through threat modeling) are prioritized first
+    - **Compliance Deadlines**: Regulatory requirements and compliance deadlines influence immediate priority
+    - **Technical Complexity**: Controls requiring foundational infrastructure are implemented early to enable subsequent controls
+    - **Dependencies**: Controls that other security measures depend upon are prioritized accordingly
+    - **Resource Availability**: Implementation considers the availability of skilled personnel, tools, and budget
+    - **Business Impact**: Controls protecting business-critical functions and data receive higher priority
+    
+    Explain how these criteria work together to create a logical implementation sequence that balances security needs with practical constraints.
     
     ### 10.2. Phased Implementation Plan
     

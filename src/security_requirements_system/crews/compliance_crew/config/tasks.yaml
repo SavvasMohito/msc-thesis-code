@@ -31,7 +31,8 @@ assess_compliance_requirements:
     IMPORTANT: Output the markdown content directly. DO NOT wrap your output in ```markdown code blocks.
     
     ### 8.1. Applicable Regulations
-    Introduction sentence followed by a markdown table with columns: Regulation | Applicability Reason
+    
+    Begin with a comprehensive introduction paragraph explaining how regulations were identified based on data types, geographic scope, industry sector, and business operations. Explain that compliance requirements directly impact security controls, data handling procedures, and operational processes. Then provide a markdown table with columns: Regulation | Applicability Reason. For each regulation, clearly explain why it applies (e.g., "GDPR applies because the system processes personal data of EU residents").
     
     ### 8.2. Compliance Controls by Regulation
     For each regulation, create a subsection (####) with bullet-pointed controls.

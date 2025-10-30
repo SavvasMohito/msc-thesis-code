@@ -1511,6 +1511,9 @@ The following high-level functional requirements have been identified and analyz
 
             # Section 5: Threat Modeling
             markdown += "## 5. Threat Modeling\n\n"
+            markdown += "This section presents a comprehensive threat analysis of the system architecture and functional requirements. "
+            markdown += "Threat modeling systematically identifies potential security vulnerabilities and attack vectors, enabling "
+            markdown += "proactive risk mitigation through the application of appropriate security controls.\n\n"
 
             try:
                 threats_data = json.loads(self.state.threats) if self.state.threats else {}
@@ -1518,7 +1521,25 @@ The following high-level functional requirements have been identified and analyz
                 methodology = threats_data.get("methodology", "STRIDE")
                 risk_summary = threats_data.get("risk_summary", "")
 
-                markdown += f"### 5.1. Methodology\n\n{methodology}\n\n"
+                # Enrich methodology section
+                markdown += "### 5.1. Threat Modeling Methodology\n\n"
+                if methodology.upper() == "STRIDE":
+                    markdown += "This analysis employs the **STRIDE** threat modeling methodology, a systematic framework "
+                    markdown += "developed by Microsoft for identifying security threats across six categories:\n\n"
+                    markdown += "- **Spoofing Identity**: Threats involving impersonation of users or systems\n"
+                    markdown += "- **Tampering with Data**: Threats involving unauthorized modification of data or system components\n"
+                    markdown += "- **Repudiation**: Threats where users deny performing actions (lack of non-repudiation)\n"
+                    markdown += "- **Information Disclosure**: Threats involving unauthorized access to sensitive information\n"
+                    markdown += "- **Denial of Service**: Threats causing disruption or unavailability of system services\n"
+                    markdown += "- **Elevation of Privilege**: Threats allowing unauthorized access to privileged functions\n\n"
+                    markdown += "For each identified threat, the analysis evaluates **likelihood** (attack complexity and exposure) "
+                    markdown += "and **impact** (potential damage to confidentiality, integrity, or availability) to determine "
+                    markdown += "overall **risk level**. The methodology ensures comprehensive coverage of security concerns "
+                    markdown += "across all system components and interfaces.\n\n"
+                else:
+                    markdown += f"This analysis employs the **{methodology}** threat modeling methodology to systematically "
+                    markdown += "identify and categorize security threats across the system architecture. "
+                    markdown += "Each threat is evaluated based on likelihood and impact to determine overall risk level.\n\n"
 
                 markdown += "### 5.2. Identified Threats\n\n"
                 markdown += "The following table summarizes the key threats identified through threat modeling:\n\n"
@@ -1620,6 +1641,11 @@ The following high-level functional requirements have been identified and analyz
 
             # Section 6: OWASP ASVS Security Requirements Mapping
             markdown += "## 6. OWASP ASVS Security Requirements Mapping\n\n"
+            markdown += "This section maps each functional requirement to specific security controls from the "
+            markdown += "OWASP Application Security Verification Standard (ASVS). The ASVS provides a comprehensive "
+            markdown += "set of security requirements organized into 14 verification categories (V1-V14), each "
+            markdown += "addressing critical security domains such as authentication, session management, input validation, "
+            markdown += "and cryptographic controls. Requirements are prioritized based on risk assessment and compliance needs.\n\n"
 
             try:
                 security_controls_data = json.loads(self.state.security_controls)
@@ -1636,10 +1662,56 @@ The following high-level functional requirements have been identified and analyz
                         if req_text and req_id:
                             req_text_to_id[req_text] = req_id
 
-                # Add recommended ASVS level
+                # Enrich recommended ASVS level section
                 if security_controls_data.get("recommended_asvs_level"):
+                    recommended_level = security_controls_data.get("recommended_asvs_level")
                     markdown += "### 6.1. Recommended ASVS Compliance Level\n\n"
-                    markdown += f"**Recommended Level:** {security_controls_data.get('recommended_asvs_level')}\n\n"
+                    markdown += f"**Recommended Level:** {recommended_level}\n\n"
+
+                    # Add explanation based on level
+                    level_descriptions = {
+                        "L1": {
+                            "name": "Level 1: Opportunistic",
+                            "description": (
+                                "Designed for applications with lower security risk profiles. Focuses on "
+                                "essential security controls that are easy to implement and verify. Suitable "
+                                "for applications that do not handle sensitive data or have limited attack surface."
+                            ),
+                        },
+                        "L2": {
+                            "name": "Level 2: Standard",
+                            "description": (
+                                "Recommended for most production applications. Provides comprehensive security "
+                                "coverage suitable for applications handling sensitive data or operating in "
+                                "regulated environments. Includes controls for authentication, authorization, "
+                                "data protection, and secure communications."
+                            ),
+                        },
+                        "L3": {
+                            "name": "Level 3: Advanced",
+                            "description": (
+                                "Required for high-security applications with stringent protection requirements. "
+                                "Includes advanced security controls, detailed verification procedures, and "
+                                "enhanced threat resistance. Suitable for applications handling highly sensitive "
+                                "data (e.g., financial, healthcare, government) or operating in high-risk environments."
+                            ),
+                        },
+                    }
+
+                    level_info = level_descriptions.get(recommended_level.upper(), None)
+                    if level_info:
+                        markdown += f"**{level_info['name']}**\n\n"
+                        markdown += f"{level_info['description']}\n\n"
+                    else:
+                        markdown += "This compliance level has been selected based on the system's data sensitivity, "
+                        markdown += "regulatory requirements, and threat landscape assessment.\n\n"
+
+                    markdown += "The recommendation considers factors such as:\n"
+                    markdown += "- Data sensitivity and classification levels\n"
+                    markdown += "- Regulatory and compliance requirements (GDPR, HIPAA, PCI-DSS, etc.)\n"
+                    markdown += "- Threat landscape and risk assessment from threat modeling\n"
+                    markdown += "- Business criticality and potential impact of security incidents\n\n"
+                    markdown += "All security controls referenced in this document align with this recommended compliance level.\n\n"
 
                 markdown += "### 6.2. Requirements Mapping\n\n"
                 markdown += "The following table maps each high-level requirement to specific OWASP ASVS controls:\n\n"
@@ -1754,38 +1826,88 @@ The following high-level functional requirements have been identified and analyz
 
             # Section 7: AI/ML Security Requirements
             markdown += "## 7. AI/ML Security Requirements\n\n"
+            markdown += "This section addresses security requirements specific to artificial intelligence and machine learning "
+            markdown += "components within the system. AI/ML systems introduce unique security challenges including prompt "
+            markdown += "injection attacks, data poisoning, model theft, adversarial inputs, and bias vulnerabilities. "
+            markdown += "This analysis identifies AI/ML components, assesses their security risks, and prescribes specialized "
+            markdown += "controls to protect both the AI systems themselves and the data they process.\n\n"
 
             if self.state.ai_security:
                 # Crew now outputs markdown directly
                 markdown += self.state.ai_security + "\n\n"
             else:
-                markdown += "*No AI/ML components detected in the system.*\n\n"
+                markdown += "### 7.1. AI/ML Components Assessment\n\n"
+                markdown += "**No AI/ML components detected in the system.**\n\n"
+                markdown += "After reviewing the functional requirements and system architecture, no artificial intelligence "
+                markdown += "or machine learning components were identified. This includes natural language processing, "
+                markdown += "large language models, chatbots, recommendation systems, content generation, or other AI-powered "
+                markdown += "features. If AI/ML capabilities are added in the future, a comprehensive security review should "
+                markdown += "be conducted to address the unique security considerations of these technologies.\n\n"
 
             markdown += "---\n\n"
 
             # Section 8: Compliance Requirements
             markdown += "## 8. Compliance Requirements\n\n"
+            markdown += "This section identifies regulatory and legal compliance obligations applicable to the system based on "
+            markdown += "data types, geographic scope, industry sector, and business operations. Compliance requirements "
+            markdown += "drive specific security controls, data handling procedures, audit capabilities, and privacy protections. "
+            markdown += "Non-compliance can result in significant legal penalties, reputational damage, and business disruption. "
+            markdown += "This analysis maps applicable regulations to specific security requirements and operational procedures.\n\n"
 
             if self.state.compliance_requirements:
                 # Crew now outputs markdown directly
                 markdown += self.state.compliance_requirements + "\n\n"
             else:
-                markdown += "*No compliance requirements identified.*\n\n"
+                markdown += "### 8.1. Applicable Regulations\n\n"
+                markdown += "**No specific compliance requirements identified.**\n\n"
+                markdown += "Based on the analysis of functional requirements, data types, and system scope, no specific "
+                markdown += "regulatory compliance obligations were identified. However, organizations should consider:\n\n"
+                markdown += "- **General Data Protection**: If handling personal data, GDPR (EU), CCPA (California), or "
+                markdown += "other regional privacy laws may apply\n"
+                markdown += "- **Industry-Specific Regulations**: Healthcare (HIPAA), financial services (PCI-DSS, SOX), "
+                markdown += "or education (FERPA) regulations may be relevant\n"
+                markdown += "- **Geographic Requirements**: Data residency and sovereignty laws in different jurisdictions\n"
+                markdown += "- **Future Compliance**: As the system evolves or expands, compliance obligations may emerge\n\n"
+                markdown += "A compliance assessment should be conducted if the system scope changes or regulatory requirements "
+                markdown += "are introduced.\n\n"
 
             markdown += "---\n\n"
 
             # Section 9: Security Architecture Recommendations
             markdown += "## 9. Security Architecture Recommendations\n\n"
+            markdown += "This section provides comprehensive security architecture guidance that integrates security controls "
+            markdown += "into the system's technical design. Security architecture defines how security principles, controls, "
+            markdown += "and patterns are applied across system components to create a cohesive, defense-in-depth security "
+            markdown += "posture. The recommendations address architectural principles, component-level controls, data protection "
+            markdown += "strategies, and third-party integration security to ensure security is built into the system design.\n\n"
+
             if self.state.security_architecture:
                 # Crew now outputs markdown directly
                 markdown += self.state.security_architecture + "\n\n"
             else:
+                markdown += "### 9.1. Architectural Security Principles\n\n"
                 markdown += "*Security architecture recommendations not available.*\n\n"
+                markdown += "Security architecture recommendations would typically include:\n\n"
+                markdown += "- **Architectural Security Principles**: Core principles such as Zero Trust, Defense in Depth, "
+                markdown += "and Least Privilege that guide security design decisions\n"
+                markdown += "- **Component-Level Controls**: Security controls specific to each system component (frontend, "
+                markdown += "backend, database, APIs, etc.)\n"
+                markdown += "- **Data Protection Strategy**: Data classification, encryption requirements, retention policies, "
+                markdown += "and handling procedures\n"
+                markdown += "- **Third-Party Integration Security**: Security requirements for external services, APIs, and "
+                markdown += "integrations\n\n"
+                markdown += "These recommendations should be developed in collaboration with the development and architecture teams "
+                markdown += "to ensure they align with technical constraints and implementation plans.\n\n"
 
             markdown += "---\n\n"
 
             # Section 10: Implementation Roadmap
             markdown += "## 10. Implementation Roadmap\n\n"
+            markdown += "This section provides a prioritized, phased approach for implementing the security controls "
+            markdown += "identified throughout this analysis. The roadmap organizes security measures into logical phases "
+            markdown += "based on risk, dependencies, and resource availability, ensuring critical security gaps are "
+            markdown += "addressed first while building a foundation for comprehensive security coverage.\n\n"
+
             if self.state.implementation_roadmap:
                 # Crew now outputs markdown directly
                 markdown += self.state.implementation_roadmap + "\n\n"
@@ -1806,17 +1928,44 @@ The following high-level functional requirements have been identified and analyz
 
             # Section 12: Validation Report
             markdown += "## 12. Validation Report\n\n"
+            markdown += "This section presents a comprehensive validation of the security requirements generated "
+            markdown += "throughout this analysis. The validation evaluates the requirements against five key dimensions: "
+            markdown += "completeness, consistency, correctness, implementability, and alignment with business objectives. "
+            markdown += "This assessment ensures that the security requirements are comprehensive, technically sound, "
+            markdown += "and actionable for implementation teams.\n\n"
 
             try:
                 validation_data = json.loads(self.state.validation_report)
 
-                # Overall Score and Status
+                # Overall Score and Status - enriched
                 markdown += "### 12.1. Overall Assessment\n\n"
                 score = validation_data.get("overall_score", 0)
                 passed = validation_data.get("validation_passed", False)
 
+                markdown += "The overall validation score reflects the quality and completeness of the security requirements "
+                markdown += "across five critical dimensions. Each dimension is scored from 0.0 to 1.0, with 1.0 representing "
+                markdown += "excellent coverage and 0.0 indicating significant gaps.\n\n"
+
                 markdown += f"**Overall Score:** {score:.2f}/1.0\n\n"
-                markdown += f"**Validation Status:** {'✅ PASSED' if passed else '❌ NEEDS IMPROVEMENT'}\n\n"
+
+                status_icon = "✅" if passed else "❌"
+                status_text = "PASSED" if passed else "NEEDS IMPROVEMENT"
+                markdown += f"**Validation Status:** {status_icon} {status_text}\n\n"
+
+                if passed:
+                    markdown += "The security requirements have met the quality threshold (≥0.8) and are ready for implementation. "
+                    markdown += "The requirements demonstrate comprehensive coverage, technical accuracy, and alignment with "
+                    markdown += "business objectives.\n\n"
+                else:
+                    markdown += "The security requirements fall below the quality threshold and require improvement before "
+                    markdown += "implementation. Specific areas for enhancement are detailed in the sections below.\n\n"
+
+                markdown += "The validation assesses:\n"
+                markdown += "- **Completeness**: Are all identified security concerns adequately addressed?\n"
+                markdown += "- **Consistency**: Do requirements align with each other without contradictions?\n"
+                markdown += "- **Correctness**: Are controls appropriate for the identified risks and correctly applied?\n"
+                markdown += "- **Implementability**: Are requirements specific, actionable, and feasible to implement?\n"
+                markdown += "- **Alignment**: Do security requirements align with business requirements and objectives?\n\n"
 
                 # Dimension Scores (if available)
                 if validation_data.get("dimension_scores"):
