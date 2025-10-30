@@ -1078,7 +1078,7 @@ except Exception as e:
 #| warning: false
 top_risks = threats.nlargest(5, ["likelihood", "impact"])
 for idx, risk in top_risks.iterrows():
-    print(f"- **{{risk['id']}}** ({{risk['risk_level']}}): {{risk['description']}}...")
+    print(f"- **{{risk['id']}}** ({{risk['risk_level']}}): {{risk['description'][:100]}}...")
 ```
 
 #### Controls
@@ -1480,9 +1480,13 @@ The following high-level functional requirements have been identified and analyz
             markdown += "## 4. System Architecture Analysis\n\n"
             markdown += f"### 4.1. Architectural Overview\n\n{self.state.architecture_summary}\n\n"
 
-            markdown += "### 4.2. Architecture Diagram\n\n```mermaid\n"
-            markdown += self.state.architecture_diagram
-            markdown += "\n```\n\n"
+            markdown += "### 4.2. Architecture Diagram\n\n"
+            if self.state.architecture_diagram:
+                markdown += "```{mermaid}\n"
+                markdown += self.state.architecture_diagram
+                markdown += "\n```\n\n"
+            else:
+                markdown += "*Architecture diagram not available.*\n\n"
 
             # Add component breakdown if available
             if self.state.components:
