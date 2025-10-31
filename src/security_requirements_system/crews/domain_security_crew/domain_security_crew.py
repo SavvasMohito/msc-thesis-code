@@ -1,6 +1,6 @@
 from typing import List
 
-from crewai import Agent, Crew, Task
+from crewai import LLM, Agent, Crew, Task
 from crewai.agents.agent_builder.base_agent import BaseAgent
 from crewai.project import CrewBase, agent, crew, task
 
@@ -20,9 +20,15 @@ class DomainSecurityCrew:
 
     @agent
     def domain_security_expert(self) -> Agent:
+        # Using GPT-5 for very high-complexity security control mapping
+        # Requires robust tool/function calling for Weaviate database queries
+        # Complex multi-step task: analyze → query → map → explain
+        # Must ensure completeness (no skipped requirements)
+        llm = LLM(model="openai/gpt-5")
         return Agent(
             config=self.agents_config["domain_security_expert"],
             tools=[WeaviateQueryTool()],
+            llm=llm,
             verbose=True,
         )
 

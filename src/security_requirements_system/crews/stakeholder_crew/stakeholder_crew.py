@@ -1,6 +1,6 @@
 from typing import List
 
-from crewai import Agent, Crew, Process, Task
+from crewai import LLM, Agent, Crew, Process, Task
 from crewai.agents.agent_builder.base_agent import BaseAgent
 from crewai.project import CrewBase, agent, crew, task
 
@@ -17,8 +17,13 @@ class StakeholderCrew:
 
     @agent
     def stakeholder_analyst(self) -> Agent:
+        # Using GPT-4o-mini for moderate complexity stakeholder analysis
+        # Straightforward analysis task, runs in parallel with other crews
+        # Cost-effective choice for this level of complexity
+        llm = LLM(model="openai/gpt-4o-mini", temperature=0.7)
         return Agent(
             config=self.agents_config["stakeholder_analyst"],
+            llm=llm,
             verbose=True,
         )
 

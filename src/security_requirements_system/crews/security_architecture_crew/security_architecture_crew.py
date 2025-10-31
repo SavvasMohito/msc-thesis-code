@@ -1,6 +1,6 @@
 from typing import List
 
-from crewai import Agent, Crew, Process, Task
+from crewai import LLM, Agent, Crew, Process, Task
 from crewai.agents.agent_builder.base_agent import BaseAgent
 from crewai.project import CrewBase, agent, crew, task
 
@@ -17,8 +17,13 @@ class SecurityArchitectureCrew:
 
     @agent
     def security_architect(self) -> Agent:
+        # Using GPT-5-mini for high-complexity security architecture design
+        # Requires holistic architectural thinking but well-defined structure
+        # GPT-5-mini provides good balance of quality and cost for this ⭐⭐⭐⭐ complexity level
+        llm = LLM(model="openai/gpt-5-mini")
         return Agent(
             config=self.agents_config["security_architect"],
+            llm=llm,
             verbose=True,
         )
 

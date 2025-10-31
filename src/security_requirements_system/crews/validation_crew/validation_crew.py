@@ -1,6 +1,6 @@
 from typing import List
 
-from crewai import Agent, Crew, Task
+from crewai import LLM, Agent, Crew, Task
 from crewai.agents.agent_builder.base_agent import BaseAgent
 from crewai.project import CrewBase, agent, crew, task
 
@@ -19,8 +19,13 @@ class ValidationCrew:
 
     @agent
     def validation_expert(self) -> Agent:
+        # Using GPT-5 for high-complexity validation
+        # Critical quality gate requiring multi-dimensional scoring and comprehensive evaluation
+        # Must provide actionable, specific feedback for improvement
+        llm = LLM(model="openai/gpt-5")
         return Agent(
             config=self.agents_config["validation_expert"],
+            llm=llm,
             verbose=True,
         )
 

@@ -1,6 +1,6 @@
 from typing import List
 
-from crewai import Agent, Crew, Process, Task
+from crewai import LLM, Agent, Crew, Process, Task
 from crewai.agents.agent_builder.base_agent import BaseAgent
 from crewai.project import CrewBase, agent, crew, task
 
@@ -19,8 +19,13 @@ class ThreatModelingCrew:
 
     @agent
     def threat_modeling_expert(self) -> Agent:
+        # Using GPT-5 for very high-complexity threat modeling
+        # Requires sophisticated STRIDE analysis, risk assessment, and residual risk calculations
+        # Complex multi-step reasoning (likelihood × impact → risk level)
+        llm = LLM(model="openai/gpt-5")
         return Agent(
             config=self.agents_config["threat_modeling_expert"],
+            llm=llm,
             verbose=True,
         )
 
