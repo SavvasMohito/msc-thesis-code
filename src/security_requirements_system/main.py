@@ -8,6 +8,7 @@ into comprehensive, standards-aligned security requirements with self-evaluation
 
 import json
 import os
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import Optional
 
@@ -168,10 +169,10 @@ class SecurityRequirementsFlow(Flow[SecurityRequirementsState]):
     """
     Flow for generating security requirements from product manager inputs.
 
-    This flow implements a self-evaluation loop:
+    This flow implements a self-evaluation loop with parallel execution where possible:
     1. Load requirements from input file
     2. Analyze requirements
-    3. Map to security controls (domain + AI/ML + compliance)
+    3. Map to security controls (domain + AI/ML + compliance) - PARALLELIZED
     4. Validate the results
     5. If validation passes → generate final output
     6. If validation fails → loop back with feedback (max 3 iterations)
@@ -182,6 +183,52 @@ class SecurityRequirementsFlow(Flow[SecurityRequirementsState]):
     MAX_ITERATIONS = 3
     # VALIDATION_THRESHOLD = CONFIG.get("flow", {}).get("validation_threshold", 0.7)
     VALIDATION_THRESHOLD = 0.7
+
+    def _execute_crew_parallel(self, crew_executors: list, names: list[str]) -> dict:
+        """
+        Execute multiple crew executors in parallel and return results.
+
+        Args:
+            crew_executors: List of callable functions that execute crews
+            names: List of names for each executor (for logging/error handling)
+
+        Returns:
+            Dictionary mapping names to results
+
+        Raises:
+            RuntimeError: If any crew execution fails
+        """
+        if len(crew_executors) != len(names):
+            raise ValueError(f"Mismatch: {len(crew_executors)} executors but {len(names)} names")
+
+        results = {}
+        errors = {}
+
+        print(f"\n[PARALLEL] Starting {len(crew_executors)} crews in parallel...")
+
+        with ThreadPoolExecutor(max_workers=len(crew_executors)) as executor:
+            # Submit all tasks
+            future_to_name = {executor.submit(crew_exec): name for crew_exec, name in zip(crew_executors, names)}
+
+            # Collect results as they complete
+            for future in as_completed(future_to_name):
+                name = future_to_name[future]
+                try:
+                    results[name] = future.result()
+                    print(f"✓ {name} completed successfully")
+                except Exception as exc:
+                    errors[name] = exc
+                    print(f"✗ {name} failed with exception: {exc}")
+                    import traceback
+
+                    traceback.print_exc()
+
+        # Raise exception if any task failed
+        if errors:
+            error_msg = f"Parallel execution failed for: {', '.join(errors.keys())}"
+            raise RuntimeError(error_msg) from list(errors.values())[0]
+
+        return results
 
     @start()
     def load_requirements(self):
@@ -263,114 +310,133 @@ class SecurityRequirementsFlow(Flow[SecurityRequirementsState]):
             print(f"  - Identified {len(architecture_output.components)} system components")
 
     @listen(analyze_requirements)
-    def analyze_stakeholders(self):
-        """Analyze stakeholders and trust boundaries using Stakeholder Crew."""
+    def execute_phase1_parallel(self):
+        """
+        Phase 1: Execute independent crews in parallel.
+        - analyze_stakeholders
+        - perform_threat_modeling
+        - map_security_controls
+        All three only depend on analyze_requirements outputs.
+        """
         print("\n" + "=" * 80)
-        print("STEP 3: Analyzing Stakeholders and Trust Boundaries")
+        print("PHASE 1: Parallel Execution - Stakeholders, Threat Modeling, Security Controls")
         print("=" * 80)
 
-        result = (
-            StakeholderCrew()
-            .crew()
-            .kickoff(
-                inputs={
-                    "requirements_text": self.state.requirements_text,
-                    "architecture_summary": self.state.architecture_summary,
-                }
+        # Define executor functions for each crew
+        def exec_stakeholders():
+            print("\n[PARALLEL] Starting Stakeholder Analysis...")
+            result = (
+                StakeholderCrew()
+                .crew()
+                .kickoff(
+                    inputs={
+                        "requirements_text": self.state.requirements_text,
+                        "architecture_summary": self.state.architecture_summary,
+                    }
+                )
             )
-        )
+            return ("stakeholders", result.raw)
 
-        self.state.stakeholders = result.raw
-
-        print("\n✓ Stakeholder analysis complete")
-
-    @listen(analyze_stakeholders)
-    def perform_threat_modeling(self):
-        """Perform threat modeling using Threat Modeling Crew."""
-        print("\n" + "=" * 80)
-        print("STEP 4: Performing Threat Modeling (STRIDE)")
-        print("=" * 80)
-
-        result = (
-            ThreatModelingCrew()
-            .crew()
-            .kickoff(
-                inputs={
-                    "requirements_text": self.state.requirements_text,
-                    "architecture_summary": self.state.architecture_summary,
-                    "components": self.state.components if self.state.components else "No detailed components available",
-                }
+        def exec_threat_modeling():
+            print("\n[PARALLEL] Starting Threat Modeling...")
+            result = (
+                ThreatModelingCrew()
+                .crew()
+                .kickoff(
+                    inputs={
+                        "requirements_text": self.state.requirements_text,
+                        "architecture_summary": self.state.architecture_summary,
+                        "components": self.state.components if self.state.components else "No detailed components available",
+                    }
+                )
             )
-        )
+            threat_output = result.pydantic
+            threats_json = threat_output.model_dump_json(indent=2) if threat_output else "{}"
+            threat_count = len(threat_output.threats) if threat_output else 0
+            return ("threats", threats_json, threat_count)
 
-        # Store as JSON for traceability matrix
-        threat_output = result.pydantic
-        self.state.threats = threat_output.model_dump_json(indent=2) if threat_output else "{}"
-
-        print("\n✓ Threat modeling complete")
-        print(f"  - Identified {len(threat_output.threats) if threat_output else 0} threats")
-
-    @listen(perform_threat_modeling)
-    def map_security_controls(self):
-        """Map requirements to security standards using Domain Security Crew."""
-        print("\n" + "=" * 80)
-        print("STEP 5: Mapping to Security Standards (OWASP ASVS)")
-        print("=" * 80)
-
-        result = (
-            DomainSecurityCrew()
-            .crew()
-            .kickoff(inputs={"high_level_requirements": json.dumps(self.state.high_level_requirements, indent=2)})
-        )
-
-        # Domain crew returns a single TaskOutput as CrewOutput.output
-        domain_output = result.tasks_output[0]
-        self.state.security_controls = domain_output.pydantic.model_dump_json(indent=2)  # type: ignore[union-attr]
-        print("\n✓ Security controls mapped")
-
-    @listen(map_security_controls)
-    def identify_ai_security(self):
-        """Identify AI/ML security requirements using LLM Security Crew."""
-        print("\n" + "=" * 80)
-        print("STEP 6: Identifying AI/ML Security Requirements")
-        print("=" * 80)
-
-        result = (
-            LLMSecurityCrew()
-            .crew()
-            .kickoff(
-                inputs={
-                    "requirements_text": self.state.requirements_text,
-                    "analyzed_requirements": f"Application Summary: {self.state.application_summary}\nHigh-Level Requirements: {self.state.high_level_requirements}",
-                }
+        def exec_security_controls():
+            print("\n[PARALLEL] Starting Security Controls Mapping...")
+            result = (
+                DomainSecurityCrew()
+                .crew()
+                .kickoff(inputs={"high_level_requirements": json.dumps(self.state.high_level_requirements, indent=2)})
             )
+            domain_output = result.tasks_output[0]
+            controls_json = domain_output.pydantic.model_dump_json(indent=2)  # type: ignore[union-attr]
+            return ("security_controls", controls_json)
+
+        # Execute all three in parallel
+        results = self._execute_crew_parallel(
+            [exec_stakeholders, exec_threat_modeling, exec_security_controls],
+            ["Stakeholder Analysis", "Threat Modeling", "Security Controls Mapping"],
         )
 
-        self.state.ai_security = result.raw
-        print("\n✓ AI/ML security assessment complete")
+        # Store results
+        self.state.stakeholders = results["Stakeholder Analysis"][1]
+        self.state.threats = results["Threat Modeling"][1]
+        self.state.security_controls = results["Security Controls Mapping"][1]
 
-    @listen(identify_ai_security)
-    def assess_compliance(self):
-        """Assess compliance requirements using Compliance Crew."""
+        threat_count = results["Threat Modeling"][2] if len(results["Threat Modeling"]) > 2 else 0
+
+        print("\n✓ Phase 1 complete - All parallel crews finished")
+        print("  - Stakeholder analysis: Complete")
+        print(f"  - Threat modeling: {threat_count} threats identified")
+        print("  - Security controls: Mapped to OWASP ASVS")
+
+    @listen(execute_phase1_parallel)
+    def execute_phase2_parallel(self):
+        """
+        Phase 2: Execute independent crews in parallel.
+        - identify_ai_security
+        - assess_compliance
+        Both only depend on analyze_requirements outputs (not on Phase 1 outputs).
+        """
         print("\n" + "=" * 80)
-        print("STEP 7: Assessing Compliance Requirements")
+        print("PHASE 2: Parallel Execution - AI/ML Security & Compliance")
         print("=" * 80)
 
-        result = (
-            ComplianceCrew()
-            .crew()
-            .kickoff(
-                inputs={
-                    "requirements_text": self.state.requirements_text,
-                    "analyzed_requirements": f"Application Summary: {self.state.application_summary}\nHigh-Level Requirements: {self.state.high_level_requirements}",
-                }
+        # Define executor functions for each crew
+        def exec_ai_security():
+            print("\n[PARALLEL] Starting AI/ML Security Analysis...")
+            result = (
+                LLMSecurityCrew()
+                .crew()
+                .kickoff(
+                    inputs={
+                        "requirements_text": self.state.requirements_text,
+                        "analyzed_requirements": f"Application Summary: {self.state.application_summary}\nHigh-Level Requirements: {self.state.high_level_requirements}",
+                    }
+                )
             )
-        )
+            return ("ai_security", result.raw)
 
-        self.state.compliance_requirements = result.raw
-        print("\n✓ Compliance assessment complete")
+        def exec_compliance():
+            print("\n[PARALLEL] Starting Compliance Assessment...")
+            result = (
+                ComplianceCrew()
+                .crew()
+                .kickoff(
+                    inputs={
+                        "requirements_text": self.state.requirements_text,
+                        "analyzed_requirements": f"Application Summary: {self.state.application_summary}\nHigh-Level Requirements: {self.state.high_level_requirements}",
+                    }
+                )
+            )
+            return ("compliance_requirements", result.raw)
 
-    @listen(assess_compliance)
+        # Execute both in parallel
+        results = self._execute_crew_parallel([exec_ai_security, exec_compliance], ["AI/ML Security", "Compliance Assessment"])
+
+        # Store results
+        self.state.ai_security = results["AI/ML Security"][1]
+        self.state.compliance_requirements = results["Compliance Assessment"][1]
+
+        print("\n✓ Phase 2 complete - All parallel crews finished")
+        print("  - AI/ML security: Complete")
+        print("  - Compliance assessment: Complete")
+
+    @listen(execute_phase2_parallel)
     def design_security_architecture(self):
         """Design security architecture using Security Architecture Crew."""
         print("\n" + "=" * 80)
@@ -395,53 +461,61 @@ class SecurityRequirementsFlow(Flow[SecurityRequirementsState]):
         print("\n✓ Security architecture design complete")
 
     @listen(design_security_architecture)
-    def create_implementation_roadmap(self):
-        """Create implementation roadmap using Roadmap Crew."""
+    def execute_phase4_parallel(self):
+        """
+        Phase 4: Execute independent crews in parallel.
+        - create_implementation_roadmap (needs: security_controls, threats, compliance_requirements)
+        - design_verification_strategy (needs: security_controls, compliance_requirements)
+        Neither actually needs design_security_architecture outputs, but we wait for it for sequencing.
+        """
         print("\n" + "=" * 80)
-        print("STEP 9: Creating Implementation Roadmap")
+        print("PHASE 4: Parallel Execution - Implementation Roadmap & Verification Strategy")
         print("=" * 80)
 
-        result = (
-            RoadmapCrew()
-            .crew()
-            .kickoff(
-                inputs={
-                    "requirements_text": self.state.requirements_text,
-                    "security_controls": self.state.security_controls,
-                    "threats": self.state.threats,
-                    "compliance_requirements": self.state.compliance_requirements,
-                }
+        # Define executor functions for each crew
+        def exec_roadmap():
+            print("\n[PARALLEL] Starting Implementation Roadmap...")
+            result = (
+                RoadmapCrew()
+                .crew()
+                .kickoff(
+                    inputs={
+                        "requirements_text": self.state.requirements_text,
+                        "security_controls": self.state.security_controls,
+                        "threats": self.state.threats,
+                        "compliance_requirements": self.state.compliance_requirements,
+                    }
+                )
             )
-        )
+            return ("implementation_roadmap", result.raw)
 
-        self.state.implementation_roadmap = result.raw
-
-        print("\n✓ Implementation roadmap created")
-
-    @listen(create_implementation_roadmap)
-    def design_verification_strategy(self):
-        """Design verification and testing strategy using Verification Crew."""
-        print("\n" + "=" * 80)
-        print("STEP 10: Designing Verification and Testing Strategy")
-        print("=" * 80)
-
-        result = (
-            VerificationCrew()
-            .crew()
-            .kickoff(
-                inputs={
-                    "security_controls": self.state.security_controls,
-                    "compliance_requirements": self.state.compliance_requirements,
-                    "owasp_controls": self.state.security_controls,  # Same as security_controls for now
-                }
+        def exec_verification():
+            print("\n[PARALLEL] Starting Verification Strategy...")
+            result = (
+                VerificationCrew()
+                .crew()
+                .kickoff(
+                    inputs={
+                        "security_controls": self.state.security_controls,
+                        "compliance_requirements": self.state.compliance_requirements,
+                        "owasp_controls": self.state.security_controls,  # Same as security_controls for now
+                    }
+                )
             )
-        )
+            return ("verification_testing", result.raw)
 
-        self.state.verification_testing = result.raw
+        # Execute both in parallel
+        results = self._execute_crew_parallel([exec_roadmap, exec_verification], ["Implementation Roadmap", "Verification Strategy"])
 
-        print("\n✓ Verification strategy designed")
+        # Store results
+        self.state.implementation_roadmap = results["Implementation Roadmap"][1]
+        self.state.verification_testing = results["Verification Strategy"][1]
 
-    @listen(design_verification_strategy)
+        print("\n✓ Phase 4 complete - All parallel crews finished")
+        print("  - Implementation roadmap: Complete")
+        print("  - Verification strategy: Complete")
+
+    @listen(execute_phase4_parallel)
     def validate_requirements(self):
         """Validate all generated requirements using Validation Crew."""
         print("\n" + "=" * 80)
