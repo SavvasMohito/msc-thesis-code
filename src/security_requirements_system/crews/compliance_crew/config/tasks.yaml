@@ -50,7 +50,11 @@ assess_compliance_requirements:
     Bold rule types followed by descriptions (e.g., **Retention:** description).
     
     ### 8.7. Compliance Risk Assessment
-    Introduction followed by **Key Compliance Risks:** with bullet-pointed list.
+    Introduction followed by 
+    
+    **Key Compliance Risks:** 
+    
+    with bullet-pointed list.
     
     If no compliance requirements identified, return: "*No compliance requirements identified.*"
   agent: compliance_expert

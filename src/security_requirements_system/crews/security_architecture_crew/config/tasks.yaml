@@ -74,10 +74,12 @@ design_security_architecture:
     #### Frontend User Interface
     
     **Required Controls:**
+
     - Control 1
     - Control 2
     
     **Recommended Patterns:**
+
     - Pattern 1
     - Pattern 2
     
@@ -85,12 +87,14 @@ design_security_architecture:
     #### Backend API
     
     **Required Controls:**
+
     - OAuth2 for API authentication
     - Rate Limiting
     - Input Validation
     - Error Handling and Logging
     
     **Recommended Patterns:**
+    
     - API Gateway for service aggregation
     - Microservices architecture
     
@@ -120,6 +124,7 @@ design_security_architecture:
     **Integration Name**
     
     *Security Requirements:*
+
     - Requirement 1
     - Requirement 2
     
@@ -129,6 +134,7 @@ design_security_architecture:
     **Stripe Payment Gateway**
     
     *Security Requirements:*
+
     - Use of secure API keys stored in environment variables
     - Implementation of OAuth for user sessions
     - Data transmitted only via secure endpoints (HTTPS)

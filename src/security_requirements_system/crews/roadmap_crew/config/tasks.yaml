@@ -80,6 +80,7 @@ create_implementation_roadmap:
     Begin with a paragraph explaining why prioritization is critical for effective security implementation, then explain each criterion:
     
     **Prioritization Criteria:**
+    
     - **Risk Level**: Controls addressing critical and high-risk threats (identified through threat modeling) are prioritized first
     - **Compliance Deadlines**: Regulatory requirements and compliance deadlines influence immediate priority
     - **Technical Complexity**: Controls requiring foundational infrastructure are implemented early to enable subsequent controls
@@ -100,11 +101,13 @@ create_implementation_roadmap:
     **Rationale:** [Why these controls are in this phase]
     
     **Controls to Implement:**
+
     - Control 1
     - Control 2
     - Control 3
     
     **Dependencies:**
+
     - Dependency 1
     - Dependency 2
     (Only include if there are dependencies)
@@ -117,6 +120,7 @@ create_implementation_roadmap:
     **Rationale:** These controls build upon immediate security measures, focusing on improving access control adjustments and ensuring that logging and API security mitigate identified threats effectively.
     
     **Controls to Implement:**
+
     - Enhance user authentication through comprehensive multi-factor authentication
     - Deploy role-based access controls across the admin dashboard
     - Implement comprehensive logging and monitoring for all administrative actions
@@ -124,6 +128,7 @@ create_implementation_roadmap:
     - Begin encryption for all sensitive data at rest
     
     **Dependencies:**
+
     - Completion of TLS Implementation
     - Completion of multi-factor authentication
     
