@@ -127,10 +127,19 @@ design_security_architecture:
     
     *Security Requirements:*
     
+    (CRITICAL: Each bullet item MUST be on its own separate line. DO NOT put multiple items on one line separated by dashes.)
     - Requirement 1
     - Requirement 2
+    - Requirement 3
     
     *Risk Assessment:* [assessment]
+    
+    *Recommended Controls:*
+    
+    (CRITICAL: Each bullet item MUST be on its own separate line. DO NOT put multiple items on one line separated by dashes.)
+    - Control 1
+    - Control 2
+    - Control 3
     
     Example:
     **Stripe Payment Gateway**
@@ -143,6 +152,16 @@ design_security_architecture:
     
     *Risk Assessment:* Critical - involves sensitive financial information; requires robust security measures to prevent breaches.
     
-    IMPORTANT: Always include a blank line between italic headers (like *Security Requirements:*) and the bullet list that follows. This ensures proper markdown rendering in Quarto.
+    *Recommended Controls:*
+    
+    - Rate limiting for API calls
+    - Input validation on all endpoints
+    - Regular security audits
+    
+    CRITICAL FORMATTING RULES:
+    1. Always include a blank line between italic headers (like *Security Requirements:* or *Recommended Controls:*) and the bullet list that follows.
+    2. Each bullet item MUST be on its own separate line - DO NOT combine multiple items on one line with dashes.
+    3. Use proper markdown list syntax: one dash (-) per line, with each item starting on a new line.
+    4. This ensures proper markdown rendering in Quarto.
   agent: security_architect
 

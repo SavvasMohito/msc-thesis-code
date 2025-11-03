@@ -81,6 +81,7 @@ create_implementation_roadmap:
     
     **Prioritization Criteria:**
     
+    (CRITICAL: Each bullet item MUST be on its own separate line. DO NOT put multiple items on one line separated by dashes.)
     - **Risk Level**: Controls addressing critical and high-risk threats (identified through threat modeling) are prioritized first
     - **Compliance Deadlines**: Regulatory requirements and compliance deadlines influence immediate priority
     - **Technical Complexity**: Controls requiring foundational infrastructure are implemented early to enable subsequent controls
@@ -89,6 +90,12 @@ create_implementation_roadmap:
     - **Business Impact**: Controls protecting business-critical functions and data receive higher priority
     
     Explain how these criteria work together to create a logical implementation sequence that balances security needs with practical constraints.
+    
+    CRITICAL FORMATTING RULES:
+    1. Always include a blank line between bold headers (like **Prioritization Criteria:**) and the bullet list that follows.
+    2. Each bullet item MUST be on its own separate line - DO NOT combine multiple items on one line with dashes.
+    3. Use proper markdown list syntax: one dash (-) per line, with each item starting on a new line.
+    4. This ensures proper markdown rendering in Quarto.
     
     ### 10.2. Phased Implementation Plan
     
@@ -102,12 +109,14 @@ create_implementation_roadmap:
     
     **Controls to Implement:**
     
+    (CRITICAL: Each bullet item MUST be on its own separate line. DO NOT put multiple items on one line separated by dashes.)
     - Control 1
     - Control 2
     - Control 3
     
     **Dependencies:**
     
+    (CRITICAL: Each bullet item MUST be on its own separate line. DO NOT put multiple items on one line separated by dashes.)
     - Dependency 1
     - Dependency 2
     (Only include if there are dependencies)
@@ -132,7 +141,12 @@ create_implementation_roadmap:
     - Completion of TLS Implementation
     - Completion of multi-factor authentication
     
-    IMPORTANT: Always include a blank line between bold headers (like **Controls to Implement:** or **Dependencies:**) and the bullet list that follows. This ensures proper markdown rendering in Quarto.
+    CRITICAL FORMATTING RULES:
+    1. Always include a blank line between bold headers (like **Controls to Implement:** or **Dependencies:**) and the bullet list that follows.
+    2. Each bullet item MUST be on its own separate line - DO NOT combine multiple items on one line with dashes.
+    3. Use proper markdown list syntax: one dash (-) per line, with each item starting on a new line.
+    4. Each control or dependency should be a complete, standalone sentence or phrase on its own line.
+    5. This ensures proper markdown rendering in Quarto.
     
     ### 10.3. Resource Requirements
     
