@@ -1050,7 +1050,7 @@ author: "Security Requirements System v2.0"
 date: "{timestamp}"
 format:
   html:
-    theme: cosmo
+    page-layout: full
     toc: true
     toc-depth: 3
     toc-location: left
@@ -1063,22 +1063,6 @@ format:
     number-sections: false
     smooth-scroll: true
     mermaid-format: svg
-  pdf:
-    pdf-engine: lualatex
-    toc: true
-    toc-depth: 3
-    number-sections: true
-    fig-width: 7
-    fig-height: 4.5
-    fig-dpi: 300
-    fig-format: png
-    keep-tex: false
-    documentclass: report
-    papersize: a4
-    include-in-header:
-      text: |
-        \\usepackage{{fvextra}}
-        \\DefineVerbatimEnvironment{{Highlighting}}{{Verbatim}}{{breaklines,commandchars=\\\\\\{{\\}}}}
 execute:
   echo: false
   warning: false
