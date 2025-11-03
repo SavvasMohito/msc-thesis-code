@@ -1023,6 +1023,7 @@ format:
     fig-dpi: 300
     number-sections: false
     smooth-scroll: true
+    mermaid-format: svg
   pdf:
     pdf-engine: lualatex
     toc: true
@@ -2309,7 +2310,7 @@ The following high-level functional requirements have been identified and analyz
                         threat_ids = entry.get("threat_ids", [])
                         threat_descs = entry.get("threat_descriptions", [])
                         if threat_ids:
-                            markdown += "**Related Threats:**\n"
+                            markdown += "**Related Threats:**\n\n"
                             for tid, tdesc in zip(threat_ids[:5], threat_descs[:5]):
                                 markdown += f"- **{tid}**: {tdesc}\n"
                             if len(threat_ids) > 5:
@@ -2320,7 +2321,7 @@ The following high-level functional requirements have been identified and analyz
                         control_ids = entry.get("owasp_control_ids", [])
                         control_descs = entry.get("owasp_control_descriptions", [])
                         if control_ids:
-                            markdown += "**OWASP ASVS Controls:**\n"
+                            markdown += "**OWASP ASVS Controls:**\n\n"
                             for cid, cdesc in zip(control_ids[:5], control_descs[:5]):
                                 markdown += f"- **{cid}**: {cdesc}\n"
                             if len(control_ids) > 5:
@@ -2378,7 +2379,6 @@ def kickoff():
     print("SECURITY REQUIREMENTS GENERATION SYSTEM")
     print("=" * 80)
     print(f"Input: {input_file}")
-    print(f"LLM Model: {os.getenv('OPENAI_MODEL_NAME', 'default')}")
     print(f"Max Iterations: {SecurityRequirementsFlow.MAX_ITERATIONS}")
     print(f"Validation Threshold: {SecurityRequirementsFlow.VALIDATION_THRESHOLD}")
     print("=" * 80 + "\n")
