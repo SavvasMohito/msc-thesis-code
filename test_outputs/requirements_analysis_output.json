@@ -1,116 +1,281 @@
 {
-  "raw": "{\n  \"architecture_summary\": \"The e-commerce platform serves as a digital marketplace where users can register, browse products, manage their shopping cart, and securely complete transactions while allowing administrators to manage user accounts, product listings, and sales analytics through an admin panel. The architecture consists of a frontend interface for user interactions and an admin dashboard, a backend API for business logic, a database for data persistence, and integration with third-party services like payment processors. These components interact via RESTful APIs\",\n  \"architecture_diagram\": \"graph TD\\n    A[User Interface] -->|Interacts with| B[Backend API]\\n    B -->|CRUD operations| C[Database]\\n    B -->|Payment Processing| D[Payment Gateway]\\n    B -->|Admin Operations| E[Admin Panel]\\n    C -->|Data management| F[Product Catalog]\\n    C -->|User personal data| G[User Management]\",\n  \"components\": [\n    {\n      \"name\": \"User Interface\",\n      \"responsibility\": \"Facilitates user interactions for product browsing, shopping cart management, and checkout processes.\",\n      \"security_criticality\": \"High\",\n      \"external_dependencies\": [],\n      \"data_handled\": [\"User credentials\", \"Product information\", \"Order details\"]\n    },\n    {\n      \"name\": \"Backend API\",\n      \"responsibility\": \"Handles business logic, processes requests from the user interface, and interfaces with the database and third-party services.\",\n      \"security_criticality\": \"Critical\",\n      \"external_dependencies\": [\"Payment Gateway API\"],\n      \"data_handled\": [\"User data\", \"Payment data\", \"Order details\", \"Product inventory\"]\n    },\n    {\n      \"name\": \"Database\",\n      \"responsibility\": \"Persistent storage of user data, product catalog, order details, and inventory information.\",\n      \"security_criticality\": \"Critical\",\n      \"external_dependencies\": [],\n      \"data_handled\": [\"User profiles\", \"Product listings\", \"Order history\", \"Inventory data\"]\n    },\n    {\n      \"name\": \"Payment Gateway\",\n      \"responsibility\": \"Processes secure transactions for payments made via credit cards and PayPal.\",\n      \"security_criticality\": \"Critical\",\n      \"external_dependencies\": [],\n      \"data_handled\": [\"Payment transaction details\", \"User payment information\"]\n    },\n    {\n      \"name\": \"Admin Panel\",\n      \"responsibility\": \"Enables administrators to manage users, products, orders, and generate sales analytics.\",\n      \"security_criticality\": \"High\",\n      \"external_dependencies\": [],\n      \"data_handled\": [\"User information\", \"Product information\", \"Sales data\"]\n    }\n  ],\n  \"data_flow_description\": \"Data is initiated from the User Interface when users register or make purchases. This data is sent to the Backend API, which processes the requests and communicates with the Database for CRUD operations. Transaction details are processed through the Payment Gateway during checkout. Key transformation points occur when user requests are authenticated, orders are placed, and payments are processed securely, ensuring sensitive information is not exposed during the flow.\",\n  \"trust_boundaries\": [\n    {\n      \"name\": \"Internet\",\n      \"components\": [\"User Interface\", \"Backend API\"],\n      \"boundary_type\": \"External\",\n      \"security_controls\": [\"SSL/TLS encryption\", \"Web Application Firewall\"]\n    },\n    {\n      \"name\": \"Internal Network\",\n      \"components\": [\"Database\", \"Payment Gateway\"],\n      \"boundary_type\": \"Internal\",\n      \"security_controls\": [\"Network segmentation\", \"Access controls\"]\n    }\n  ],\n  \"attack_surface_analysis\": \"The system has several potential entry points including the User Interface for user operations, the Backend API for data processing requests, and the Admin Panel for administrative tasks. Exposed APIs include user management, product listing, and payment processing functions. Risk levels are classified as follows: User Interface (Medium), Backend API (High), Payment Processing (Critical), Admin Panel (High). The risk levels arise from potential unauthorized access to sensitive data and functions.\",\n}",
+  "raw": "{\n  \"architecture_summary\": \"The platform is a cloud-hosted, layered e-commerce system where customers and admins access Web and Admin UIs delivered through a CDN/WAF and API gateway/load balancer. Frontends call a set of application services (Auth & User, Catalog & Search, Cart & Checkout, Order & Returns, Admin & Analytics, Notifications & Integrations) that enforce business rules and integrate with third-party providers (PCI-compliant payment gateway, PayPal, email/SMS, shipping/address APIs, and SSO/IdP). Core data is persisted in a managed relational database with Redis cache, object storage for images, a search index, and an event bus for asynchronous processing, all protected by encryption and IAM. Security and observability are provided via centralized logging/SIEM, metrics, and tracing, with strict RBAC, MFA, and compliance controls across trust boundaries.\",\n  \"architecture_diagram\": \"%%{init: {'theme':'dark'}}%%\\ngraph TD\\n  U[Customers\\\\nAdmins] --> E1\\n\\n  subgraph Edge Layer\\n    E1[CDN/WAF]\\n    E2[API GW/\\\\nLoad Balancer]\\n  end\\n\\n  E1 --> E2\\n  E2 --> F1\\n  E2 --> F2\\n\\n  subgraph Frontend Layer\\n    F1[Web App\\\\n(SPA/SSR)]\\n    F2[Admin UI]\\n  end\\n\\n  F1 --> A1\\n  F1 --> A2\\n  F1 --> A3\\n  F1 --> A4\\n  F2 --> A5\\n\\n  subgraph Application Services\\n    A1[Auth & User]\\n    A2[Catalog & Search]\\n    A3[Cart & Checkout]\\n    A4[Order & Returns]\\n    A5[Admin & Analytics]\\n    A6[Notifications &\\\\nIntegrations]\\n  end\\n\\n  subgraph Data Layer\\n    D1[Relational DB]\\n    D2[Cache (Redis)]\\n    D3[Object Storage\\\\n(Images)]\\n    D4[Search Index]\\n    D5[Event Bus/Queue]\\n    D6[KMS/Secrets]\\n  end\\n\\n  subgraph External Services\\n    X1[Card Processor\\\\n(Payment GW)]\\n    X2[PayPal]\\n    X3[Email/SMS Provider]\\n    X4[Shipping &\\\\nAddress APIs]\\n    X5[SSO/IdP]\\n    X6[Fraud/3DS/AVS]\\n  end\\n\\n  subgraph Security & Observability\\n    O1[SIEM/Logging]\\n    O2[Metrics/Tracing]\\n  end\\n\\n  A1 --> D1\\n  A2 --> D1\\n  A3 --> D1\\n  A4 --> D1\\n  A5 --> D1\\n  A1 --> D2\\n  A2 --> D2\\n  A3 --> D2\\n  A2 --> D4\\n  A3 --> X1\\n  A3 --> X2\\n  A6 --> X3\\n  A6 --> X4\\n  A1 --> X5\\n  A6 --> D5\\n  A1 --> O1\\n  A5 --> O1\\n  A3 --> O1\\n  E1 --> O2\\n  A2 --> D3\",\n  \"components\": [\n    {\n      \"name\": \"Edge Layer\",\n      \"responsibility\": \"Terminate and protect inbound traffic; cache static assets; apply WAF/DDoS/bot defenses; route API requests to the application via gateway/load balancer; enforce rate limiting and TLS.\",\n      \"security_criticality\": \"High\",\n      \"external_dependencies\": [\n        \"CDN/WAF provider (e.g., CloudFront/Cloudflare/Akamai)\",\n        \"Managed API Gateway/Load Balancer\",\n        \"DDoS protection service\"\n      ],\n      \"data_handled\": [\n        \"HTTPS requests/responses\",\n        \"TLS certificates and headers\",\n        \"Static assets (HTML/CSS/JS/images)\",\n        \"Client IP and geolocation metadata\",\n        \"Access and edge logs\"\n      ]\n    },\n    {\n      \"name\": \"Frontend Layer\",\n      \"responsibility\": \"Deliver customer storefront and admin console; handle client-side rendering, form validation, session handling, and calls to backend APIs; display product catalog, cart, checkout, and admin tools.\",\n      \"security_criticality\": \"High\",\n      \"external_dependencies\": [\n        \"CDN for static asset delivery\",\n        \"Browser Web APIs\",\n        \"Optional Tag Manager/Analytics SDK (privacy-aware)\"\n      ],\n      \"data_handled\": [\n        \"User inputs (PII, addresses, preferences)\",\n        \"Session cookies/tokens (HttpOnly cookies preferred)\",\n        \"Cart state and browsing context\",\n        \"Non-sensitive product/catalog data\"\n      ]\n    },\n    {\n      \"name\": \"Application Services\",\n      \"responsibility\": \"Implement domain logic for authentication/MFA, profiles, product catalog/search, inventory, cart/checkout, orders/returns/refunds, admin/RBAC/audit, analytics, notifications, and third-party integrations; expose REST/GraphQL APIs.\",\n      \"security_criticality\": \"Critical\",\n      \"external_dependencies\": [\n        \"PCI-compliant payment gateway (e.g., Stripe/Adyen/Checkout.com)\",\n        \"PayPal\",\n        \"Email/SMS provider (e.g., SES/SendGrid/Twilio)\",\n        \"Shipping and tracking APIs (e.g., UPS/FedEx/DHL)\",\n        \"Address validation APIs (e.g., USPS/Loqate)\",\n        \"SSO/IdP for admin (e.g., Okta/Azure AD)\",\n        \"Fraud/3DS/AVS services as applicable\"\n      ],\n      \"data_handled\": [\n        \"Authentication data (password hashes, MFA secrets/tokens)\",\n        \"User PII (names, emails, phones)\",\n        \"Addresses and shipping preferences\",\n        \"Product catalog and pricing\",\n        \"Inventory levels/SKU data\",\n        \"Carts and checkout state\",\n        \"Orders, returns, refunds\",\n        \"Payment tokens and authorization results (no raw PAN/SAD)\",\n        \"Admin roles, permissions, audit trails\",\n        \"Event messages for async workflows\"\n      ]\n    },\n    {\n      \"name\": \"Data Layer\",\n      \"responsibility\": \"Durable storage and caching of operational data; serve fast reads via cache/search; store images and documents; provide messaging for decoupling; manage keys and secrets with strong IAM and encryption.\",\n      \"security_criticality\": \"Critical\",\n      \"external_dependencies\": [\n        \"Managed RDBMS (e.g., AWS RDS/Azure SQL/Cloud SQL)\",\n        \"Managed Redis cache\",\n        \"Object storage (e.g., S3/GCS) with CDN origin\",\n        \"Managed search (e.g., OpenSearch/Elasticsearch)\",\n        \"Managed message queue/event bus (e.g., SQS/SNS/Kafka/PubSub)\",\n        \"Cloud KMS and Secrets Manager\",\n        \"Backup/restore services\"\n      ],\n      \"data_handled\": [\n        \"User and auth metadata (hashed credentials, MFA seeds)\",\n        \"PII (addresses, contact details)\",\n        \"Orders, line items, payments metadata\",\n        \"Product catalog, categories, pricing\",\n        \"Inventory and reservations\",\n        \"Shopping carts and sessions\",\n        \"Audit logs and admin actions\",\n        \"Product images and attachments\",\n        \"Operational events and outbox messages\",\n        \"Encryption keys and secrets (wrapped)\"\n      ]\n    },\n    {\n      \"name\": \"External Services\",\n      \"responsibility\": \"Specialized third-party capabilities for payments, PayPal, email/SMS delivery, shipping/tracking and address validation, identity federation/SSO, and fraud/3DS checks; send webhooks and callbacks.\",\n      \"security_criticality\": \"High\",\n      \"external_dependencies\": [\n        \"Payment Gateway (PCI DSS compliant)\",\n        \"PayPal\",\n        \"Email/SMS provider\",\n        \"Shipping/carrier APIs\",\n        \"Address validation APIs\",\n        \"SSO/IdP\",\n        \"Fraud/3DS services\"\n      ],\n      \"data_handled\": [\n        \"Payment tokens and authorization results\",\n        \"Minimal PII (names, emails, phones) for messaging\",\n        \"Shipping addresses and tracking numbers\",\n        \"IdP assertions and claims\",\n        \"Webhook payloads\"\n      ]\n    },\n    {\n      \"name\": \"Security & Observability\",\n      \"responsibility\": \"Collect and retain logs, metrics, and traces; perform security monitoring, alerting, and audit; support incident response and compliance reporting with data minimization and retention policies.\",\n      \"security_criticality\": \"High\",\n      \"external_dependencies\": [\n        \"SIEM/Log analytics (e.g., Splunk/Datadog/ELK)\",\n        \"Cloud monitoring and tracing\",\n        \"Alerting/on-call (e.g., PagerDuty/Opsgenie)\"\n      ],\n      \"data_handled\": [\n        \"Application and access logs (with PII redaction)\",\n        \"Security events and audit trails\",\n        \"Metrics and health checks\",\n        \"Distributed traces and performance data\"\n      ]\n    }\n  ],\n  \"data_flow_description\": \"1) Users connect over HTTPS; CDN/WAF serves static assets and forwards dynamic requests through the API gateway/LB. 2) Frontend UIs authenticate via Auth & User service (password + MFA), establishing sessions (HttpOnly cookies) and retrieving profile and consent settings. 3) Catalog browsing/search requests hit Catalog & Search, which reads from the DB/Redis and the search index; product images are fetched from object storage via the CDN. 4) Cart operations persist ephemeral state in Redis and durable cart/order state in the DB. 5) Checkout posts to Cart & Checkout, which creates an order, reserves inventory, and orchestrates payment: card flows use hosted fields/redirects to the payment gateway (3DS/SCA as needed) returning a token/intent; PayPal is handled via SDK/redirect. 6) On payment authorization, Order & Returns finalizes the order, commits to the DB, publishes events on the queue, and invokes Notifications to send confirmation emails via the email provider. 7) Shipping/tracking details are retrieved or updated via shipping/address APIs; order history and tracking are read from the DB and carrier APIs. 8) Admin UI uses Admin & Analytics for RBAC-governed operations (user/product/order management, refunds with dual control), writing to the DB and emitting immutable audit logs to SIEM. 9) All services emit structured logs/metrics/traces to observability backends; data at rest is encrypted with KMS; secrets are fetched from Secrets Manager. Key transformations: credential hashing and MFA token verification; payment tokenization by gateway; data aggregation for analytics; webhook signature verification and normalization.\",\n  \"trust_boundaries\": [\n    {\n      \"name\": \"Internet\",\n      \"components\": [\n        \"Customers\",\n        \"Admins\",\n        \"Web browsers\"\n      ],\n      \"boundary_type\": \"Public\",\n      \"security_controls\": [\n        \"TLS 1.2+ with HSTS and modern ciphers\",\n        \"CSP, XFO, XSS protection headers\",\n        \"Captcha/throttling for abuse hotspots\",\n        \"Cookie security (HttpOnly, Secure, SameSite)\"\n      ]\n    },\n    {\n      \"name\": \"Edge/DMZ\",\n      \"components\": [\n        \"CDN/WAF\",\n        \"API GW/Load Balancer\"\n      ],\n      \"boundary_type\": \"DMZ\",\n      \"security_controls\": [\n        \"WAF rulesets (OWASP Top 10, bot management)\",\n        \"DDoS mitigation and rate limiting\",\n        \"TLS termination/OCSP stapling\",\n        \"IP reputation and geo-blocking\",\n        \"Request normalization and header sanitization\"\n      ]\n    },\n    {\n      \"name\": \"Application Network\",\n      \"components\": [\n        \"Auth & User\",\n        \"Catalog & Search\",\n        \"Cart & Checkout\",\n        \"Order & Returns\",\n        \"Admin & Analytics\",\n        \"Notifications & Integrations\"\n      ],\n      \"boundary_type\": \"Internal Network\",\n      \"security_controls\": [\n        \"Private subnets and security groups\",\n        \"mTLS/service mesh or signed JWT between services\",\n        \"Least-privilege IAM roles for services\",\n        \"Input validation and output encoding\",\n        \"CSRF protection and robust session management\",\n        \"Secrets Manager for credentials/keys\"\n      ]\n    },\n    {\n      \"name\": \"Data Tier\",\n      \"components\": [\n        \"Relational DB\",\n        \"Cache (Redis)\",\n        \"Object Storage (Images)\",\n        \"Search Index\",\n        \"Event Bus/Queue\",\n        \"KMS/Secrets\"\n      ],\n      \"boundary_type\": \"Database Tier\",\n      \"security_controls\": [\n        \"No public access; VPC-only endpoints\",\n        \"Encryption at rest with KMS-managed keys\",\n        \"Transparent data encryption and backups\",\n        \"Row/column-level access controls as needed\",\n        \"Network ACLs and database firewall rules\",\n        \"Audit logging and query logging\"\n      ]\n    },\n    {\n      \"name\": \"External Integrations\",\n      \"components\": [\n        \"Card Processor (Payment GW)\",\n        \"PayPal\",\n        \"Email/SMS Provider\",\n        \"Shipping & Address APIs\",\n        \"SSO/IdP\",\n        \"Fraud/3DS/AVS\"\n      ],\n      \"boundary_type\": \"Third-party\",\n      \"security_controls\": [\n        \"Outbound egress allowlists and DNS control\",\n        \"API keys/OAuth with secret rotation\",\n        \"Signed webhook verification and replay protection\",\n        \"Timeouts, retries, and circuit breakers\",\n        \"Data minimization and DPA/contractual controls\"\n      ]\n    },\n    {\n      \"name\": \"Admin/Corporate Zone\",\n      \"components\": [\n        \"Admin UI\",\n        \"SSO/IdP\"\n      ],\n      \"boundary_type\": \"Enterprise\",\n      \"security_controls\": [\n        \"SSO with MFA and conditional access\",\n        \"RBAC and least privilege for admin roles\",\n        \"Device posture/VPN or ZTNA\",\n        \"Immutable audit logs and session recording for critical actions\"\n      ]\n    },\n    {\n      \"name\": \"Security & Observability SaaS\",\n      \"components\": [\n        \"SIEM/Logging\",\n        \"Metrics/Tracing\"\n      ],\n      \"boundary_type\": \"Third-party SaaS\",\n      \"security_controls\": [\n        \"Encrypted log shipping and storage\",\n        \"PII redaction and data retention policies\",\n        \"Access control with MFA and SSO\",\n        \"Alerting/on-call escalation procedures\"\n      ]\n    }\n  ],\n  \"attack_surface_analysis\": \"Primary entry points: (1) Web UI (HTTPS) \u2013 Risk: Medium/High; threats include XSS, CSRF, clickjacking, session fixation; mitigations: strict CSP, HttpOnly/SameSite cookies, CSRF tokens, input/output encoding, framebusting headers, content integrity (SRI). (2) Admin UI \u2013 Risk: High; threats include account takeover and privilege escalation; mitigations: SSO+MFA, RBAC/ABAC, just-in-time access, step-up auth for refunds, immutable audit logs, IP allowlists/conditional access. (3) Public APIs via API Gateway \u2013 Risk: High; threats include injection, authN/Z bypass, IDOR, mass assignment, SSRF; mitigations: OAuth2/JWT, schema validation, object-level authorization, rate limiting, WAF, deny-by-default CORS, SSRF egress controls. (4) Payment integrations \u2013 Risk: Medium; threats include tampering and webhook replay; mitigations: hosted fields/redirect to keep PCI scope minimal, 3DS/SCA, webhook signature verification with nonce/timestamp, tokenization, no PAN storage. (5) File uploads (product images) \u2013 Risk: Medium; threats include malware and polyglot files; mitigations: antivirus scanning, MIME/type and size validation, metadata scrubbing, store in private bucket with signed URLs, least-privilege CDN origin access. (6) Search endpoints \u2013 Risk: Medium; threats include query injection and scraping; mitigations: parameterized queries/DSL allowlists, throttling, bot detection, result window limits. (7) Email-based flows (password reset, verification) \u2013 Risk: High; threats include token theft and open redirects; mitigations: short-lived single-use tokens, strict redirect allowlists, signed URLs, rate limits. (8) Webhooks inbound (payments, shipping) \u2013 Risk: High; threats include spoofing and SSRF; mitigations: mutual verification (HMAC/MTLS where supported), source IP validation, dedicated ingress endpoints, idempotency keys. (9) Third-party scripts/tags \u2013 Risk: Medium; mitigations: SRI, CSP script-src with nonce, minimize tags, defer marketing to consent. (10) DNS/CDN configuration \u2013 Risk: High; mitigations: DNSSEC (where supported), registrar lock, strict origin access identity, change controls. Overall, apply centralized logging/monitoring, anomaly detection, and incident response with playbooks; conduct regular security testing (SAST/DAST, dependency scanning) and adhere to OWASP ASVS and PCI/Privacy requirements.\"\n}",
   "pydantic": {
-    "architecture_summary": "The e-commerce platform serves as a digital marketplace where users can register, browse products, manage their shopping cart, and securely complete transactions while allowing administrators to manage user accounts, product listings, and sales analytics through an admin panel. The architecture consists of a frontend interface for user interactions and an admin dashboard, a backend API for business logic, a database for data persistence, and integration with third-party services like payment processors. These components interact via RESTful APIs",
-    "architecture_diagram": "graph TD\n    A[User Interface] -->|Interacts with| B[Backend API]\n    B -->|CRUD operations| C[Database]\n    B -->|Payment Processing| D[Payment Gateway]\n    B -->|Admin Operations| E[Admin Panel]\n    C -->|Data management| F[Product Catalog]\n    C -->|User personal data| G[User Management]",
+    "architecture_summary": "The platform is a cloud-hosted, layered e-commerce system where customers and admins access Web and Admin UIs delivered through a CDN/WAF and API gateway/load balancer. Frontends call a set of application services (Auth & User, Catalog & Search, Cart & Checkout, Order & Returns, Admin & Analytics, Notifications & Integrations) that enforce business rules and integrate with third-party providers (PCI-compliant payment gateway, PayPal, email/SMS, shipping/address APIs, and SSO/IdP). Core data is persisted in a managed relational database with Redis cache, object storage for images, a search index, and an event bus for asynchronous processing, all protected by encryption and IAM. Security and observability are provided via centralized logging/SIEM, metrics, and tracing, with strict RBAC, MFA, and compliance controls across trust boundaries.",
+    "architecture_diagram": "%%{init: {'theme':'dark'}}%%\ngraph TD\n  U[Customers\\nAdmins] --> E1\n\n  subgraph Edge Layer\n    E1[CDN/WAF]\n    E2[API GW/\\nLoad Balancer]\n  end\n\n  E1 --> E2\n  E2 --> F1\n  E2 --> F2\n\n  subgraph Frontend Layer\n    F1[Web App\\n(SPA/SSR)]\n    F2[Admin UI]\n  end\n\n  F1 --> A1\n  F1 --> A2\n  F1 --> A3\n  F1 --> A4\n  F2 --> A5\n\n  subgraph Application Services\n    A1[Auth & User]\n    A2[Catalog & Search]\n    A3[Cart & Checkout]\n    A4[Order & Returns]\n    A5[Admin & Analytics]\n    A6[Notifications &\\nIntegrations]\n  end\n\n  subgraph Data Layer\n    D1[Relational DB]\n    D2[Cache (Redis)]\n    D3[Object Storage\\n(Images)]\n    D4[Search Index]\n    D5[Event Bus/Queue]\n    D6[KMS/Secrets]\n  end\n\n  subgraph External Services\n    X1[Card Processor\\n(Payment GW)]\n    X2[PayPal]\n    X3[Email/SMS Provider]\n    X4[Shipping &\\nAddress APIs]\n    X5[SSO/IdP]\n    X6[Fraud/3DS/AVS]\n  end\n\n  subgraph Security & Observability\n    O1[SIEM/Logging]\n    O2[Metrics/Tracing]\n  end\n\n  A1 --> D1\n  A2 --> D1\n  A3 --> D1\n  A4 --> D1\n  A5 --> D1\n  A1 --> D2\n  A2 --> D2\n  A3 --> D2\n  A2 --> D4\n  A3 --> X1\n  A3 --> X2\n  A6 --> X3\n  A6 --> X4\n  A1 --> X5\n  A6 --> D5\n  A1 --> O1\n  A5 --> O1\n  A3 --> O1\n  E1 --> O2\n  A2 --> D3",
     "components": [
       {
-        "name": "User Interface",
-        "responsibility": "Facilitates user interactions for product browsing, shopping cart management, and checkout processes.",
+        "name": "Edge Layer",
+        "responsibility": "Terminate and protect inbound traffic; cache static assets; apply WAF/DDoS/bot defenses; route API requests to the application via gateway/load balancer; enforce rate limiting and TLS.",
         "security_criticality": "High",
-        "external_dependencies": [],
-        "data_handled": [
-          "User credentials",
-          "Product information",
-          "Order details"
-        ]
-      },
-      {
-        "name": "Backend API",
-        "responsibility": "Handles business logic, processes requests from the user interface, and interfaces with the database and third-party services.",
-        "security_criticality": "Critical",
         "external_dependencies": [
-          "Payment Gateway API"
+          "CDN/WAF provider (e.g., CloudFront/Cloudflare/Akamai)",
+          "Managed API Gateway/Load Balancer",
+          "DDoS protection service"
         ],
         "data_handled": [
-          "User data",
-          "Payment data",
-          "Order details",
-          "Product inventory"
+          "HTTPS requests/responses",
+          "TLS certificates and headers",
+          "Static assets (HTML/CSS/JS/images)",
+          "Client IP and geolocation metadata",
+          "Access and edge logs"
         ]
       },
       {
-        "name": "Database",
-        "responsibility": "Persistent storage of user data, product catalog, order details, and inventory information.",
-        "security_criticality": "Critical",
-        "external_dependencies": [],
-        "data_handled": [
-          "User profiles",
-          "Product listings",
-          "Order history",
-          "Inventory data"
-        ]
-      },
-      {
-        "name": "Payment Gateway",
-        "responsibility": "Processes secure transactions for payments made via credit cards and PayPal.",
-        "security_criticality": "Critical",
-        "external_dependencies": [],
-        "data_handled": [
-          "Payment transaction details",
-          "User payment information"
-        ]
-      },
-      {
-        "name": "Admin Panel",
-        "responsibility": "Enables administrators to manage users, products, orders, and generate sales analytics.",
+        "name": "Frontend Layer",
+        "responsibility": "Deliver customer storefront and admin console; handle client-side rendering, form validation, session handling, and calls to backend APIs; display product catalog, cart, checkout, and admin tools.",
         "security_criticality": "High",
-        "external_dependencies": [],
+        "external_dependencies": [
+          "CDN for static asset delivery",
+          "Browser Web APIs",
+          "Optional Tag Manager/Analytics SDK (privacy-aware)"
+        ],
         "data_handled": [
-          "User information",
-          "Product information",
-          "Sales data"
+          "User inputs (PII, addresses, preferences)",
+          "Session cookies/tokens (HttpOnly cookies preferred)",
+          "Cart state and browsing context",
+          "Non-sensitive product/catalog data"
+        ]
+      },
+      {
+        "name": "Application Services",
+        "responsibility": "Implement domain logic for authentication/MFA, profiles, product catalog/search, inventory, cart/checkout, orders/returns/refunds, admin/RBAC/audit, analytics, notifications, and third-party integrations; expose REST/GraphQL APIs.",
+        "security_criticality": "Critical",
+        "external_dependencies": [
+          "PCI-compliant payment gateway (e.g., Stripe/Adyen/Checkout.com)",
+          "PayPal",
+          "Email/SMS provider (e.g., SES/SendGrid/Twilio)",
+          "Shipping and tracking APIs (e.g., UPS/FedEx/DHL)",
+          "Address validation APIs (e.g., USPS/Loqate)",
+          "SSO/IdP for admin (e.g., Okta/Azure AD)",
+          "Fraud/3DS/AVS services as applicable"
+        ],
+        "data_handled": [
+          "Authentication data (password hashes, MFA secrets/tokens)",
+          "User PII (names, emails, phones)",
+          "Addresses and shipping preferences",
+          "Product catalog and pricing",
+          "Inventory levels/SKU data",
+          "Carts and checkout state",
+          "Orders, returns, refunds",
+          "Payment tokens and authorization results (no raw PAN/SAD)",
+          "Admin roles, permissions, audit trails",
+          "Event messages for async workflows"
+        ]
+      },
+      {
+        "name": "Data Layer",
+        "responsibility": "Durable storage and caching of operational data; serve fast reads via cache/search; store images and documents; provide messaging for decoupling; manage keys and secrets with strong IAM and encryption.",
+        "security_criticality": "Critical",
+        "external_dependencies": [
+          "Managed RDBMS (e.g., AWS RDS/Azure SQL/Cloud SQL)",
+          "Managed Redis cache",
+          "Object storage (e.g., S3/GCS) with CDN origin",
+          "Managed search (e.g., OpenSearch/Elasticsearch)",
+          "Managed message queue/event bus (e.g., SQS/SNS/Kafka/PubSub)",
+          "Cloud KMS and Secrets Manager",
+          "Backup/restore services"
+        ],
+        "data_handled": [
+          "User and auth metadata (hashed credentials, MFA seeds)",
+          "PII (addresses, contact details)",
+          "Orders, line items, payments metadata",
+          "Product catalog, categories, pricing",
+          "Inventory and reservations",
+          "Shopping carts and sessions",
+          "Audit logs and admin actions",
+          "Product images and attachments",
+          "Operational events and outbox messages",
+          "Encryption keys and secrets (wrapped)"
+        ]
+      },
+      {
+        "name": "External Services",
+        "responsibility": "Specialized third-party capabilities for payments, PayPal, email/SMS delivery, shipping/tracking and address validation, identity federation/SSO, and fraud/3DS checks; send webhooks and callbacks.",
+        "security_criticality": "High",
+        "external_dependencies": [
+          "Payment Gateway (PCI DSS compliant)",
+          "PayPal",
+          "Email/SMS provider",
+          "Shipping/carrier APIs",
+          "Address validation APIs",
+          "SSO/IdP",
+          "Fraud/3DS services"
+        ],
+        "data_handled": [
+          "Payment tokens and authorization results",
+          "Minimal PII (names, emails, phones) for messaging",
+          "Shipping addresses and tracking numbers",
+          "IdP assertions and claims",
+          "Webhook payloads"
+        ]
+      },
+      {
+        "name": "Security & Observability",
+        "responsibility": "Collect and retain logs, metrics, and traces; perform security monitoring, alerting, and audit; support incident response and compliance reporting with data minimization and retention policies.",
+        "security_criticality": "High",
+        "external_dependencies": [
+          "SIEM/Log analytics (e.g., Splunk/Datadog/ELK)",
+          "Cloud monitoring and tracing",
+          "Alerting/on-call (e.g., PagerDuty/Opsgenie)"
+        ],
+        "data_handled": [
+          "Application and access logs (with PII redaction)",
+          "Security events and audit trails",
+          "Metrics and health checks",
+          "Distributed traces and performance data"
         ]
       }
     ],
-    "data_flow_description": "Data is initiated from the User Interface when users register or make purchases. This data is sent to the Backend API, which processes the requests and communicates with the Database for CRUD operations. Transaction details are processed through the Payment Gateway during checkout. Key transformation points occur when user requests are authenticated, orders are placed, and payments are processed securely, ensuring sensitive information is not exposed during the flow.",
+    "data_flow_description": "1) Users connect over HTTPS; CDN/WAF serves static assets and forwards dynamic requests through the API gateway/LB. 2) Frontend UIs authenticate via Auth & User service (password + MFA), establishing sessions (HttpOnly cookies) and retrieving profile and consent settings. 3) Catalog browsing/search requests hit Catalog & Search, which reads from the DB/Redis and the search index; product images are fetched from object storage via the CDN. 4) Cart operations persist ephemeral state in Redis and durable cart/order state in the DB. 5) Checkout posts to Cart & Checkout, which creates an order, reserves inventory, and orchestrates payment: card flows use hosted fields/redirects to the payment gateway (3DS/SCA as needed) returning a token/intent; PayPal is handled via SDK/redirect. 6) On payment authorization, Order & Returns finalizes the order, commits to the DB, publishes events on the queue, and invokes Notifications to send confirmation emails via the email provider. 7) Shipping/tracking details are retrieved or updated via shipping/address APIs; order history and tracking are read from the DB and carrier APIs. 8) Admin UI uses Admin & Analytics for RBAC-governed operations (user/product/order management, refunds with dual control), writing to the DB and emitting immutable audit logs to SIEM. 9) All services emit structured logs/metrics/traces to observability backends; data at rest is encrypted with KMS; secrets are fetched from Secrets Manager. Key transformations: credential hashing and MFA token verification; payment tokenization by gateway; data aggregation for analytics; webhook signature verification and normalization.",
     "trust_boundaries": [
       {
         "name": "Internet",
         "components": [
-          "User Interface",
-          "Backend API"
+          "Customers",
+          "Admins",
+          "Web browsers"
         ],
-        "boundary_type": "External",
+        "boundary_type": "Public",
         "security_controls": [
-          "SSL/TLS encryption",
-          "Web Application Firewall"
+          "TLS 1.2+ with HSTS and modern ciphers",
+          "CSP, XFO, XSS protection headers",
+          "Captcha/throttling for abuse hotspots",
+          "Cookie security (HttpOnly, Secure, SameSite)"
         ]
       },
       {
-        "name": "Internal Network",
+        "name": "Edge/DMZ",
         "components": [
-          "Database",
-          "Payment Gateway"
+          "CDN/WAF",
+          "API GW/Load Balancer"
         ],
-        "boundary_type": "Internal",
+        "boundary_type": "DMZ",
         "security_controls": [
-          "Network segmentation",
-          "Access controls"
+          "WAF rulesets (OWASP Top 10, bot management)",
+          "DDoS mitigation and rate limiting",
+          "TLS termination/OCSP stapling",
+          "IP reputation and geo-blocking",
+          "Request normalization and header sanitization"
+        ]
+      },
+      {
+        "name": "Application Network",
+        "components": [
+          "Auth & User",
+          "Catalog & Search",
+          "Cart & Checkout",
+          "Order & Returns",
+          "Admin & Analytics",
+          "Notifications & Integrations"
+        ],
+        "boundary_type": "Internal Network",
+        "security_controls": [
+          "Private subnets and security groups",
+          "mTLS/service mesh or signed JWT between services",
+          "Least-privilege IAM roles for services",
+          "Input validation and output encoding",
+          "CSRF protection and robust session management",
+          "Secrets Manager for credentials/keys"
+        ]
+      },
+      {
+        "name": "Data Tier",
+        "components": [
+          "Relational DB",
+          "Cache (Redis)",
+          "Object Storage (Images)",
+          "Search Index",
+          "Event Bus/Queue",
+          "KMS/Secrets"
+        ],
+        "boundary_type": "Database Tier",
+        "security_controls": [
+          "No public access; VPC-only endpoints",
+          "Encryption at rest with KMS-managed keys",
+          "Transparent data encryption and backups",
+          "Row/column-level access controls as needed",
+          "Network ACLs and database firewall rules",
+          "Audit logging and query logging"
+        ]
+      },
+      {
+        "name": "External Integrations",
+        "components": [
+          "Card Processor (Payment GW)",
+          "PayPal",
+          "Email/SMS Provider",
+          "Shipping & Address APIs",
+          "SSO/IdP",
+          "Fraud/3DS/AVS"
+        ],
+        "boundary_type": "Third-party",
+        "security_controls": [
+          "Outbound egress allowlists and DNS control",
+          "API keys/OAuth with secret rotation",
+          "Signed webhook verification and replay protection",
+          "Timeouts, retries, and circuit breakers",
+          "Data minimization and DPA/contractual controls"
+        ]
+      },
+      {
+        "name": "Admin/Corporate Zone",
+        "components": [
+          "Admin UI",
+          "SSO/IdP"
+        ],
+        "boundary_type": "Enterprise",
+        "security_controls": [
+          "SSO with MFA and conditional access",
+          "RBAC and least privilege for admin roles",
+          "Device posture/VPN or ZTNA",
+          "Immutable audit logs and session recording for critical actions"
+        ]
+      },
+      {
+        "name": "Security & Observability SaaS",
+        "components": [
+          "SIEM/Logging",
+          "Metrics/Tracing"
+        ],
+        "boundary_type": "Third-party SaaS",
+        "security_controls": [
+          "Encrypted log shipping and storage",
+          "PII redaction and data retention policies",
+          "Access control with MFA and SSO",
+          "Alerting/on-call escalation procedures"
         ]
       }
     ],
-    "attack_surface_analysis": "The system has several potential entry points including the User Interface for user operations, the Backend API for data processing requests, and the Admin Panel for administrative tasks. Exposed APIs include user management, product listing, and payment processing functions. Risk levels are classified as follows: User Interface (Medium), Backend API (High), Payment Processing (Critical), Admin Panel (High). The risk levels arise from potential unauthorized access to sensitive data and functions."
+    "attack_surface_analysis": "Primary entry points: (1) Web UI (HTTPS) \u2013 Risk: Medium/High; threats include XSS, CSRF, clickjacking, session fixation; mitigations: strict CSP, HttpOnly/SameSite cookies, CSRF tokens, input/output encoding, framebusting headers, content integrity (SRI). (2) Admin UI \u2013 Risk: High; threats include account takeover and privilege escalation; mitigations: SSO+MFA, RBAC/ABAC, just-in-time access, step-up auth for refunds, immutable audit logs, IP allowlists/conditional access. (3) Public APIs via API Gateway \u2013 Risk: High; threats include injection, authN/Z bypass, IDOR, mass assignment, SSRF; mitigations: OAuth2/JWT, schema validation, object-level authorization, rate limiting, WAF, deny-by-default CORS, SSRF egress controls. (4) Payment integrations \u2013 Risk: Medium; threats include tampering and webhook replay; mitigations: hosted fields/redirect to keep PCI scope minimal, 3DS/SCA, webhook signature verification with nonce/timestamp, tokenization, no PAN storage. (5) File uploads (product images) \u2013 Risk: Medium; threats include malware and polyglot files; mitigations: antivirus scanning, MIME/type and size validation, metadata scrubbing, store in private bucket with signed URLs, least-privilege CDN origin access. (6) Search endpoints \u2013 Risk: Medium; threats include query injection and scraping; mitigations: parameterized queries/DSL allowlists, throttling, bot detection, result window limits. (7) Email-based flows (password reset, verification) \u2013 Risk: High; threats include token theft and open redirects; mitigations: short-lived single-use tokens, strict redirect allowlists, signed URLs, rate limits. (8) Webhooks inbound (payments, shipping) \u2013 Risk: High; threats include spoofing and SSRF; mitigations: mutual verification (HMAC/MTLS where supported), source IP validation, dedicated ingress endpoints, idempotency keys. (9) Third-party scripts/tags \u2013 Risk: Medium; mitigations: SRI, CSP script-src with nonce, minimize tags, defer marketing to consent. (10) DNS/CDN configuration \u2013 Risk: High; mitigations: DNSSEC (where supported), registrar lock, strict origin access identity, change controls. Overall, apply centralized logging/monitoring, anomaly detection, and incident response with playbooks; conduct regular security testing (SAST/DAST, dependency scanning) and adhere to OWASP ASVS and PCI/Privacy requirements."
   },
   "tasks": [
     {
       "name": "analyze_requirements",
-      "raw": "{\n  \"application_summary\": \"The e-commerce platform serves as a digital marketplace where users can register, browse products, manage their shopping cart, and securely complete transactions while allowing administrators to manage user accounts, product listings, and sales analytics through an admin panel.\",\n  \"high_level_requirements\": [\n    \"User registration and login with multi-factor authentication\",\n    \"Password reset functionality\",\n    \"Profile management\",\n    \"A searchable product catalog with detailed item descriptions\",\n    \"Inventory management for products\",\n    \"Add/remove items from shopping cart\",\n    \"Secure payment processing (credit cards, PayPal)\",\n    \"Order history tracking for users\",\n    \"Order tracking functionality\",\n    \"Returns and refunds management\",\n    \"Admin panel for user and product management\",\n    \"Sales analytics reporting\"\n  ],\n  \"detailed_requirements\": [\n    {\n      \"requirement_id\": \"REQ-001\",\n      \"requirement_text\": \"User registration and login with multi-factor authentication\",\n      \"business_category\": \"Authentication\",\n      \"security_sensitivity\": \"High\",\n      \"data_classification\": \"Confidential\",\n      \"rationale\": \"This is essential for establishing secure user identities and protecting user accounts against unauthorized access.\"\n    },\n    {\n      \"requirement_id\": \"REQ-002\",\n      \"requirement_text\": \"Password reset functionality\",\n      \"business_category\": \"Authentication\",\n      \"security_sensitivity\": \"High\",\n      \"data_classification\": \"Confidential\",\n      \"rationale\": \"This allows users to recover access to their accounts while ensuring that the reset process is secure to prevent unauthorized account recovery.\"\n    },\n    {\n      \"requirement_id\": \"REQ-003\",\n      \"requirement_text\": \"Profile management\",\n      \"business_category\": \"Data Management\",\n      \"security_sensitivity\": \"Medium\",\n      \"data_classification\": \"Internal\",\n      \"rationale\": \"Users need to manage personal information, which requires secure handling to prevent data leaks.\"\n    },\n    {\n      \"requirement_id\": \"REQ-004\",\n      \"requirement_text\": \"A searchable product catalog with detailed item descriptions\",\n      \"business_category\": \"Data Management\",\n      \"security_sensitivity\": \"Low\",\n      \"data_classification\": \"Public\",\n      \"rationale\": \"Enables users to find and view product offerings, with minimal security implications.\"\n    },\n    {\n      \"requirement_id\": \"REQ-005\",\n      \"requirement_text\": \"Inventory management for products\",\n      \"business_category\": \"Data Management\",\n      \"security_sensitivity\": \"Medium\",\n      \"data_classification\": \"Internal\",\n      \"rationale\": \"Requires protection to avoid stock discrepancies or unauthorized alterations in product availability.\"\n    },\n    {\n      \"requirement_id\": \"REQ-006\",\n      \"requirement_text\": \"Add/remove items from shopping cart\",\n      \"business_category\": \"Data Management\",\n      \"security_sensitivity\": \"Medium\",\n      \"data_classification\": \"Internal\",\n      \"rationale\": \"Shopping cart management must be secure to prevent unauthorized access to the user's pending purchases.\"\n    },\n    {\n      \"requirement_id\": \"REQ-007\",\n      \"requirement_text\": \"Secure payment processing (credit cards, PayPal)\",\n      \"business_category\": \"Payment Processing\",\n      \"security_sensitivity\": \"High\",\n      \"data_classification\": \"Restricted\",\n      \"rationale\": \"Essential for preventing financial fraud and protecting user payment data during transactions.\"\n    },\n    {\n      \"requirement_id\": \"REQ-008\",\n      \"requirement_text\": \"Order history tracking for users\",\n      \"business_category\": \"Data Management\",\n      \"security_sensitivity\": \"Medium\",\n      \"data_classification\": \"Internal\",\n      \"rationale\": \"Allows users to keep track of their purchases while ensuring past order details are secure.\"\n    },\n    {\n      \"requirement_id\": \"REQ-009\",\n      \"requirement_text\": \"Order tracking functionality\",\n      \"business_category\": \"Data Management\",\n      \"security_sensitivity\": \"Medium\",\n      \"data_classification\": \"Internal\",\n      \"rationale\": \"Users require visibility into their order status, necessitating secure access to related information.\"\n    },\n    {\n      \"requirement_id\": \"REQ-010\",\n      \"requirement_text\": \"Returns and refunds management\",\n      \"business_category\": \"Order Management\",\n      \"security_sensitivity\": \"Medium\",\n      \"data_classification\": \"Internal\",\n      \"rationale\": \"Facilitates user satisfaction and must be securely managed to prevent fraudulent refund requests.\"\n    },\n    {\n      \"requirement_id\": \"REQ-011\",\n      \"requirement_text\": \"Admin panel for user and product management\",\n      \"business_category\": \"Administration\",\n      \"security_sensitivity\": \"High\",\n      \"data_classification\": \"Restricted\",\n      \"rationale\": \"Windows for admin operations require stringent access controls to prevent unauthorized administrative actions.\"\n    },\n    {\n      \"requirement_id\": \"REQ-012\",\n      \"requirement_text\": \"Sales analytics reporting\",\n      \"business_category\": \"Administration\",\n      \"security_sensitivity\": \"Medium\",\n      \"data_classification\": \"Internal\",\n      \"rationale\": \"Provides insights for business strategy, but it must be protected to avoid sharing sensitive financial data.\"\n    }\n  ],\n  \"security_context\": \"Applicable regulations include PCI-DSS for secure payment processing and GDPR for handling user data privacy within the EU.\",\n  \"assumptions\": [\n    \"System will be cloud-hosted\",\n    \"Users have internet access\",\n    \"Third-party payment gateways are utilized for transactions\"\n  ],\n  \"constraints\": [\n    \"Must integrate with existing payment solutions\",\n    \"Data storage must comply with local data protection laws\"\n  ]\n}",
+      "raw": "{\n  \"application_summary\": \"A cloud-based e-commerce platform that enables customers to discover products, manage accounts, shop via a secure cart and checkout flow (credit cards and PayPal), and track orders, while providing administrators with tools to manage users, products, orders, inventory, and sales analytics with strong security, privacy, and compliance controls.\",\n  \"high_level_requirements\": [\n    \"User registration and login with multi-factor authentication\",\n    \"Password reset and account recovery via secure channels\",\n    \"User profile management including personal info and preferences\",\n    \"Browse products by category with sorting and pagination\",\n    \"Searchable product catalog with filters and relevance ranking\",\n    \"Product detail pages with images, pricing, and availability\",\n    \"Inventory management with real-time stock control and SKU tracking\",\n    \"Shopping cart add/remove/update with persistent sessions\",\n    \"Secure checkout and payment processing for credit cards and PayPal\",\n    \"Order confirmation and transactional emails\",\n    \"Shipping address management with validation and multiple addresses\",\n    \"Order history with downloadable receipts\",\n    \"Order tracking with carrier integration\",\n    \"Returns and refunds processing workflow\",\n    \"Admin panel user management with role-based access control and audit logging\",\n    \"Admin product management (CRUD, images, pricing, inventory)\",\n    \"Admin order processing (fulfillment, refunds, cancellations)\",\n    \"Sales analytics and reporting for admins\",\n    \"Security logging, auditing, and anomaly monitoring\",\n    \"Privacy consent, data retention, and data subject request handling\"\n  ],\n  \"detailed_requirements\": [\n    {\n      \"requirement_id\": \"REQ-001\",\n      \"requirement_text\": \"User registration and login with multi-factor authentication\",\n      \"business_category\": \"Authentication\",\n      \"security_sensitivity\": \"High\",\n      \"data_classification\": \"Restricted\",\n      \"rationale\": \"Establishes user identity and access to personalized features while reducing account takeover risk through MFA; critical control for safeguarding all downstream PII and orders.\"\n    },\n    {\n      \"requirement_id\": \"REQ-002\",\n      \"requirement_text\": \"Password reset and account recovery via secure channels\",\n      \"business_category\": \"Authentication\",\n      \"security_sensitivity\": \"High\",\n      \"data_classification\": \"Confidential\",\n      \"rationale\": \"Provides a secure, user-friendly mechanism to regain account access while preventing unauthorized resets via tokenized, time-bound flows and identity verification.\"\n    },\n    {\n      \"requirement_id\": \"REQ-003\",\n      \"requirement_text\": \"User profile management including personal info and preferences\",\n      \"business_category\": \"Account Management\",\n      \"security_sensitivity\": \"High\",\n      \"data_classification\": \"Confidential\",\n      \"rationale\": \"Allows users to view/update PII (name, contact details, preferences) to support accurate orders, communications, and privacy settings; requires access controls and auditability.\"\n    },\n    {\n      \"requirement_id\": \"REQ-004\",\n      \"requirement_text\": \"Browse products by category with sorting and pagination\",\n      \"business_category\": \"Catalog Browsing\",\n      \"security_sensitivity\": \"Low\",\n      \"data_classification\": \"Public\",\n      \"rationale\": \"Enables product discovery and navigation for customers; largely public content but must be protected against abuse (e.g., scraping, DoS).\"\n    },\n    {\n      \"requirement_id\": \"REQ-005\",\n      \"requirement_text\": \"Searchable product catalog with filters and relevance ranking\",\n      \"business_category\": \"Search\",\n      \"security_sensitivity\": \"Low\",\n      \"data_classification\": \"Public\",\n      \"rationale\": \"Improves findability via keyword search and faceted filters; enhances conversion while requiring input validation to prevent injection and abuse.\"\n    },\n    {\n      \"requirement_id\": \"REQ-006\",\n      \"requirement_text\": \"Product detail pages with images, pricing, and availability\",\n      \"business_category\": \"Product Information\",\n      \"security_sensitivity\": \"Low\",\n      \"data_classification\": \"Public\",\n      \"rationale\": \"Presents detailed information customers need to make purchase decisions; images and pricing are public but must be delivered securely and accurately.\"\n    },\n    {\n      \"requirement_id\": \"REQ-007\",\n      \"requirement_text\": \"Inventory management with real-time stock control and SKU tracking\",\n      \"business_category\": \"Inventory Management\",\n      \"security_sensitivity\": \"Medium\",\n      \"data_classification\": \"Internal\",\n      \"rationale\": \"Ensures accurate availability and prevents overselling; internal operational data affecting revenue and customer satisfaction.\"\n    },\n    {\n      \"requirement_id\": \"REQ-008\",\n      \"requirement_text\": \"Shopping cart add/remove/update with persistent sessions\",\n      \"business_category\": \"Cart\",\n      \"security_sensitivity\": \"Medium\",\n      \"data_classification\": \"Confidential\",\n      \"rationale\": \"Supports core purchase flow with saved carts across sessions; contains user-specific behavioral data requiring secure session handling.\"\n    },\n    {\n      \"requirement_id\": \"REQ-009\",\n      \"requirement_text\": \"Secure checkout and payment processing for credit cards and PayPal\",\n      \"business_category\": \"Payment Processing\",\n      \"security_sensitivity\": \"High\",\n      \"data_classification\": \"Restricted\",\n      \"rationale\": \"Completes transactions and captures payment authorization via compliant flows; must minimize PCI scope through tokenization/hosted fields and support 3DS/SCA where required.\"\n    },\n    {\n      \"requirement_id\": \"REQ-010\",\n      \"requirement_text\": \"Order confirmation and transactional emails\",\n      \"business_category\": \"Notifications\",\n      \"security_sensitivity\": \"Medium\",\n      \"data_classification\": \"Confidential\",\n      \"rationale\": \"Provides receipts and status updates necessary for customer trust and record-keeping; emails must avoid sensitive data exposure and meet anti-spam/legal standards.\"\n    },\n    {\n      \"requirement_id\": \"REQ-011\",\n      \"requirement_text\": \"Shipping address management with validation and multiple addresses\",\n      \"business_category\": \"Shipping\",\n      \"security_sensitivity\": \"High\",\n      \"data_classification\": \"Confidential\",\n      \"rationale\": \"Captures and stores PII required to fulfill orders; validation reduces delivery failures and fraud while requiring strong protection of address data.\"\n    },\n    {\n      \"requirement_id\": \"REQ-012\",\n      \"requirement_text\": \"Order history with downloadable receipts\",\n      \"business_category\": \"Order Management\",\n      \"security_sensitivity\": \"High\",\n      \"data_classification\": \"Confidential\",\n      \"rationale\": \"Gives users access to past purchases for support, returns, and accounting; includes PII and transaction details that must be access-controlled and retained per policy.\"\n    },\n    {\n      \"requirement_id\": \"REQ-013\",\n      \"requirement_text\": \"Order tracking with carrier integration\",\n      \"business_category\": \"Order Management\",\n      \"security_sensitivity\": \"Medium\",\n      \"data_classification\": \"Confidential\",\n      \"rationale\": \"Allows customers to monitor shipment status via carrier APIs; involves sharing minimal necessary PII with carriers and handling third-party API reliability.\"\n    },\n    {\n      \"requirement_id\": \"REQ-014\",\n      \"requirement_text\": \"Returns and refunds processing workflow\",\n      \"business_category\": \"Returns Management\",\n      \"security_sensitivity\": \"High\",\n      \"data_classification\": \"Confidential\",\n      \"rationale\": \"Supports customer service, regulatory, and policy requirements for returns/refunds; must authenticate requesters and protect against fraud and chargeback abuse.\"\n    },\n    {\n      \"requirement_id\": \"REQ-015\",\n      \"requirement_text\": \"Admin panel user management with role-based access control and audit logging\",\n      \"business_category\": \"Admin - User Management\",\n      \"security_sensitivity\": \"High\",\n      \"data_classification\": \"Restricted\",\n      \"rationale\": \"Allows privileged staff to manage users and permissions; requires least-privilege RBAC, strong admin auth, and audit trails to mitigate insider and account compromise risks.\"\n    },\n    {\n      \"requirement_id\": \"REQ-016\",\n      \"requirement_text\": \"Admin product management (CRUD, images, pricing, inventory)\",\n      \"business_category\": \"Admin - Product Management\",\n      \"security_sensitivity\": \"High\",\n      \"data_classification\": \"Internal\",\n      \"rationale\": \"Enables merchandising and catalog accuracy; unauthorized changes could mislead customers or harm revenue, necessitating access controls and approvals.\"\n    },\n    {\n      \"requirement_id\": \"REQ-017\",\n      \"requirement_text\": \"Admin order processing (fulfillment, refunds, cancellations)\",\n      \"business_category\": \"Admin - Order Management\",\n      \"security_sensitivity\": \"High\",\n      \"data_classification\": \"Restricted\",\n      \"rationale\": \"Operational handling of orders and financial adjustments; high fraud and financial risk mandates strict authorization, dual controls for refunds, and auditing.\"\n    },\n    {\n      \"requirement_id\": \"REQ-018\",\n      \"requirement_text\": \"Sales analytics and reporting for admins\",\n      \"business_category\": \"Analytics\",\n      \"security_sensitivity\": \"Medium\",\n      \"data_classification\": \"Confidential\",\n      \"rationale\": \"Provides insights into sales, conversions, and inventory; business-sensitive data requiring access controls and possible aggregation/anonymization.\"\n    },\n    {\n      \"requirement_id\": \"REQ-019\",\n      \"requirement_text\": \"Security logging, auditing, and anomaly monitoring\",\n      \"business_category\": \"Security Operations\",\n      \"security_sensitivity\": \"High\",\n      \"data_classification\": \"Confidential\",\n      \"rationale\": \"Captures security-relevant events (auth, privilege changes, payment attempts) for detection, investigation, and compliance; enables alerting on suspicious behavior.\"\n    },\n    {\n      \"requirement_id\": \"REQ-020\",\n      \"requirement_text\": \"Privacy consent, data retention, and data subject request handling\",\n      \"business_category\": \"Privacy & Compliance\",\n      \"security_sensitivity\": \"High\",\n      \"data_classification\": \"Confidential\",\n      \"rationale\": \"Implements legal obligations for consent capture, configurable retention, and fulfilling access/erasure requests under global privacy laws.\"\n    }\n  ],\n  \"security_context\": \"This e-commerce domain triggers multiple compliance obligations: (1) PCI DSS for any handling of cardholder data; scope should be minimized via redirect/hosted fields/tokenization with a PCI-compliant gateway, likely aligning to SAQ A or A-EP depending on integration. 3-D Secure 2 and PSD2 Strong Customer Authentication apply for EU/EEA card payments. (2) Global privacy laws (GDPR for EU/EEA, UK GDPR/PECR, CCPA/CPRA for California, PIPEDA for Canada, LGPD for Brazil, and similar state/territorial acts) govern collection, processing, retention, DSRs, and breach notification for PII (accounts, addresses, orders). Data Processing Agreements (DPAs) with processors (payment, email, SMS, analytics, shipping) are required. (3) Email/SMS regulations (CAN-SPAM, CASL, GDPR ePrivacy/PECR) cover messaging; transactional emails are permitted but must include accurate sender details and proper unsubscribe if used for marketing. Implement SPF/DKIM/DMARC to prevent spoofing. (4) Security frameworks (SOC 2, ISO/IEC 27001) are recommended for organizational controls, change management, logging, and vendor risk management. (5) Consumer protection and chargeback rules (card network regulations, PayPal policies) impact refunds/returns. (6) Data localization/residency may apply for certain jurisdictions; ensure encryption in transit (TLS 1.2+) and at rest, role-based access, least privilege, and incident response capabilities. Maintain records of processing activities, perform DPIAs where high risk processing (e.g., fraud detection) occurs, and ensure breach notifications per jurisdictional timelines.\",\n  \"assumptions\": [\n    \"The system is cloud-hosted in a major public cloud with managed databases and object storage.\",\n    \"A third-party PCI-DSS compliant payment gateway and PayPal are used; the platform does not store raw cardholder data.\",\n    \"Users access via modern web browsers and have reliable internet connectivity.\",\n    \"MFA is delivered via TOTP authenticator apps and/or SMS/email one-time codes.\",\n    \"Transactional emails are sent via a reputable email service provider with SPF/DKIM/DMARC configured.\",\n    \"Product images and static assets are delivered via a CDN for performance.\",\n    \"Carrier tracking is integrated through major shipping APIs (e.g., UPS, FedEx, DHL) using API keys.\",\n    \"User base may include residents of jurisdictions with stringent privacy laws (e.g., EU, UK, California).\",\n    \"Admin users are company staff authenticated with strong MFA; SSO/IdP integration is available or planned.\",\n    \"Search is powered by an indexed search engine (e.g., Elasticsearch, OpenSearch, or a managed search service).\",\n    \"Inventory is the system of record or synchronized with an external ERP via scheduled jobs or webhooks.\",\n    \"Order confirmation emails are transactional and do not include full PAN or sensitive authentication data.\",\n    \"Application and infrastructure logs are centralized in a SIEM for monitoring and retention.\",\n    \"All data in transit uses TLS 1.2+ with modern cipher suites; data at rest is encrypted using cloud KMS.\",\n    \"The platform supports multiple currencies and time zones but a single primary language at launch.\"\n  ],\n  \"constraints\": [\n    \"Must integrate with a PCI-compliant card processor and PayPal according to their API and operational SLAs.\",\n    \"PCI scope must be minimized (prefer hosted checkout or tokenized fields); no storage of sensitive authentication data (SAD).\",\n    \"Compliance with GDPR/CCPA and global privacy laws requires consent capture, DSR workflows, and lawful bases for processing.\",\n    \"System must maintain 99.9%+ availability during business hours and scale to seasonal traffic spikes.\",\n    \"Rate limits and quotas of third-party services (payment, email, SMS, shipping, search) must be respected and handled gracefully.\",\n    \"Image storage must support virus scanning, metadata scrubbing, and size optimization before public delivery via CDN.\",\n    \"Search and catalog endpoints must be protected against injection, scraping, and abusive automation (captcha, throttling).\",\n    \"Strong authentication and RBAC are required for admin panel; all admin actions must be auditable and immutable for a defined retention period.\",\n    \"Data residency constraints may require EU data to be stored and processed within the EEA or approved regions.\",\n    \"Personal data retention must follow a defined schedule with secure deletion/anonymization and legal hold exceptions.\",\n    \"Order processing and refunds must enforce dual authorization for high-risk actions and support segregation of duties.\",\n    \"System must support address validation (e.g., USPS, international services) and handle edge cases for non-standard formats.\",\n    \"Transactional emails must pass SPF/DKIM/DMARC and comply with anti-spam laws; unsubscribe required for any marketing content.\",\n    \"Application must meet OWASP ASVS and OWASP Top 10 controls, including CSRF protection, input validation, and secure session management.\",\n    \"Observability is required: structured logs, distributed tracing, metrics, and alerting with on-call response procedures.\"\n  ]\n}",
       "pydantic": {
-        "application_summary": "The e-commerce platform serves as a digital marketplace where users can register, browse products, manage their shopping cart, and securely complete transactions while allowing administrators to manage user accounts, product listings, and sales analytics through an admin panel.",
+        "application_summary": "A cloud-based e-commerce platform that enables customers to discover products, manage accounts, shop via a secure cart and checkout flow (credit cards and PayPal), and track orders, while providing administrators with tools to manage users, products, orders, inventory, and sales analytics with strong security, privacy, and compliance controls.",
         "high_level_requirements": [
           "User registration and login with multi-factor authentication",
-          "Password reset functionality",
-          "Profile management",
-          "A searchable product catalog with detailed item descriptions",
-          "Inventory management for products",
-          "Add/remove items from shopping cart",
-          "Secure payment processing (credit cards, PayPal)",
-          "Order history tracking for users",
-          "Order tracking functionality",
-          "Returns and refunds management",
-          "Admin panel for user and product management",
-          "Sales analytics reporting"
+          "Password reset and account recovery via secure channels",
+          "User profile management including personal info and preferences",
+          "Browse products by category with sorting and pagination",
+          "Searchable product catalog with filters and relevance ranking",
+          "Product detail pages with images, pricing, and availability",
+          "Inventory management with real-time stock control and SKU tracking",
+          "Shopping cart add/remove/update with persistent sessions",
+          "Secure checkout and payment processing for credit cards and PayPal",
+          "Order confirmation and transactional emails",
+          "Shipping address management with validation and multiple addresses",
+          "Order history with downloadable receipts",
+          "Order tracking with carrier integration",
+          "Returns and refunds processing workflow",
+          "Admin panel user management with role-based access control and audit logging",
+          "Admin product management (CRUD, images, pricing, inventory)",
+          "Admin order processing (fulfillment, refunds, cancellations)",
+          "Sales analytics and reporting for admins",
+          "Security logging, auditing, and anomaly monitoring",
+          "Privacy consent, data retention, and data subject request handling"
         ],
         "detailed_requirements": [
           {
@@ -118,204 +283,450 @@
             "requirement_text": "User registration and login with multi-factor authentication",
             "business_category": "Authentication",
             "security_sensitivity": "High",
-            "data_classification": "Confidential",
-            "rationale": "This is essential for establishing secure user identities and protecting user accounts against unauthorized access."
+            "data_classification": "Restricted",
+            "rationale": "Establishes user identity and access to personalized features while reducing account takeover risk through MFA; critical control for safeguarding all downstream PII and orders."
           },
           {
             "requirement_id": "REQ-002",
-            "requirement_text": "Password reset functionality",
+            "requirement_text": "Password reset and account recovery via secure channels",
             "business_category": "Authentication",
             "security_sensitivity": "High",
             "data_classification": "Confidential",
-            "rationale": "This allows users to recover access to their accounts while ensuring that the reset process is secure to prevent unauthorized account recovery."
+            "rationale": "Provides a secure, user-friendly mechanism to regain account access while preventing unauthorized resets via tokenized, time-bound flows and identity verification."
           },
           {
             "requirement_id": "REQ-003",
-            "requirement_text": "Profile management",
-            "business_category": "Data Management",
-            "security_sensitivity": "Medium",
-            "data_classification": "Internal",
-            "rationale": "Users need to manage personal information, which requires secure handling to prevent data leaks."
+            "requirement_text": "User profile management including personal info and preferences",
+            "business_category": "Account Management",
+            "security_sensitivity": "High",
+            "data_classification": "Confidential",
+            "rationale": "Allows users to view/update PII (name, contact details, preferences) to support accurate orders, communications, and privacy settings; requires access controls and auditability."
           },
           {
             "requirement_id": "REQ-004",
-            "requirement_text": "A searchable product catalog with detailed item descriptions",
-            "business_category": "Data Management",
+            "requirement_text": "Browse products by category with sorting and pagination",
+            "business_category": "Catalog Browsing",
             "security_sensitivity": "Low",
             "data_classification": "Public",
-            "rationale": "Enables users to find and view product offerings, with minimal security implications."
+            "rationale": "Enables product discovery and navigation for customers; largely public content but must be protected against abuse (e.g., scraping, DoS)."
           },
           {
             "requirement_id": "REQ-005",
-            "requirement_text": "Inventory management for products",
-            "business_category": "Data Management",
-            "security_sensitivity": "Medium",
-            "data_classification": "Internal",
-            "rationale": "Requires protection to avoid stock discrepancies or unauthorized alterations in product availability."
+            "requirement_text": "Searchable product catalog with filters and relevance ranking",
+            "business_category": "Search",
+            "security_sensitivity": "Low",
+            "data_classification": "Public",
+            "rationale": "Improves findability via keyword search and faceted filters; enhances conversion while requiring input validation to prevent injection and abuse."
           },
           {
             "requirement_id": "REQ-006",
-            "requirement_text": "Add/remove items from shopping cart",
-            "business_category": "Data Management",
-            "security_sensitivity": "Medium",
-            "data_classification": "Internal",
-            "rationale": "Shopping cart management must be secure to prevent unauthorized access to the user's pending purchases."
+            "requirement_text": "Product detail pages with images, pricing, and availability",
+            "business_category": "Product Information",
+            "security_sensitivity": "Low",
+            "data_classification": "Public",
+            "rationale": "Presents detailed information customers need to make purchase decisions; images and pricing are public but must be delivered securely and accurately."
           },
           {
             "requirement_id": "REQ-007",
-            "requirement_text": "Secure payment processing (credit cards, PayPal)",
-            "business_category": "Payment Processing",
-            "security_sensitivity": "High",
-            "data_classification": "Restricted",
-            "rationale": "Essential for preventing financial fraud and protecting user payment data during transactions."
+            "requirement_text": "Inventory management with real-time stock control and SKU tracking",
+            "business_category": "Inventory Management",
+            "security_sensitivity": "Medium",
+            "data_classification": "Internal",
+            "rationale": "Ensures accurate availability and prevents overselling; internal operational data affecting revenue and customer satisfaction."
           },
           {
             "requirement_id": "REQ-008",
-            "requirement_text": "Order history tracking for users",
-            "business_category": "Data Management",
+            "requirement_text": "Shopping cart add/remove/update with persistent sessions",
+            "business_category": "Cart",
             "security_sensitivity": "Medium",
-            "data_classification": "Internal",
-            "rationale": "Allows users to keep track of their purchases while ensuring past order details are secure."
+            "data_classification": "Confidential",
+            "rationale": "Supports core purchase flow with saved carts across sessions; contains user-specific behavioral data requiring secure session handling."
           },
           {
             "requirement_id": "REQ-009",
-            "requirement_text": "Order tracking functionality",
-            "business_category": "Data Management",
-            "security_sensitivity": "Medium",
-            "data_classification": "Internal",
-            "rationale": "Users require visibility into their order status, necessitating secure access to related information."
+            "requirement_text": "Secure checkout and payment processing for credit cards and PayPal",
+            "business_category": "Payment Processing",
+            "security_sensitivity": "High",
+            "data_classification": "Restricted",
+            "rationale": "Completes transactions and captures payment authorization via compliant flows; must minimize PCI scope through tokenization/hosted fields and support 3DS/SCA where required."
           },
           {
             "requirement_id": "REQ-010",
-            "requirement_text": "Returns and refunds management",
-            "business_category": "Order Management",
+            "requirement_text": "Order confirmation and transactional emails",
+            "business_category": "Notifications",
             "security_sensitivity": "Medium",
-            "data_classification": "Internal",
-            "rationale": "Facilitates user satisfaction and must be securely managed to prevent fraudulent refund requests."
+            "data_classification": "Confidential",
+            "rationale": "Provides receipts and status updates necessary for customer trust and record-keeping; emails must avoid sensitive data exposure and meet anti-spam/legal standards."
           },
           {
             "requirement_id": "REQ-011",
-            "requirement_text": "Admin panel for user and product management",
-            "business_category": "Administration",
+            "requirement_text": "Shipping address management with validation and multiple addresses",
+            "business_category": "Shipping",
             "security_sensitivity": "High",
-            "data_classification": "Restricted",
-            "rationale": "Windows for admin operations require stringent access controls to prevent unauthorized administrative actions."
+            "data_classification": "Confidential",
+            "rationale": "Captures and stores PII required to fulfill orders; validation reduces delivery failures and fraud while requiring strong protection of address data."
           },
           {
             "requirement_id": "REQ-012",
-            "requirement_text": "Sales analytics reporting",
-            "business_category": "Administration",
+            "requirement_text": "Order history with downloadable receipts",
+            "business_category": "Order Management",
+            "security_sensitivity": "High",
+            "data_classification": "Confidential",
+            "rationale": "Gives users access to past purchases for support, returns, and accounting; includes PII and transaction details that must be access-controlled and retained per policy."
+          },
+          {
+            "requirement_id": "REQ-013",
+            "requirement_text": "Order tracking with carrier integration",
+            "business_category": "Order Management",
             "security_sensitivity": "Medium",
+            "data_classification": "Confidential",
+            "rationale": "Allows customers to monitor shipment status via carrier APIs; involves sharing minimal necessary PII with carriers and handling third-party API reliability."
+          },
+          {
+            "requirement_id": "REQ-014",
+            "requirement_text": "Returns and refunds processing workflow",
+            "business_category": "Returns Management",
+            "security_sensitivity": "High",
+            "data_classification": "Confidential",
+            "rationale": "Supports customer service, regulatory, and policy requirements for returns/refunds; must authenticate requesters and protect against fraud and chargeback abuse."
+          },
+          {
+            "requirement_id": "REQ-015",
+            "requirement_text": "Admin panel user management with role-based access control and audit logging",
+            "business_category": "Admin - User Management",
+            "security_sensitivity": "High",
+            "data_classification": "Restricted",
+            "rationale": "Allows privileged staff to manage users and permissions; requires least-privilege RBAC, strong admin auth, and audit trails to mitigate insider and account compromise risks."
+          },
+          {
+            "requirement_id": "REQ-016",
+            "requirement_text": "Admin product management (CRUD, images, pricing, inventory)",
+            "business_category": "Admin - Product Management",
+            "security_sensitivity": "High",
             "data_classification": "Internal",
-            "rationale": "Provides insights for business strategy, but it must be protected to avoid sharing sensitive financial data."
+            "rationale": "Enables merchandising and catalog accuracy; unauthorized changes could mislead customers or harm revenue, necessitating access controls and approvals."
+          },
+          {
+            "requirement_id": "REQ-017",
+            "requirement_text": "Admin order processing (fulfillment, refunds, cancellations)",
+            "business_category": "Admin - Order Management",
+            "security_sensitivity": "High",
+            "data_classification": "Restricted",
+            "rationale": "Operational handling of orders and financial adjustments; high fraud and financial risk mandates strict authorization, dual controls for refunds, and auditing."
+          },
+          {
+            "requirement_id": "REQ-018",
+            "requirement_text": "Sales analytics and reporting for admins",
+            "business_category": "Analytics",
+            "security_sensitivity": "Medium",
+            "data_classification": "Confidential",
+            "rationale": "Provides insights into sales, conversions, and inventory; business-sensitive data requiring access controls and possible aggregation/anonymization."
+          },
+          {
+            "requirement_id": "REQ-019",
+            "requirement_text": "Security logging, auditing, and anomaly monitoring",
+            "business_category": "Security Operations",
+            "security_sensitivity": "High",
+            "data_classification": "Confidential",
+            "rationale": "Captures security-relevant events (auth, privilege changes, payment attempts) for detection, investigation, and compliance; enables alerting on suspicious behavior."
+          },
+          {
+            "requirement_id": "REQ-020",
+            "requirement_text": "Privacy consent, data retention, and data subject request handling",
+            "business_category": "Privacy & Compliance",
+            "security_sensitivity": "High",
+            "data_classification": "Confidential",
+            "rationale": "Implements legal obligations for consent capture, configurable retention, and fulfilling access/erasure requests under global privacy laws."
           }
         ],
-        "security_context": "Applicable regulations include PCI-DSS for secure payment processing and GDPR for handling user data privacy within the EU.",
+        "security_context": "This e-commerce domain triggers multiple compliance obligations: (1) PCI DSS for any handling of cardholder data; scope should be minimized via redirect/hosted fields/tokenization with a PCI-compliant gateway, likely aligning to SAQ A or A-EP depending on integration. 3-D Secure 2 and PSD2 Strong Customer Authentication apply for EU/EEA card payments. (2) Global privacy laws (GDPR for EU/EEA, UK GDPR/PECR, CCPA/CPRA for California, PIPEDA for Canada, LGPD for Brazil, and similar state/territorial acts) govern collection, processing, retention, DSRs, and breach notification for PII (accounts, addresses, orders). Data Processing Agreements (DPAs) with processors (payment, email, SMS, analytics, shipping) are required. (3) Email/SMS regulations (CAN-SPAM, CASL, GDPR ePrivacy/PECR) cover messaging; transactional emails are permitted but must include accurate sender details and proper unsubscribe if used for marketing. Implement SPF/DKIM/DMARC to prevent spoofing. (4) Security frameworks (SOC 2, ISO/IEC 27001) are recommended for organizational controls, change management, logging, and vendor risk management. (5) Consumer protection and chargeback rules (card network regulations, PayPal policies) impact refunds/returns. (6) Data localization/residency may apply for certain jurisdictions; ensure encryption in transit (TLS 1.2+) and at rest, role-based access, least privilege, and incident response capabilities. Maintain records of processing activities, perform DPIAs where high risk processing (e.g., fraud detection) occurs, and ensure breach notifications per jurisdictional timelines.",
         "assumptions": [
-          "System will be cloud-hosted",
-          "Users have internet access",
-          "Third-party payment gateways are utilized for transactions"
+          "The system is cloud-hosted in a major public cloud with managed databases and object storage.",
+          "A third-party PCI-DSS compliant payment gateway and PayPal are used; the platform does not store raw cardholder data.",
+          "Users access via modern web browsers and have reliable internet connectivity.",
+          "MFA is delivered via TOTP authenticator apps and/or SMS/email one-time codes.",
+          "Transactional emails are sent via a reputable email service provider with SPF/DKIM/DMARC configured.",
+          "Product images and static assets are delivered via a CDN for performance.",
+          "Carrier tracking is integrated through major shipping APIs (e.g., UPS, FedEx, DHL) using API keys.",
+          "User base may include residents of jurisdictions with stringent privacy laws (e.g., EU, UK, California).",
+          "Admin users are company staff authenticated with strong MFA; SSO/IdP integration is available or planned.",
+          "Search is powered by an indexed search engine (e.g., Elasticsearch, OpenSearch, or a managed search service).",
+          "Inventory is the system of record or synchronized with an external ERP via scheduled jobs or webhooks.",
+          "Order confirmation emails are transactional and do not include full PAN or sensitive authentication data.",
+          "Application and infrastructure logs are centralized in a SIEM for monitoring and retention.",
+          "All data in transit uses TLS 1.2+ with modern cipher suites; data at rest is encrypted using cloud KMS.",
+          "The platform supports multiple currencies and time zones but a single primary language at launch."
         ],
         "constraints": [
-          "Must integrate with existing payment solutions",
-          "Data storage must comply with local data protection laws"
+          "Must integrate with a PCI-compliant card processor and PayPal according to their API and operational SLAs.",
+          "PCI scope must be minimized (prefer hosted checkout or tokenized fields); no storage of sensitive authentication data (SAD).",
+          "Compliance with GDPR/CCPA and global privacy laws requires consent capture, DSR workflows, and lawful bases for processing.",
+          "System must maintain 99.9%+ availability during business hours and scale to seasonal traffic spikes.",
+          "Rate limits and quotas of third-party services (payment, email, SMS, shipping, search) must be respected and handled gracefully.",
+          "Image storage must support virus scanning, metadata scrubbing, and size optimization before public delivery via CDN.",
+          "Search and catalog endpoints must be protected against injection, scraping, and abusive automation (captcha, throttling).",
+          "Strong authentication and RBAC are required for admin panel; all admin actions must be auditable and immutable for a defined retention period.",
+          "Data residency constraints may require EU data to be stored and processed within the EEA or approved regions.",
+          "Personal data retention must follow a defined schedule with secure deletion/anonymization and legal hold exceptions.",
+          "Order processing and refunds must enforce dual authorization for high-risk actions and support segregation of duties.",
+          "System must support address validation (e.g., USPS, international services) and handle edge cases for non-standard formats.",
+          "Transactional emails must pass SPF/DKIM/DMARC and comply with anti-spam laws; unsubscribe required for any marketing content.",
+          "Application must meet OWASP ASVS and OWASP Top 10 controls, including CSRF protection, input validation, and secure session management.",
+          "Observability is required: structured logs, distributed tracing, metrics, and alerting with on-call response procedures."
         ]
       }
     },
     {
       "name": "analyze_architecture",
-      "raw": "{\n  \"architecture_summary\": \"The e-commerce platform serves as a digital marketplace where users can register, browse products, manage their shopping cart, and securely complete transactions while allowing administrators to manage user accounts, product listings, and sales analytics through an admin panel. The architecture consists of a frontend interface for user interactions and an admin dashboard, a backend API for business logic, a database for data persistence, and integration with third-party services like payment processors. These components interact via RESTful APIs\",\n  \"architecture_diagram\": \"graph TD\\n    A[User Interface] -->|Interacts with| B[Backend API]\\n    B -->|CRUD operations| C[Database]\\n    B -->|Payment Processing| D[Payment Gateway]\\n    B -->|Admin Operations| E[Admin Panel]\\n    C -->|Data management| F[Product Catalog]\\n    C -->|User personal data| G[User Management]\",\n  \"components\": [\n    {\n      \"name\": \"User Interface\",\n      \"responsibility\": \"Facilitates user interactions for product browsing, shopping cart management, and checkout processes.\",\n      \"security_criticality\": \"High\",\n      \"external_dependencies\": [],\n      \"data_handled\": [\"User credentials\", \"Product information\", \"Order details\"]\n    },\n    {\n      \"name\": \"Backend API\",\n      \"responsibility\": \"Handles business logic, processes requests from the user interface, and interfaces with the database and third-party services.\",\n      \"security_criticality\": \"Critical\",\n      \"external_dependencies\": [\"Payment Gateway API\"],\n      \"data_handled\": [\"User data\", \"Payment data\", \"Order details\", \"Product inventory\"]\n    },\n    {\n      \"name\": \"Database\",\n      \"responsibility\": \"Persistent storage of user data, product catalog, order details, and inventory information.\",\n      \"security_criticality\": \"Critical\",\n      \"external_dependencies\": [],\n      \"data_handled\": [\"User profiles\", \"Product listings\", \"Order history\", \"Inventory data\"]\n    },\n    {\n      \"name\": \"Payment Gateway\",\n      \"responsibility\": \"Processes secure transactions for payments made via credit cards and PayPal.\",\n      \"security_criticality\": \"Critical\",\n      \"external_dependencies\": [],\n      \"data_handled\": [\"Payment transaction details\", \"User payment information\"]\n    },\n    {\n      \"name\": \"Admin Panel\",\n      \"responsibility\": \"Enables administrators to manage users, products, orders, and generate sales analytics.\",\n      \"security_criticality\": \"High\",\n      \"external_dependencies\": [],\n      \"data_handled\": [\"User information\", \"Product information\", \"Sales data\"]\n    }\n  ],\n  \"data_flow_description\": \"Data is initiated from the User Interface when users register or make purchases. This data is sent to the Backend API, which processes the requests and communicates with the Database for CRUD operations. Transaction details are processed through the Payment Gateway during checkout. Key transformation points occur when user requests are authenticated, orders are placed, and payments are processed securely, ensuring sensitive information is not exposed during the flow.\",\n  \"trust_boundaries\": [\n    {\n      \"name\": \"Internet\",\n      \"components\": [\"User Interface\", \"Backend API\"],\n      \"boundary_type\": \"External\",\n      \"security_controls\": [\"SSL/TLS encryption\", \"Web Application Firewall\"]\n    },\n    {\n      \"name\": \"Internal Network\",\n      \"components\": [\"Database\", \"Payment Gateway\"],\n      \"boundary_type\": \"Internal\",\n      \"security_controls\": [\"Network segmentation\", \"Access controls\"]\n    }\n  ],\n  \"attack_surface_analysis\": \"The system has several potential entry points including the User Interface for user operations, the Backend API for data processing requests, and the Admin Panel for administrative tasks. Exposed APIs include user management, product listing, and payment processing functions. Risk levels are classified as follows: User Interface (Medium), Backend API (High), Payment Processing (Critical), Admin Panel (High). The risk levels arise from potential unauthorized access to sensitive data and functions.\",\n}",
+      "raw": "{\n  \"architecture_summary\": \"The platform is a cloud-hosted, layered e-commerce system where customers and admins access Web and Admin UIs delivered through a CDN/WAF and API gateway/load balancer. Frontends call a set of application services (Auth & User, Catalog & Search, Cart & Checkout, Order & Returns, Admin & Analytics, Notifications & Integrations) that enforce business rules and integrate with third-party providers (PCI-compliant payment gateway, PayPal, email/SMS, shipping/address APIs, and SSO/IdP). Core data is persisted in a managed relational database with Redis cache, object storage for images, a search index, and an event bus for asynchronous processing, all protected by encryption and IAM. Security and observability are provided via centralized logging/SIEM, metrics, and tracing, with strict RBAC, MFA, and compliance controls across trust boundaries.\",\n  \"architecture_diagram\": \"%%{init: {'theme':'dark'}}%%\\ngraph TD\\n  U[Customers\\\\nAdmins] --> E1\\n\\n  subgraph Edge Layer\\n    E1[CDN/WAF]\\n    E2[API GW/\\\\nLoad Balancer]\\n  end\\n\\n  E1 --> E2\\n  E2 --> F1\\n  E2 --> F2\\n\\n  subgraph Frontend Layer\\n    F1[Web App\\\\n(SPA/SSR)]\\n    F2[Admin UI]\\n  end\\n\\n  F1 --> A1\\n  F1 --> A2\\n  F1 --> A3\\n  F1 --> A4\\n  F2 --> A5\\n\\n  subgraph Application Services\\n    A1[Auth & User]\\n    A2[Catalog & Search]\\n    A3[Cart & Checkout]\\n    A4[Order & Returns]\\n    A5[Admin & Analytics]\\n    A6[Notifications &\\\\nIntegrations]\\n  end\\n\\n  subgraph Data Layer\\n    D1[Relational DB]\\n    D2[Cache (Redis)]\\n    D3[Object Storage\\\\n(Images)]\\n    D4[Search Index]\\n    D5[Event Bus/Queue]\\n    D6[KMS/Secrets]\\n  end\\n\\n  subgraph External Services\\n    X1[Card Processor\\\\n(Payment GW)]\\n    X2[PayPal]\\n    X3[Email/SMS Provider]\\n    X4[Shipping &\\\\nAddress APIs]\\n    X5[SSO/IdP]\\n    X6[Fraud/3DS/AVS]\\n  end\\n\\n  subgraph Security & Observability\\n    O1[SIEM/Logging]\\n    O2[Metrics/Tracing]\\n  end\\n\\n  A1 --> D1\\n  A2 --> D1\\n  A3 --> D1\\n  A4 --> D1\\n  A5 --> D1\\n  A1 --> D2\\n  A2 --> D2\\n  A3 --> D2\\n  A2 --> D4\\n  A3 --> X1\\n  A3 --> X2\\n  A6 --> X3\\n  A6 --> X4\\n  A1 --> X5\\n  A6 --> D5\\n  A1 --> O1\\n  A5 --> O1\\n  A3 --> O1\\n  E1 --> O2\\n  A2 --> D3\",\n  \"components\": [\n    {\n      \"name\": \"Edge Layer\",\n      \"responsibility\": \"Terminate and protect inbound traffic; cache static assets; apply WAF/DDoS/bot defenses; route API requests to the application via gateway/load balancer; enforce rate limiting and TLS.\",\n      \"security_criticality\": \"High\",\n      \"external_dependencies\": [\n        \"CDN/WAF provider (e.g., CloudFront/Cloudflare/Akamai)\",\n        \"Managed API Gateway/Load Balancer\",\n        \"DDoS protection service\"\n      ],\n      \"data_handled\": [\n        \"HTTPS requests/responses\",\n        \"TLS certificates and headers\",\n        \"Static assets (HTML/CSS/JS/images)\",\n        \"Client IP and geolocation metadata\",\n        \"Access and edge logs\"\n      ]\n    },\n    {\n      \"name\": \"Frontend Layer\",\n      \"responsibility\": \"Deliver customer storefront and admin console; handle client-side rendering, form validation, session handling, and calls to backend APIs; display product catalog, cart, checkout, and admin tools.\",\n      \"security_criticality\": \"High\",\n      \"external_dependencies\": [\n        \"CDN for static asset delivery\",\n        \"Browser Web APIs\",\n        \"Optional Tag Manager/Analytics SDK (privacy-aware)\"\n      ],\n      \"data_handled\": [\n        \"User inputs (PII, addresses, preferences)\",\n        \"Session cookies/tokens (HttpOnly cookies preferred)\",\n        \"Cart state and browsing context\",\n        \"Non-sensitive product/catalog data\"\n      ]\n    },\n    {\n      \"name\": \"Application Services\",\n      \"responsibility\": \"Implement domain logic for authentication/MFA, profiles, product catalog/search, inventory, cart/checkout, orders/returns/refunds, admin/RBAC/audit, analytics, notifications, and third-party integrations; expose REST/GraphQL APIs.\",\n      \"security_criticality\": \"Critical\",\n      \"external_dependencies\": [\n        \"PCI-compliant payment gateway (e.g., Stripe/Adyen/Checkout.com)\",\n        \"PayPal\",\n        \"Email/SMS provider (e.g., SES/SendGrid/Twilio)\",\n        \"Shipping and tracking APIs (e.g., UPS/FedEx/DHL)\",\n        \"Address validation APIs (e.g., USPS/Loqate)\",\n        \"SSO/IdP for admin (e.g., Okta/Azure AD)\",\n        \"Fraud/3DS/AVS services as applicable\"\n      ],\n      \"data_handled\": [\n        \"Authentication data (password hashes, MFA secrets/tokens)\",\n        \"User PII (names, emails, phones)\",\n        \"Addresses and shipping preferences\",\n        \"Product catalog and pricing\",\n        \"Inventory levels/SKU data\",\n        \"Carts and checkout state\",\n        \"Orders, returns, refunds\",\n        \"Payment tokens and authorization results (no raw PAN/SAD)\",\n        \"Admin roles, permissions, audit trails\",\n        \"Event messages for async workflows\"\n      ]\n    },\n    {\n      \"name\": \"Data Layer\",\n      \"responsibility\": \"Durable storage and caching of operational data; serve fast reads via cache/search; store images and documents; provide messaging for decoupling; manage keys and secrets with strong IAM and encryption.\",\n      \"security_criticality\": \"Critical\",\n      \"external_dependencies\": [\n        \"Managed RDBMS (e.g., AWS RDS/Azure SQL/Cloud SQL)\",\n        \"Managed Redis cache\",\n        \"Object storage (e.g., S3/GCS) with CDN origin\",\n        \"Managed search (e.g., OpenSearch/Elasticsearch)\",\n        \"Managed message queue/event bus (e.g., SQS/SNS/Kafka/PubSub)\",\n        \"Cloud KMS and Secrets Manager\",\n        \"Backup/restore services\"\n      ],\n      \"data_handled\": [\n        \"User and auth metadata (hashed credentials, MFA seeds)\",\n        \"PII (addresses, contact details)\",\n        \"Orders, line items, payments metadata\",\n        \"Product catalog, categories, pricing\",\n        \"Inventory and reservations\",\n        \"Shopping carts and sessions\",\n        \"Audit logs and admin actions\",\n        \"Product images and attachments\",\n        \"Operational events and outbox messages\",\n        \"Encryption keys and secrets (wrapped)\"\n      ]\n    },\n    {\n      \"name\": \"External Services\",\n      \"responsibility\": \"Specialized third-party capabilities for payments, PayPal, email/SMS delivery, shipping/tracking and address validation, identity federation/SSO, and fraud/3DS checks; send webhooks and callbacks.\",\n      \"security_criticality\": \"High\",\n      \"external_dependencies\": [\n        \"Payment Gateway (PCI DSS compliant)\",\n        \"PayPal\",\n        \"Email/SMS provider\",\n        \"Shipping/carrier APIs\",\n        \"Address validation APIs\",\n        \"SSO/IdP\",\n        \"Fraud/3DS services\"\n      ],\n      \"data_handled\": [\n        \"Payment tokens and authorization results\",\n        \"Minimal PII (names, emails, phones) for messaging\",\n        \"Shipping addresses and tracking numbers\",\n        \"IdP assertions and claims\",\n        \"Webhook payloads\"\n      ]\n    },\n    {\n      \"name\": \"Security & Observability\",\n      \"responsibility\": \"Collect and retain logs, metrics, and traces; perform security monitoring, alerting, and audit; support incident response and compliance reporting with data minimization and retention policies.\",\n      \"security_criticality\": \"High\",\n      \"external_dependencies\": [\n        \"SIEM/Log analytics (e.g., Splunk/Datadog/ELK)\",\n        \"Cloud monitoring and tracing\",\n        \"Alerting/on-call (e.g., PagerDuty/Opsgenie)\"\n      ],\n      \"data_handled\": [\n        \"Application and access logs (with PII redaction)\",\n        \"Security events and audit trails\",\n        \"Metrics and health checks\",\n        \"Distributed traces and performance data\"\n      ]\n    }\n  ],\n  \"data_flow_description\": \"1) Users connect over HTTPS; CDN/WAF serves static assets and forwards dynamic requests through the API gateway/LB. 2) Frontend UIs authenticate via Auth & User service (password + MFA), establishing sessions (HttpOnly cookies) and retrieving profile and consent settings. 3) Catalog browsing/search requests hit Catalog & Search, which reads from the DB/Redis and the search index; product images are fetched from object storage via the CDN. 4) Cart operations persist ephemeral state in Redis and durable cart/order state in the DB. 5) Checkout posts to Cart & Checkout, which creates an order, reserves inventory, and orchestrates payment: card flows use hosted fields/redirects to the payment gateway (3DS/SCA as needed) returning a token/intent; PayPal is handled via SDK/redirect. 6) On payment authorization, Order & Returns finalizes the order, commits to the DB, publishes events on the queue, and invokes Notifications to send confirmation emails via the email provider. 7) Shipping/tracking details are retrieved or updated via shipping/address APIs; order history and tracking are read from the DB and carrier APIs. 8) Admin UI uses Admin & Analytics for RBAC-governed operations (user/product/order management, refunds with dual control), writing to the DB and emitting immutable audit logs to SIEM. 9) All services emit structured logs/metrics/traces to observability backends; data at rest is encrypted with KMS; secrets are fetched from Secrets Manager. Key transformations: credential hashing and MFA token verification; payment tokenization by gateway; data aggregation for analytics; webhook signature verification and normalization.\",\n  \"trust_boundaries\": [\n    {\n      \"name\": \"Internet\",\n      \"components\": [\n        \"Customers\",\n        \"Admins\",\n        \"Web browsers\"\n      ],\n      \"boundary_type\": \"Public\",\n      \"security_controls\": [\n        \"TLS 1.2+ with HSTS and modern ciphers\",\n        \"CSP, XFO, XSS protection headers\",\n        \"Captcha/throttling for abuse hotspots\",\n        \"Cookie security (HttpOnly, Secure, SameSite)\"\n      ]\n    },\n    {\n      \"name\": \"Edge/DMZ\",\n      \"components\": [\n        \"CDN/WAF\",\n        \"API GW/Load Balancer\"\n      ],\n      \"boundary_type\": \"DMZ\",\n      \"security_controls\": [\n        \"WAF rulesets (OWASP Top 10, bot management)\",\n        \"DDoS mitigation and rate limiting\",\n        \"TLS termination/OCSP stapling\",\n        \"IP reputation and geo-blocking\",\n        \"Request normalization and header sanitization\"\n      ]\n    },\n    {\n      \"name\": \"Application Network\",\n      \"components\": [\n        \"Auth & User\",\n        \"Catalog & Search\",\n        \"Cart & Checkout\",\n        \"Order & Returns\",\n        \"Admin & Analytics\",\n        \"Notifications & Integrations\"\n      ],\n      \"boundary_type\": \"Internal Network\",\n      \"security_controls\": [\n        \"Private subnets and security groups\",\n        \"mTLS/service mesh or signed JWT between services\",\n        \"Least-privilege IAM roles for services\",\n        \"Input validation and output encoding\",\n        \"CSRF protection and robust session management\",\n        \"Secrets Manager for credentials/keys\"\n      ]\n    },\n    {\n      \"name\": \"Data Tier\",\n      \"components\": [\n        \"Relational DB\",\n        \"Cache (Redis)\",\n        \"Object Storage (Images)\",\n        \"Search Index\",\n        \"Event Bus/Queue\",\n        \"KMS/Secrets\"\n      ],\n      \"boundary_type\": \"Database Tier\",\n      \"security_controls\": [\n        \"No public access; VPC-only endpoints\",\n        \"Encryption at rest with KMS-managed keys\",\n        \"Transparent data encryption and backups\",\n        \"Row/column-level access controls as needed\",\n        \"Network ACLs and database firewall rules\",\n        \"Audit logging and query logging\"\n      ]\n    },\n    {\n      \"name\": \"External Integrations\",\n      \"components\": [\n        \"Card Processor (Payment GW)\",\n        \"PayPal\",\n        \"Email/SMS Provider\",\n        \"Shipping & Address APIs\",\n        \"SSO/IdP\",\n        \"Fraud/3DS/AVS\"\n      ],\n      \"boundary_type\": \"Third-party\",\n      \"security_controls\": [\n        \"Outbound egress allowlists and DNS control\",\n        \"API keys/OAuth with secret rotation\",\n        \"Signed webhook verification and replay protection\",\n        \"Timeouts, retries, and circuit breakers\",\n        \"Data minimization and DPA/contractual controls\"\n      ]\n    },\n    {\n      \"name\": \"Admin/Corporate Zone\",\n      \"components\": [\n        \"Admin UI\",\n        \"SSO/IdP\"\n      ],\n      \"boundary_type\": \"Enterprise\",\n      \"security_controls\": [\n        \"SSO with MFA and conditional access\",\n        \"RBAC and least privilege for admin roles\",\n        \"Device posture/VPN or ZTNA\",\n        \"Immutable audit logs and session recording for critical actions\"\n      ]\n    },\n    {\n      \"name\": \"Security & Observability SaaS\",\n      \"components\": [\n        \"SIEM/Logging\",\n        \"Metrics/Tracing\"\n      ],\n      \"boundary_type\": \"Third-party SaaS\",\n      \"security_controls\": [\n        \"Encrypted log shipping and storage\",\n        \"PII redaction and data retention policies\",\n        \"Access control with MFA and SSO\",\n        \"Alerting/on-call escalation procedures\"\n      ]\n    }\n  ],\n  \"attack_surface_analysis\": \"Primary entry points: (1) Web UI (HTTPS) \u2013 Risk: Medium/High; threats include XSS, CSRF, clickjacking, session fixation; mitigations: strict CSP, HttpOnly/SameSite cookies, CSRF tokens, input/output encoding, framebusting headers, content integrity (SRI). (2) Admin UI \u2013 Risk: High; threats include account takeover and privilege escalation; mitigations: SSO+MFA, RBAC/ABAC, just-in-time access, step-up auth for refunds, immutable audit logs, IP allowlists/conditional access. (3) Public APIs via API Gateway \u2013 Risk: High; threats include injection, authN/Z bypass, IDOR, mass assignment, SSRF; mitigations: OAuth2/JWT, schema validation, object-level authorization, rate limiting, WAF, deny-by-default CORS, SSRF egress controls. (4) Payment integrations \u2013 Risk: Medium; threats include tampering and webhook replay; mitigations: hosted fields/redirect to keep PCI scope minimal, 3DS/SCA, webhook signature verification with nonce/timestamp, tokenization, no PAN storage. (5) File uploads (product images) \u2013 Risk: Medium; threats include malware and polyglot files; mitigations: antivirus scanning, MIME/type and size validation, metadata scrubbing, store in private bucket with signed URLs, least-privilege CDN origin access. (6) Search endpoints \u2013 Risk: Medium; threats include query injection and scraping; mitigations: parameterized queries/DSL allowlists, throttling, bot detection, result window limits. (7) Email-based flows (password reset, verification) \u2013 Risk: High; threats include token theft and open redirects; mitigations: short-lived single-use tokens, strict redirect allowlists, signed URLs, rate limits. (8) Webhooks inbound (payments, shipping) \u2013 Risk: High; threats include spoofing and SSRF; mitigations: mutual verification (HMAC/MTLS where supported), source IP validation, dedicated ingress endpoints, idempotency keys. (9) Third-party scripts/tags \u2013 Risk: Medium; mitigations: SRI, CSP script-src with nonce, minimize tags, defer marketing to consent. (10) DNS/CDN configuration \u2013 Risk: High; mitigations: DNSSEC (where supported), registrar lock, strict origin access identity, change controls. Overall, apply centralized logging/monitoring, anomaly detection, and incident response with playbooks; conduct regular security testing (SAST/DAST, dependency scanning) and adhere to OWASP ASVS and PCI/Privacy requirements.\"\n}",
       "pydantic": {
-        "architecture_summary": "The e-commerce platform serves as a digital marketplace where users can register, browse products, manage their shopping cart, and securely complete transactions while allowing administrators to manage user accounts, product listings, and sales analytics through an admin panel. The architecture consists of a frontend interface for user interactions and an admin dashboard, a backend API for business logic, a database for data persistence, and integration with third-party services like payment processors. These components interact via RESTful APIs",
-        "architecture_diagram": "graph TD\n    A[User Interface] -->|Interacts with| B[Backend API]\n    B -->|CRUD operations| C[Database]\n    B -->|Payment Processing| D[Payment Gateway]\n    B -->|Admin Operations| E[Admin Panel]\n    C -->|Data management| F[Product Catalog]\n    C -->|User personal data| G[User Management]",
+        "architecture_summary": "The platform is a cloud-hosted, layered e-commerce system where customers and admins access Web and Admin UIs delivered through a CDN/WAF and API gateway/load balancer. Frontends call a set of application services (Auth & User, Catalog & Search, Cart & Checkout, Order & Returns, Admin & Analytics, Notifications & Integrations) that enforce business rules and integrate with third-party providers (PCI-compliant payment gateway, PayPal, email/SMS, shipping/address APIs, and SSO/IdP). Core data is persisted in a managed relational database with Redis cache, object storage for images, a search index, and an event bus for asynchronous processing, all protected by encryption and IAM. Security and observability are provided via centralized logging/SIEM, metrics, and tracing, with strict RBAC, MFA, and compliance controls across trust boundaries.",
+        "architecture_diagram": "%%{init: {'theme':'dark'}}%%\ngraph TD\n  U[Customers\\nAdmins] --> E1\n\n  subgraph Edge Layer\n    E1[CDN/WAF]\n    E2[API GW/\\nLoad Balancer]\n  end\n\n  E1 --> E2\n  E2 --> F1\n  E2 --> F2\n\n  subgraph Frontend Layer\n    F1[Web App\\n(SPA/SSR)]\n    F2[Admin UI]\n  end\n\n  F1 --> A1\n  F1 --> A2\n  F1 --> A3\n  F1 --> A4\n  F2 --> A5\n\n  subgraph Application Services\n    A1[Auth & User]\n    A2[Catalog & Search]\n    A3[Cart & Checkout]\n    A4[Order & Returns]\n    A5[Admin & Analytics]\n    A6[Notifications &\\nIntegrations]\n  end\n\n  subgraph Data Layer\n    D1[Relational DB]\n    D2[Cache (Redis)]\n    D3[Object Storage\\n(Images)]\n    D4[Search Index]\n    D5[Event Bus/Queue]\n    D6[KMS/Secrets]\n  end\n\n  subgraph External Services\n    X1[Card Processor\\n(Payment GW)]\n    X2[PayPal]\n    X3[Email/SMS Provider]\n    X4[Shipping &\\nAddress APIs]\n    X5[SSO/IdP]\n    X6[Fraud/3DS/AVS]\n  end\n\n  subgraph Security & Observability\n    O1[SIEM/Logging]\n    O2[Metrics/Tracing]\n  end\n\n  A1 --> D1\n  A2 --> D1\n  A3 --> D1\n  A4 --> D1\n  A5 --> D1\n  A1 --> D2\n  A2 --> D2\n  A3 --> D2\n  A2 --> D4\n  A3 --> X1\n  A3 --> X2\n  A6 --> X3\n  A6 --> X4\n  A1 --> X5\n  A6 --> D5\n  A1 --> O1\n  A5 --> O1\n  A3 --> O1\n  E1 --> O2\n  A2 --> D3",
         "components": [
           {
-            "name": "User Interface",
-            "responsibility": "Facilitates user interactions for product browsing, shopping cart management, and checkout processes.",
+            "name": "Edge Layer",
+            "responsibility": "Terminate and protect inbound traffic; cache static assets; apply WAF/DDoS/bot defenses; route API requests to the application via gateway/load balancer; enforce rate limiting and TLS.",
             "security_criticality": "High",
-            "external_dependencies": [],
-            "data_handled": [
-              "User credentials",
-              "Product information",
-              "Order details"
-            ]
-          },
-          {
-            "name": "Backend API",
-            "responsibility": "Handles business logic, processes requests from the user interface, and interfaces with the database and third-party services.",
-            "security_criticality": "Critical",
             "external_dependencies": [
-              "Payment Gateway API"
+              "CDN/WAF provider (e.g., CloudFront/Cloudflare/Akamai)",
+              "Managed API Gateway/Load Balancer",
+              "DDoS protection service"
             ],
             "data_handled": [
-              "User data",
-              "Payment data",
-              "Order details",
-              "Product inventory"
+              "HTTPS requests/responses",
+              "TLS certificates and headers",
+              "Static assets (HTML/CSS/JS/images)",
+              "Client IP and geolocation metadata",
+              "Access and edge logs"
             ]
           },
           {
-            "name": "Database",
-            "responsibility": "Persistent storage of user data, product catalog, order details, and inventory information.",
-            "security_criticality": "Critical",
-            "external_dependencies": [],
-            "data_handled": [
-              "User profiles",
-              "Product listings",
-              "Order history",
-              "Inventory data"
-            ]
-          },
-          {
-            "name": "Payment Gateway",
-            "responsibility": "Processes secure transactions for payments made via credit cards and PayPal.",
-            "security_criticality": "Critical",
-            "external_dependencies": [],
-            "data_handled": [
-              "Payment transaction details",
-              "User payment information"
-            ]
-          },
-          {
-            "name": "Admin Panel",
-            "responsibility": "Enables administrators to manage users, products, orders, and generate sales analytics.",
+            "name": "Frontend Layer",
+            "responsibility": "Deliver customer storefront and admin console; handle client-side rendering, form validation, session handling, and calls to backend APIs; display product catalog, cart, checkout, and admin tools.",
             "security_criticality": "High",
-            "external_dependencies": [],
+            "external_dependencies": [
+              "CDN for static asset delivery",
+              "Browser Web APIs",
+              "Optional Tag Manager/Analytics SDK (privacy-aware)"
+            ],
             "data_handled": [
-              "User information",
-              "Product information",
-              "Sales data"
+              "User inputs (PII, addresses, preferences)",
+              "Session cookies/tokens (HttpOnly cookies preferred)",
+              "Cart state and browsing context",
+              "Non-sensitive product/catalog data"
+            ]
+          },
+          {
+            "name": "Application Services",
+            "responsibility": "Implement domain logic for authentication/MFA, profiles, product catalog/search, inventory, cart/checkout, orders/returns/refunds, admin/RBAC/audit, analytics, notifications, and third-party integrations; expose REST/GraphQL APIs.",
+            "security_criticality": "Critical",
+            "external_dependencies": [
+              "PCI-compliant payment gateway (e.g., Stripe/Adyen/Checkout.com)",
+              "PayPal",
+              "Email/SMS provider (e.g., SES/SendGrid/Twilio)",
+              "Shipping and tracking APIs (e.g., UPS/FedEx/DHL)",
+              "Address validation APIs (e.g., USPS/Loqate)",
+              "SSO/IdP for admin (e.g., Okta/Azure AD)",
+              "Fraud/3DS/AVS services as applicable"
+            ],
+            "data_handled": [
+              "Authentication data (password hashes, MFA secrets/tokens)",
+              "User PII (names, emails, phones)",
+              "Addresses and shipping preferences",
+              "Product catalog and pricing",
+              "Inventory levels/SKU data",
+              "Carts and checkout state",
+              "Orders, returns, refunds",
+              "Payment tokens and authorization results (no raw PAN/SAD)",
+              "Admin roles, permissions, audit trails",
+              "Event messages for async workflows"
+            ]
+          },
+          {
+            "name": "Data Layer",
+            "responsibility": "Durable storage and caching of operational data; serve fast reads via cache/search; store images and documents; provide messaging for decoupling; manage keys and secrets with strong IAM and encryption.",
+            "security_criticality": "Critical",
+            "external_dependencies": [
+              "Managed RDBMS (e.g., AWS RDS/Azure SQL/Cloud SQL)",
+              "Managed Redis cache",
+              "Object storage (e.g., S3/GCS) with CDN origin",
+              "Managed search (e.g., OpenSearch/Elasticsearch)",
+              "Managed message queue/event bus (e.g., SQS/SNS/Kafka/PubSub)",
+              "Cloud KMS and Secrets Manager",
+              "Backup/restore services"
+            ],
+            "data_handled": [
+              "User and auth metadata (hashed credentials, MFA seeds)",
+              "PII (addresses, contact details)",
+              "Orders, line items, payments metadata",
+              "Product catalog, categories, pricing",
+              "Inventory and reservations",
+              "Shopping carts and sessions",
+              "Audit logs and admin actions",
+              "Product images and attachments",
+              "Operational events and outbox messages",
+              "Encryption keys and secrets (wrapped)"
+            ]
+          },
+          {
+            "name": "External Services",
+            "responsibility": "Specialized third-party capabilities for payments, PayPal, email/SMS delivery, shipping/tracking and address validation, identity federation/SSO, and fraud/3DS checks; send webhooks and callbacks.",
+            "security_criticality": "High",
+            "external_dependencies": [
+              "Payment Gateway (PCI DSS compliant)",
+              "PayPal",
+              "Email/SMS provider",
+              "Shipping/carrier APIs",
+              "Address validation APIs",
+              "SSO/IdP",
+              "Fraud/3DS services"
+            ],
+            "data_handled": [
+              "Payment tokens and authorization results",
+              "Minimal PII (names, emails, phones) for messaging",
+              "Shipping addresses and tracking numbers",
+              "IdP assertions and claims",
+              "Webhook payloads"
+            ]
+          },
+          {
+            "name": "Security & Observability",
+            "responsibility": "Collect and retain logs, metrics, and traces; perform security monitoring, alerting, and audit; support incident response and compliance reporting with data minimization and retention policies.",
+            "security_criticality": "High",
+            "external_dependencies": [
+              "SIEM/Log analytics (e.g., Splunk/Datadog/ELK)",
+              "Cloud monitoring and tracing",
+              "Alerting/on-call (e.g., PagerDuty/Opsgenie)"
+            ],
+            "data_handled": [
+              "Application and access logs (with PII redaction)",
+              "Security events and audit trails",
+              "Metrics and health checks",
+              "Distributed traces and performance data"
             ]
           }
         ],
-        "data_flow_description": "Data is initiated from the User Interface when users register or make purchases. This data is sent to the Backend API, which processes the requests and communicates with the Database for CRUD operations. Transaction details are processed through the Payment Gateway during checkout. Key transformation points occur when user requests are authenticated, orders are placed, and payments are processed securely, ensuring sensitive information is not exposed during the flow.",
+        "data_flow_description": "1) Users connect over HTTPS; CDN/WAF serves static assets and forwards dynamic requests through the API gateway/LB. 2) Frontend UIs authenticate via Auth & User service (password + MFA), establishing sessions (HttpOnly cookies) and retrieving profile and consent settings. 3) Catalog browsing/search requests hit Catalog & Search, which reads from the DB/Redis and the search index; product images are fetched from object storage via the CDN. 4) Cart operations persist ephemeral state in Redis and durable cart/order state in the DB. 5) Checkout posts to Cart & Checkout, which creates an order, reserves inventory, and orchestrates payment: card flows use hosted fields/redirects to the payment gateway (3DS/SCA as needed) returning a token/intent; PayPal is handled via SDK/redirect. 6) On payment authorization, Order & Returns finalizes the order, commits to the DB, publishes events on the queue, and invokes Notifications to send confirmation emails via the email provider. 7) Shipping/tracking details are retrieved or updated via shipping/address APIs; order history and tracking are read from the DB and carrier APIs. 8) Admin UI uses Admin & Analytics for RBAC-governed operations (user/product/order management, refunds with dual control), writing to the DB and emitting immutable audit logs to SIEM. 9) All services emit structured logs/metrics/traces to observability backends; data at rest is encrypted with KMS; secrets are fetched from Secrets Manager. Key transformations: credential hashing and MFA token verification; payment tokenization by gateway; data aggregation for analytics; webhook signature verification and normalization.",
         "trust_boundaries": [
           {
             "name": "Internet",
             "components": [
-              "User Interface",
-              "Backend API"
+              "Customers",
+              "Admins",
+              "Web browsers"
             ],
-            "boundary_type": "External",
+            "boundary_type": "Public",
             "security_controls": [
-              "SSL/TLS encryption",
-              "Web Application Firewall"
+              "TLS 1.2+ with HSTS and modern ciphers",
+              "CSP, XFO, XSS protection headers",
+              "Captcha/throttling for abuse hotspots",
+              "Cookie security (HttpOnly, Secure, SameSite)"
             ]
           },
           {
-            "name": "Internal Network",
+            "name": "Edge/DMZ",
             "components": [
-              "Database",
-              "Payment Gateway"
+              "CDN/WAF",
+              "API GW/Load Balancer"
             ],
-            "boundary_type": "Internal",
+            "boundary_type": "DMZ",
             "security_controls": [
-              "Network segmentation",
-              "Access controls"
+              "WAF rulesets (OWASP Top 10, bot management)",
+              "DDoS mitigation and rate limiting",
+              "TLS termination/OCSP stapling",
+              "IP reputation and geo-blocking",
+              "Request normalization and header sanitization"
+            ]
+          },
+          {
+            "name": "Application Network",
+            "components": [
+              "Auth & User",
+              "Catalog & Search",
+              "Cart & Checkout",
+              "Order & Returns",
+              "Admin & Analytics",
+              "Notifications & Integrations"
+            ],
+            "boundary_type": "Internal Network",
+            "security_controls": [
+              "Private subnets and security groups",
+              "mTLS/service mesh or signed JWT between services",
+              "Least-privilege IAM roles for services",
+              "Input validation and output encoding",
+              "CSRF protection and robust session management",
+              "Secrets Manager for credentials/keys"
+            ]
+          },
+          {
+            "name": "Data Tier",
+            "components": [
+              "Relational DB",
+              "Cache (Redis)",
+              "Object Storage (Images)",
+              "Search Index",
+              "Event Bus/Queue",
+              "KMS/Secrets"
+            ],
+            "boundary_type": "Database Tier",
+            "security_controls": [
+              "No public access; VPC-only endpoints",
+              "Encryption at rest with KMS-managed keys",
+              "Transparent data encryption and backups",
+              "Row/column-level access controls as needed",
+              "Network ACLs and database firewall rules",
+              "Audit logging and query logging"
+            ]
+          },
+          {
+            "name": "External Integrations",
+            "components": [
+              "Card Processor (Payment GW)",
+              "PayPal",
+              "Email/SMS Provider",
+              "Shipping & Address APIs",
+              "SSO/IdP",
+              "Fraud/3DS/AVS"
+            ],
+            "boundary_type": "Third-party",
+            "security_controls": [
+              "Outbound egress allowlists and DNS control",
+              "API keys/OAuth with secret rotation",
+              "Signed webhook verification and replay protection",
+              "Timeouts, retries, and circuit breakers",
+              "Data minimization and DPA/contractual controls"
+            ]
+          },
+          {
+            "name": "Admin/Corporate Zone",
+            "components": [
+              "Admin UI",
+              "SSO/IdP"
+            ],
+            "boundary_type": "Enterprise",
+            "security_controls": [
+              "SSO with MFA and conditional access",
+              "RBAC and least privilege for admin roles",
+              "Device posture/VPN or ZTNA",
+              "Immutable audit logs and session recording for critical actions"
+            ]
+          },
+          {
+            "name": "Security & Observability SaaS",
+            "components": [
+              "SIEM/Logging",
+              "Metrics/Tracing"
+            ],
+            "boundary_type": "Third-party SaaS",
+            "security_controls": [
+              "Encrypted log shipping and storage",
+              "PII redaction and data retention policies",
+              "Access control with MFA and SSO",
+              "Alerting/on-call escalation procedures"
             ]
           }
         ],
-        "attack_surface_analysis": "The system has several potential entry points including the User Interface for user operations, the Backend API for data processing requests, and the Admin Panel for administrative tasks. Exposed APIs include user management, product listing, and payment processing functions. Risk levels are classified as follows: User Interface (Medium), Backend API (High), Payment Processing (Critical), Admin Panel (High). The risk levels arise from potential unauthorized access to sensitive data and functions."
+        "attack_surface_analysis": "Primary entry points: (1) Web UI (HTTPS) \u2013 Risk: Medium/High; threats include XSS, CSRF, clickjacking, session fixation; mitigations: strict CSP, HttpOnly/SameSite cookies, CSRF tokens, input/output encoding, framebusting headers, content integrity (SRI). (2) Admin UI \u2013 Risk: High; threats include account takeover and privilege escalation; mitigations: SSO+MFA, RBAC/ABAC, just-in-time access, step-up auth for refunds, immutable audit logs, IP allowlists/conditional access. (3) Public APIs via API Gateway \u2013 Risk: High; threats include injection, authN/Z bypass, IDOR, mass assignment, SSRF; mitigations: OAuth2/JWT, schema validation, object-level authorization, rate limiting, WAF, deny-by-default CORS, SSRF egress controls. (4) Payment integrations \u2013 Risk: Medium; threats include tampering and webhook replay; mitigations: hosted fields/redirect to keep PCI scope minimal, 3DS/SCA, webhook signature verification with nonce/timestamp, tokenization, no PAN storage. (5) File uploads (product images) \u2013 Risk: Medium; threats include malware and polyglot files; mitigations: antivirus scanning, MIME/type and size validation, metadata scrubbing, store in private bucket with signed URLs, least-privilege CDN origin access. (6) Search endpoints \u2013 Risk: Medium; threats include query injection and scraping; mitigations: parameterized queries/DSL allowlists, throttling, bot detection, result window limits. (7) Email-based flows (password reset, verification) \u2013 Risk: High; threats include token theft and open redirects; mitigations: short-lived single-use tokens, strict redirect allowlists, signed URLs, rate limits. (8) Webhooks inbound (payments, shipping) \u2013 Risk: High; threats include spoofing and SSRF; mitigations: mutual verification (HMAC/MTLS where supported), source IP validation, dedicated ingress endpoints, idempotency keys. (9) Third-party scripts/tags \u2013 Risk: Medium; mitigations: SRI, CSP script-src with nonce, minimize tags, defer marketing to consent. (10) DNS/CDN configuration \u2013 Risk: High; mitigations: DNSSEC (where supported), registrar lock, strict origin access identity, change controls. Overall, apply centralized logging/monitoring, anomaly detection, and incident response with playbooks; conduct regular security testing (SAST/DAST, dependency scanning) and adhere to OWASP ASVS and PCI/Privacy requirements."
       }
     }
   ]

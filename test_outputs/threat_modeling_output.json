@@ -1,164 +1,179 @@
 {
-  "raw": "{\n  \"methodology\": \"STRIDE\",\n  \"threats\": [\n    {\n      \"threat_id\": \"THR-001\",\n      \"component\": \"User Management\",\n      \"threat_category\": \"Spoofing\",\n      \"description\": \"An attacker can spoof a user's identity by bypassing authentication mechanisms, potentially by leveraging weak password policies or not enforcing multi-factor authentication.\",\n      \"likelihood\": \"High\",\n      \"impact\": \"High\",\n      \"risk_level\": \"Critical\",\n      \"mitigation_strategy\": \"Enforce strong password policies, implement multi-factor authentication for all user accounts.\",\n      \"applicable_controls\": [\"V2.1.1\", \"V3.2.3\"],\n      \"control_effectiveness\": \"Medium\",\n      \"residual_risk_level\": \"High\",\n      \"residual_risk_acceptance\": \"Requires Review\"\n    },\n    {\n      \"threat_id\": \"THR-002\",\n      \"component\": \"User Management\",\n      \"threat_category\": \"Repudiation\",\n      \"description\": \"A user could deny having performed an action (e.g., a purchase) if there is no logging mechanism or audit trail in place.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"Medium\",\n      \"risk_level\": \"Medium\",\n      \"mitigation_strategy\": \"Implement comprehensive logging of user actions, including purchases and account changes.\",\n      \"applicable_controls\": [\"V4.1.1\"],\n      \"control_effectiveness\": \"High\",\n      \"residual_risk_level\": \"Low\",\n      \"residual_risk_acceptance\": \"Accepted\"\n    },\n    {\n      \"threat_id\": \"THR-003\",\n      \"component\": \"Product Catalog\",\n      \"threat_category\": \"Tampering\",\n      \"description\": \"An attacker could tamper with product information in the catalog, leading to incorrect pricing or misleading product details.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Implement input validation, use checksums or hashes to verify product data integrity.\",\n      \"applicable_controls\": [\"V2.2.3\"],\n      \"control_effectiveness\": \"Medium\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Requires Review\"\n    },\n    {\n      \"threat_id\": \"THR-004\",\n      \"component\": \"Shopping Cart & Checkout\",\n      \"threat_category\": \"Denial of Service\",\n      \"description\": \"An attacker could overwhelm the shopping cart service with excessive requests, leading to service unavailability.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Implement rate limiting on API endpoints, use CAPTCHA to mitigate automated requests.\",\n      \"applicable_controls\": [\"V1.3.2\"],\n      \"control_effectiveness\": \"Medium\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Requires Review\"\n    },\n    {\n      \"threat_id\": \"THR-005\",\n      \"component\": \"Backend API\",\n      \"threat_category\": \"Information Disclosure\",\n      \"description\": \"Sensitive data could be disclosed through insecure APIs, such as user information or payment data.\",\n      \"likelihood\": \"High\",\n      \"impact\": \"High\",\n      \"risk_level\": \"Critical\",\n      \"mitigation_strategy\": \"Use HTTPS to encrypt data in transit and implement robust authentication and authorization mechanisms.\",\n      \"applicable_controls\": [\"V2.1.3\"],\n      \"control_effectiveness\": \"High\",\n      \"residual_risk_level\": \"Low\",\n      \"residual_risk_acceptance\": \"Accepted\"\n    },\n    {\n      \"threat_id\": \"THR-006\",\n      \"component\": \"Payment Gateway\",\n      \"threat_category\": \"Tampering\",\n      \"description\": \"An attacker could intercept and modify payment data in transit, leading to financial fraud.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Ensure the payment gateway uses strong encryption and perform regular security audits.\",\n      \"applicable_controls\": [\"V2.2.2\"],\n      \"control_effectiveness\": \"Medium\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Requires Review\"\n    },\n    {\n      \"threat_id\": \"THR-007\",\n      \"component\": \"Admin Panel\",\n      \"threat_category\": \"Elevation of Privilege\",\n      \"description\": \"An unprivileged user could gain access to the admin panel through misconfigured permissions.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Implement strict access controls and user privilege management.\",\n      \"applicable_controls\": [\"V2.1.2\"],\n      \"control_effectiveness\": \"Medium\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Requires Review\"\n    },\n    {\n      \"threat_id\": \"THR-008\",\n      \"component\": \"User Interface\",\n      \"threat_category\": \"Cross-site Scripting (XSS)\",\n      \"description\": \"An attacker could inject malicious scripts into web pages viewed by other users, stealing their session data.\",\n      \"likelihood\": \"High\",\n      \"impact\": \"High\",\n      \"risk_level\": \"Critical\",\n      \"mitigation_strategy\": \"Implement input sanitization and output encoding practices.\",\n      \"applicable_controls\": [\"V4.2.1\"],\n      \"control_effectiveness\": \"High\",\n      \"residual_risk_level\": \"Low\",\n      \"residual_risk_acceptance\": \"Accepted\"\n    },\n    {\n      \"threat_id\": \"THR-009\",\n      \"component\": \"Database\",\n      \"threat_category\": \"SQL Injection\",\n      \"description\": \"An attacker could exploit vulnerabilities in the database layer to execute arbitrary SQL commands, exposing sensitive data.\",\n      \"likelihood\": \"High\",\n      \"impact\": \"Critical\",\n      \"risk_level\": \"Critical\",\n      \"mitigation_strategy\": \"Implement parameterized queries and prepared statements, regularly conduct security assessments.\",\n      \"applicable_controls\": [\"V2.3.1\"],\n      \"control_effectiveness\": \"High\",\n      \"residual_risk_level\": \"Low\",\n      \"residual_risk_acceptance\": \"Accepted\"\n    },\n    {\n      \"threat_id\": \"THR-010\",\n      \"component\": \"Order Management\",\n      \"threat_category\": \"Information Disclosure\",\n      \"description\": \"Sensitive order information could be disclosed due to improper access controls.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Implement strict access controls for user order views, ensuring only owners can view their orders.\",\n      \"applicable_controls\": [\"V3.3.2\"],\n      \"control_effectiveness\": \"Medium\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Requires Review\"\n    },\n    {\n      \"threat_id\": \"THR-011\",\n      \"component\": \"Shopping Cart & Checkout\",\n      \"threat_category\": \"Denial of Service\",\n      \"description\": \"Flooding checkout processes could result in service unavailability for legitimate customers.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Apply throttling mechanisms to limit request rates during checkout.\",\n      \"applicable_controls\": [\"V1.3.3\"],\n      \"control_effectiveness\": \"Medium\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Requires Review\"\n    },\n    {\n      \"threat_id\": \"THR-012\",\n      \"component\": \"Product Catalog\",\n      \"threat_category\": \"Denial of Service\",\n      \"description\": \"An attacker could cause the application to become unresponsive by submitting excessive requests for product catalog queries.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"Medium\",\n      \"risk_level\": \"Medium\",\n      \"mitigation_strategy\": \"Implement API rate limiting to reduce the impact of excessive requests.\",\n      \"applicable_controls\": [\"V1.3.1\"],\n      \"control_effectiveness\": \"Medium\",\n      \"residual_risk_level\": \"Low\",\n      \"residual_risk_acceptance\": \"Accepted\"\n    },\n    {\n      \"threat_id\": \"THR-013\",\n      \"component\": \"User Management\",\n      \"threat_category\": \"Elevation of Privilege\",\n      \"description\": \"An attacker could exploit insecure password reset processes to gain unauthorized account access.\",\n      \"likelihood\": \"High\",\n      \"impact\": \"High\",\n      \"risk_level\": \"Critical\",\n      \"mitigation_strategy\": \"Implement strong verification steps for password reset, such as email confirmation.\",\n      \"applicable_controls\": [\"V2.1.4\"],\n      \"control_effectiveness\": \"High\",\n      \"residual_risk_level\": \"Low\",\n      \"residual_risk_acceptance\": \"Accepted\"\n    },\n    {\n      \"threat_id\": \"THR-014\",\n      \"component\": \"Backend API\",\n      \"threat_category\": \"API Abuse\",\n      \"description\": \"An attacker could abuse the API by making excessive requests, resulting in resource exhaustion.\",\n      \"likelihood\": \"High\",\n      \"impact\": \"Medium\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Implement rate limiting and monitoring to detect and block abnormal behavior.\",\n      \"applicable_controls\": [\"V1.1.1\"],\n      \"control_effectiveness\": \"Medium\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Requires Review\"\n    },\n    {\n      \"threat_id\": \"THR-015\",\n      \"component\": \"Payment Gateway\",\n      \"threat_category\": \"Information Disclosure\",\n      \"description\": \"Sensitive payment information could be exposed due to misconfigurations or vulnerabilities in the payment processing logic.\",\n      \"likelihood\": \"High\",\n      \"impact\": \"Critical\",\n      \"risk_level\": \"Critical\",\n      \"mitigation_strategy\": \"Conduct regular security assessments and audits of the payment processing system.\",\n      \"applicable_controls\": [\"V2.2.1\"],\n      \"control_effectiveness\": \"High\",\n      \"residual_risk_level\": \"Low\",\n      \"residual_risk_acceptance\": \"Accepted\"\n    },\n    {\n      \"threat_id\": \"THR-016\",\n      \"component\": \"Admin Panel\",\n      \"threat_category\": \"Tampering\",\n      \"description\": \"An attacker could tamper with admin panel data leading to unauthorized changes or deletions.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Ensure proper session management and limit access to the admin panel to authorized users only.\",\n      \"applicable_controls\": [\"V2.1.2\"],\n      \"control_effectiveness\": \"Medium\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Requires Review\"\n    },\n    {\n      \"threat_id\": \"THR-017\",\n      \"component\": \"Database\",\n      \"threat_category\": \"Denial of Service\",\n      \"description\": \"An attacker could overload the database with excessive queries, rendering it unresponsive.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Implement query optimization and monitoring to detect unusual query patterns.\",\n      \"applicable_controls\": [\"V1.3.3\"],\n      \"control_effectiveness\": \"Medium\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Requires Review\"\n    },\n    {\n      \"threat_id\": \"THR-018\",\n      \"component\": \"User Interface\",\n      \"threat_category\": \"CSRF\",\n      \"description\": \"An attacker could exploit Cross-Site Request Forgery vulnerabilities to perform unauthorized actions on behalf of users.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Implement CSRF tokens in forms and validate them on the server side.\",\n      \"applicable_controls\": [\"V4.2.2\"],\n      \"control_effectiveness\": \"Medium\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Requires Review\"\n    },\n    {\n      \"threat_id\": \"THR-019\",\n      \"component\": \"User Management\",\n      \"threat_category\": \"Information Disclosure\",\n      \"description\": \"Sensitive user information could be disclosed if session management is incorrectly implemented.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Ensure proper session expiration and invalidate sessions on log out.\",\n      \"applicable_controls\": [\"V2.1.3\"],\n      \"control_effectiveness\": \"Medium\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Requires Review\"\n    },\n    {\n      \"threat_id\": \"THR-020\",\n      \"component\": \"Product Catalog\",\n      \"threat_category\": \"Elevation of Privilege\",\n      \"description\": \"An attacker may gain elevated access to update product listings by exploiting vulnerabilities in the product management logic.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Conduct security reviews to validate admin access controls and input validation.\",\n      \"applicable_controls\": [\"V2.1.2\"],\n      \"control_effectiveness\": \"Medium\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Requires Review\"\n    }\n  ],\n  \"risk_summary\": \"The e-commerce platform faces significant risks primarily associated with critical components including user management, backend APIs, and payment gateways, where threats such as spoofing and sensitive data exposure are highly likely to occur. The overall risk posture indicates a need for immediate attention to threats related to authentication bypass, SQL injection, and unauthorized access to admin functionalities. Key attack vectors include API abuse, improper access controls, and vulnerabilities in session management. The recommended areas for priority security controls are multi-factor authentication implementation, input validation mechanisms, and robust logging practices to reduce overall risk exposure.\"\n}",
+  "raw": "{\n  \"methodology\": \"STRIDE\",\n  \"threats\": [\n    {\n      \"threat_id\": \"THR-001\",\n      \"component\": \"Edge Layer\",\n      \"threat_category\": \"Spoofing\",\n      \"description\": \"Attacker forges client IP-related headers (X-Forwarded-For, X-Real-IP, True-Client-IP) to bypass geo/IP-based controls, rate limits, or fraud rules enforced at CDN/WAF or app gateway.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"Medium\",\n      \"risk_level\": \"Medium\",\n      \"mitigation_strategy\": \"Treat only provider-populated headers as trusted; strip or overwrite untrusted IP headers at the edge; enable CDN-origin communication over TLS with mutual trust; configure gateway to use the CDN\u2019s authenticated client IP header; implement device/account-level rate limiting in addition to IP-based.\",\n      \"applicable_controls\": [\"V10.1.1\", \"V10.2.3\", \"V14.2.1\"],\n      \"control_effectiveness\": \"High\",\n      \"residual_risk_level\": \"Low\",\n      \"residual_risk_acceptance\": \"Accepted\"\n    },\n    {\n      \"threat_id\": \"THR-002\",\n      \"component\": \"Edge Layer\",\n      \"threat_category\": \"Tampering\",\n      \"description\": \"Host header poisoning leading to cache poisoning or backend routing to unintended virtual hosts/origins. Could enable web cache deception or SSRF via misrouted requests.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Enforce strict Host/SNI allowlist at CDN/WAF and gateway; normalize and validate scheme/host before cache keying; configure origin override to canonical host; disable user-influenced headers in cache keys unless required.\",\n      \"applicable_controls\": [\"V10.1.1\", \"V14.3.2\", \"V5.1.1\"],\n      \"control_effectiveness\": \"High\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Requires Review\"\n    },\n    {\n      \"threat_id\": \"THR-003\",\n      \"component\": \"Edge Layer\",\n      \"threat_category\": \"Information Disclosure\",\n      \"description\": \"TLS misconfiguration or mixed-content allows leakage of session identifiers or PII in Referer headers or over downgraded connections.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Enforce TLS 1.2+ with strong ciphers; enable HSTS with preload; set Secure/HttpOnly/SameSite on cookies; set Referrer-Policy to strict-origin-when-cross-origin or stricter; block mixed content via CSP.\",\n      \"applicable_controls\": [\"V9.1.1\", \"V10.4.1\", \"V10.3.1\"],\n      \"control_effectiveness\": \"High\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Accepted\"\n    },\n    {\n      \"threat_id\": \"THR-004\",\n      \"component\": \"Edge Layer\",\n      \"threat_category\": \"Denial of Service\",\n      \"description\": \"Volumetric DDoS or L7 request floods overwhelm network, CDN, or origin capacity, causing storefront and API outage.\",\n      \"likelihood\": \"High\",\n      \"impact\": \"High\",\n      \"risk_level\": \"Critical\",\n      \"mitigation_strategy\": \"Use managed DDoS protection with automatic detection/scrubbing; enable CDN caching and request challenge (JS/managed challenge); implement adaptive rate limiting and surge queueing; autoscale origins; define runbooks and traffic baselines.\",\n      \"applicable_controls\": [\"V10.2.3\", \"V1.1.2\"],\n      \"control_effectiveness\": \"Medium\",\n      \"residual_risk_level\": \"High\",\n      \"residual_risk_acceptance\": \"Requires Review\"\n    },\n    {\n      \"threat_id\": \"THR-005\",\n      \"component\": \"Edge Layer\",\n      \"threat_category\": \"Denial of Service\",\n      \"description\": \"Cache-busting by appending random query params to static asset URLs forces CDN misses and overloads origins, degrading performance.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Configure CDN to ignore irrelevant query parameters for static assets; key cache by path + whitelist of parameters; enforce bot management; serve immutable assets with versioned filenames and long TTL.\",\n      \"applicable_controls\": [\"V10.2.3\", \"V14.4.1\"],\n      \"control_effectiveness\": \"Medium\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Accepted\"\n    },\n    {\n      \"threat_id\": \"THR-006\",\n      \"component\": \"Frontend Layer\",\n      \"threat_category\": \"Tampering\",\n      \"description\": \"Stored/reflected/DOM XSS via product reviews, search, or admin content injection enabling session theft, checkout tampering, or skimming.\",\n      \"likelihood\": \"High\",\n      \"impact\": \"High\",\n      \"risk_level\": \"Critical\",\n      \"mitigation_strategy\": \"Default-to-escape templating; strict output encoding by context; sanitize and store UGC in safe subset; enforce CSP (no unsafe-inline; nonce-based); disallow inline event handlers; use Trusted Types where possible; isolate image/media on cookieless domain.\",\n      \"applicable_controls\": [\"V5.3.3\", \"V5.1.3\", \"V10.4.2\"],\n      \"control_effectiveness\": \"High\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Requires Review\"\n    },\n    {\n      \"threat_id\": \"THR-007\",\n      \"component\": \"Frontend Layer\",\n      \"threat_category\": \"Tampering\",\n      \"description\": \"CSRF on state-changing endpoints (address add/update, add-to-cart, checkout) allows unauthorized actions using victim\u2019s session.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Use same-site cookies (SameSite=Lax/Strict) plus anti-CSRF tokens (synchronized or double submit) on all unsafe methods; enforce Origin/Referer checks; require re-auth/MFA for sensitive actions.\",\n      \"applicable_controls\": [\"V3.4.1\", \"V10.3.1\", \"V10.1.2\"],\n      \"control_effectiveness\": \"High\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Accepted\"\n    },\n    {\n      \"threat_id\": \"THR-008\",\n      \"component\": \"Frontend Layer\",\n      \"threat_category\": \"Elevation of Privilege\",\n      \"description\": \"Clickjacking on admin or checkout popups frames the site, tricking users into privileged actions.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Set X-Frame-Options: DENY and CSP frame-ancestors 'none' (or strict allowlist); require user presence (re-auth, consent) for high-risk operations; implement UI anti-clickjacking defenses.\",\n      \"applicable_controls\": [\"V10.4.2\", \"V3.2.4\"],\n      \"control_effectiveness\": \"High\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Accepted\"\n    },\n    {\n      \"threat_id\": \"THR-009\",\n      \"component\": \"Frontend Layer\",\n      \"threat_category\": \"Information Disclosure\",\n      \"description\": \"Access tokens or session identifiers stored in localStorage are exfiltrated via XSS or malicious extensions leading to account takeover.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Use HttpOnly, Secure, same-site cookies for sessions; rotate session IDs on privilege changes; implement short token TTL and refresh with server-side rotation; device/account anomaly detection.\",\n      \"applicable_controls\": [\"V3.4.2\", \"V3.3.1\", \"V10.3.1\"],\n      \"control_effectiveness\": \"High\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Accepted\"\n    },\n    {\n      \"threat_id\": \"THR-010\",\n      \"component\": \"Frontend Layer\",\n      \"threat_category\": \"Tampering\",\n      \"description\": \"Third-party tag manager or analytics script compromise (Magecart-style) skims credentials or payment tokens client-side.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Minimize third-party JS; self-host critical scripts; enforce CSP with strict allowlist and nonces; require Subresource Integrity for external scripts; runtime integrity monitoring and change control.\",\n      \"applicable_controls\": [\"V10.4.2\", \"V14.3.1\"],\n      \"control_effectiveness\": \"Medium\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Requires Review\"\n    },\n    {\n      \"threat_id\": \"THR-011\",\n      \"component\": \"Application Services\",\n      \"threat_category\": \"Tampering\",\n      \"description\": \"SQL injection in search, product management, or admin analytics endpoints enables data exfiltration or modification.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Use parameterized queries/ORM; enforce strict input validation and encoding; least-privileged DB accounts; WAF SQLi rules; automated SAST/DAST and query linting; prepared statements everywhere.\",\n      \"applicable_controls\": [\"V5.3.2\", \"V5.1.1\", \"V4.3.3\"],\n      \"control_effectiveness\": \"High\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Requires Review\"\n    },\n    {\n      \"threat_id\": \"THR-012\",\n      \"component\": \"Application Services\",\n      \"threat_category\": \"Elevation of Privilege\",\n      \"description\": \"Broken access control/IDOR on orders, carts, or profiles allows users to read or modify other customers\u2019 data by guessing IDs.\",\n      \"likelihood\": \"High\",\n      \"impact\": \"High\",\n      \"risk_level\": \"Critical\",\n      \"mitigation_strategy\": \"Enforce object- and record-level authorization on every API; scope queries by subject identity; use opaque IDs; add authorization tests; deny by default; log and alert on access violations.\",\n      \"applicable_controls\": [\"V4.1.3\", \"V13.1.1\", \"V4.2.1\"],\n      \"control_effectiveness\": \"High\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Unacceptable\"\n    },\n    {\n      \"threat_id\": \"THR-013\",\n      \"component\": \"Application Services\",\n      \"threat_category\": \"Spoofing\",\n      \"description\": \"Credential stuffing/brute force against login leads to account takeover despite passwords.\",\n      \"likelihood\": \"High\",\n      \"impact\": \"High\",\n      \"risk_level\": \"Critical\",\n      \"mitigation_strategy\": \"Enforce MFA for users and admins; rate-limit and lockout with progressive delays; CAPTCHA after anomalies; use credential stuffing detections; monitor for breached passwords; device/IP reputation checks.\",\n      \"applicable_controls\": [\"V2.1.1\", \"V2.1.7\", \"V10.2.3\"],\n      \"control_effectiveness\": \"High\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Requires Review\"\n    },\n    {\n      \"threat_id\": \"THR-014\",\n      \"component\": \"Application Services\",\n      \"threat_category\": \"Repudiation\",\n      \"description\": \"Password reset flow leaks user existence or uses predictable/long-lived tokens; attacker resets victim\u2019s password or enumerates accounts.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Use one-time, short-lived, cryptographically strong reset tokens tied to user and device; store token hashes server-side; generic responses for reset and registration; equalize timing; rate limit attempts; notify user on reset events.\",\n      \"applicable_controls\": [\"V2.1.6\", \"V3.1.2\", \"V10.2.3\"],\n      \"control_effectiveness\": \"High\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Accepted\"\n    },\n    {\n      \"threat_id\": \"THR-015\",\n      \"component\": \"Application Services\",\n      \"threat_category\": \"Tampering\",\n      \"description\": \"SSRF via image URL ingestion, webhooks, or address validation callbacks allows internal network access or metadata service probing.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Disallow arbitrary URL fetching; if required, enforce allowlists, DNS pinning, and URL scheme/port validation; egress filter to block RFC1918/metadata; use isolated fetcher service without sensitive network access.\",\n      \"applicable_controls\": [\"V12.5.1\", \"V14.2.3\", \"V14.4.2\"],\n      \"control_effectiveness\": \"Medium\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Requires Review\"\n    },\n    {\n      \"threat_id\": \"THR-016\",\n      \"component\": \"Application Services\",\n      \"threat_category\": \"Spoofing\",\n      \"description\": \"Payment or PayPal webhooks are forged or replayed to mark orders as paid or trigger refunds without real authorization.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Verify webhook signatures with shared secret/public key; enforce mTLS or source IP allowlists; include and verify idempotency keys and timestamps; reject replays; correlate with gateway-side API retrieval.\",\n      \"applicable_controls\": [\"V13.2.5\", \"V10.1.1\", \"V4.3.4\"],\n      \"control_effectiveness\": \"High\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Unacceptable\"\n    },\n    {\n      \"threat_id\": \"THR-017\",\n      \"component\": \"Application Services\",\n      \"threat_category\": \"Elevation of Privilege\",\n      \"description\": \"RBAC misconfiguration grants excessive admin privileges (e.g., analytics user can process refunds or manage roles).\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Define least-privilege role matrix and SoD; implement policy-as-code authorization (e.g., ABAC) with centralized enforcement; periodic access reviews; require approvals for privilege changes; log all admin actions.\",\n      \"applicable_controls\": [\"V4.1.1\", \"V4.2.2\", \"V7.2.1\"],\n      \"control_effectiveness\": \"Medium\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Requires Review\"\n    },\n    {\n      \"threat_id\": \"THR-018\",\n      \"component\": \"Application Services\",\n      \"threat_category\": \"Elevation of Privilege\",\n      \"description\": \"Mass assignment or over-posting lets attacker set sensitive fields (e.g., role, price, discount, isAdmin) via API payloads.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Use explicit allowlists/DTOs for updatable fields; ignore/strip unknown fields; server-side recomputation of sensitive values; authorization checks on field-level changes.\",\n      \"applicable_controls\": [\"V5.1.5\", \"V4.2.1\", \"V13.2.1\"],\n      \"control_effectiveness\": \"High\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Accepted\"\n    },\n    {\n      \"threat_id\": \"THR-019\",\n      \"component\": \"Data Layer\",\n      \"threat_category\": \"Information Disclosure\",\n      \"description\": \"Object storage (e.g., S3) misconfiguration exposes product images, receipts, or attachments containing PII to the public or unauthorized roles.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Block public access at the bucket level; enforce private ACLs and IAM policies; serve via presigned URLs with short TTL and minimal scope; segregate public vs private buckets; malware scan uploads.\",\n      \"applicable_controls\": [\"V8.3.1\", \"V12.1.1\", \"V14.4.1\"],\n      \"control_effectiveness\": \"High\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Accepted\"\n    },\n    {\n      \"threat_id\": \"THR-020\",\n      \"component\": \"Data Layer\",\n      \"threat_category\": \"Information Disclosure\",\n      \"description\": \"Compromise of database credentials or IAM role results in exfiltration of PII, order data, and auth metadata.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Use IAM-based DB auth where possible; rotate credentials frequently; enforce network isolation (private subnets, SGs); encrypt at rest and use field-level encryption for sensitive data; monitor queries and anomalous access; enable least privilege.\",\n      \"applicable_controls\": [\"V6.1.1\", \"V8.2.1\", \"V14.2.1\"],\n      \"control_effectiveness\": \"Medium\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Unacceptable\"\n    },\n    {\n      \"threat_id\": \"THR-021\",\n      \"component\": \"Data Layer\",\n      \"threat_category\": \"Tampering\",\n      \"description\": \"Redis cache exposed or without ACL/TLS allows cache poisoning, key theft (sessions, carts), or remote access.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"Medium\",\n      \"risk_level\": \"Medium\",\n      \"mitigation_strategy\": \"Restrict Redis to VPC/private networks; enable TLS and AUTH/ACL; separate key namespaces; disable dangerous commands; set key TTLs; monitor for unusual misses/hits.\",\n      \"applicable_controls\": [\"V14.2.1\", \"V3.3.1\"],\n      \"control_effectiveness\": \"High\",\n      \"residual_risk_level\": \"Low\",\n      \"residual_risk_acceptance\": \"Accepted\"\n    },\n    {\n      \"threat_id\": \"THR-022\",\n      \"component\": \"Data Layer\",\n      \"threat_category\": \"Tampering\",\n      \"description\": \"Message queue/event bus poisoning or replay leads to unauthorized order status changes, fraudulent refunds, or workflow triggers.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Authenticate producers/consumers per topic; sign and timestamp messages; use schema registry and validation; enforce idempotency; monitor DLQ and unusual message patterns; least privilege IAM.\",\n      \"applicable_controls\": [\"V13.2.1\", \"V4.3.4\", \"V14.2.1\"],\n      \"control_effectiveness\": \"Medium\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Requires Review\"\n    },\n    {\n      \"threat_id\": \"THR-023\",\n      \"component\": \"Data Layer\",\n      \"threat_category\": \"Information Disclosure\",\n      \"description\": \"Backups/snapshots (RDBMS, search indices) are publicly shared or not encrypted, exposing entire datasets if discovered.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Encrypt backups with KMS; restrict snapshot sharing; inventory and scan backup stores; enforce lifecycle and retention; test restores securely; monitor for public exposure.\",\n      \"applicable_controls\": [\"V8.3.1\", \"V14.4.1\", \"V6.2.1\"],\n      \"control_effectiveness\": \"High\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Accepted\"\n    },\n    {\n      \"threat_id\": \"THR-024\",\n      \"component\": \"External Services\",\n      \"threat_category\": \"Spoofing\",\n      \"description\": \"SSO/IdP misconfiguration (issuer/audience mismatch, missing nonce/state) enables token substitution or login CSRF leading to admin account takeover.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Validate issuer, audience, nonce/state; require signed and optionally encrypted tokens; enforce MFA at IdP; restrict redirect URIs; implement JIT provisioning with least privilege; rotate keys and validate kid.\",\n      \"applicable_controls\": [\"V2.2.4\", \"V2.2.5\", \"V10.1.1\"],\n      \"control_effectiveness\": \"High\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Unacceptable\"\n    },\n    {\n      \"threat_id\": \"THR-025\",\n      \"component\": \"External Services\",\n      \"threat_category\": \"Tampering\",\n      \"description\": \"Open redirect in payment return/callback URLs enables phishing and session fixation or completes orders without proper verification.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Strictly validate return URLs against allowlist; bind state parameter to session; verify payment status server-side via gateway API before order fulfillment; deny arbitrary redirect targets.\",\n      \"applicable_controls\": [\"V10.1.3\", \"V13.2.5\", \"V11.1.1\"],\n      \"control_effectiveness\": \"High\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Accepted\"\n    },\n    {\n      \"threat_id\": \"THR-026\",\n      \"component\": \"External Services\",\n      \"threat_category\": \"Information Disclosure\",\n      \"description\": \"Email/SMS provider account compromise allows interception of OTPs and password resets or mass phishing from trusted domain.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Enable provider MFA and SSO; restrict API keys by IP and scope; rotate credentials; implement DMARC/DKIM/SPF; segregate transactional vs marketing accounts; monitor for anomalies and unauthorized templates.\",\n      \"applicable_controls\": [\"V2.2.1\", \"V14.2.1\", \"V7.2.2\"],\n      \"control_effectiveness\": \"Medium\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Requires Review\"\n    },\n    {\n      \"threat_id\": \"THR-027\",\n      \"component\": \"Security & Observability\",\n      \"threat_category\": \"Information Disclosure\",\n      \"description\": \"Logs, traces, or metrics contain PII (emails, addresses, tokens) leading to privacy breach via SIEM or developer tools.\",\n      \"likelihood\": \"High\",\n      \"impact\": \"Medium\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Implement centralized PII redaction/filters in logging libraries; structured logging; encrypt logs at rest/in transit; role-based access to SIEM; sampling and retention limits; periodic scans for secrets/PII.\",\n      \"applicable_controls\": [\"V7.3.1\", \"V8.1.1\", \"V7.2.1\"],\n      \"control_effectiveness\": \"High\",\n      \"residual_risk_level\": \"Low\",\n      \"residual_risk_acceptance\": \"Accepted\"\n    },\n    {\n      \"threat_id\": \"THR-028\",\n      \"component\": \"Security & Observability\",\n      \"threat_category\": \"Repudiation\",\n      \"description\": \"Log tampering or deletion by privileged users prevents forensic analysis and dispute resolution for fraudulent actions.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Ship logs off-host in near-real-time; use append-only/immutable storage (WORM) and cryptographic signing; separate duties for log access; monitor deletion/rotation events; maintain secure time synchronization.\",\n      \"applicable_controls\": [\"V7.2.1\", \"V7.4.1\", \"V1.1.1\"],\n      \"control_effectiveness\": \"High\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Requires Review\"\n    },\n    {\n      \"threat_id\": \"THR-029\",\n      \"component\": \"Application Services\",\n      \"threat_category\": \"Denial of Service\",\n      \"description\": \"API abuse and scraping of catalog/search endpoints bypasses simple rate limits, causing resource exhaustion and data harvesting.\",\n      \"likelihood\": \"High\",\n      \"impact\": \"Medium\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Implement adaptive per-user/device/IP rate limits, user-level quotas, and burst controls; deploy bot detection; require API keys for partner APIs; paginate and cache; watermark responses for misuse detection.\",\n      \"applicable_controls\": [\"V10.2.3\", \"V11.1.1\", \"V13.2.2\"],\n      \"control_effectiveness\": \"Medium\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Accepted\"\n    },\n    {\n      \"threat_id\": \"THR-030\",\n      \"component\": \"Order Management\",\n      \"threat_category\": \"Information Disclosure\",\n      \"description\": \"Order tracking endpoints expose data via predictable tracking IDs or missing ownership checks (IDOR), revealing PII or order details.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Use unguessable opaque tracking identifiers; enforce user/owner authorization for any order detail; minimize data in tracking responses; separate public carrier tracking from internal order data.\",\n      \"applicable_controls\": [\"V4.1.3\", \"V13.1.1\", \"V8.2.2\"],\n      \"control_effectiveness\": \"High\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Accepted\"\n    },\n    {\n      \"threat_id\": \"THR-031\",\n      \"component\": \"Shopping Cart & Checkout\",\n      \"threat_category\": \"Tampering\",\n      \"description\": \"Client-side price, discount, or quantity manipulation via hidden fields or intercepted API calls results in underpayment or free items.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Treat server as source of truth; recompute totals on server; validate discounts/coupons server-side; sign cart line-items or use server-side carts; verify inventory and pricing at payment authorization time.\",\n      \"applicable_controls\": [\"V11.1.1\", \"V4.2.1\", \"V13.2.1\"],\n      \"control_effectiveness\": \"High\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Unacceptable\"\n    },\n    {\n      \"threat_id\": \"THR-032\",\n      \"component\": \"User Management\",\n      \"threat_category\": \"Information Disclosure\",\n      \"description\": \"Account enumeration via registration or password reset responses reveals whether an email/phone is registered.\",\n      \"likelihood\": \"High\",\n      \"impact\": \"Medium\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Return generic responses; constant-time processing; rate-limit attempts; require CAPTCHA after thresholds; alert on enumeration patterns.\",\n      \"applicable_controls\": [\"V2.1.6\", \"V10.2.3\", \"V7.2.1\"],\n      \"control_effectiveness\": \"High\",\n      \"residual_risk_level\": \"Low\",\n      \"residual_risk_acceptance\": \"Accepted\"\n    },\n    {\n      \"threat_id\": \"THR-033\",\n      \"component\": \"Admin Panel\",\n      \"threat_category\": \"Tampering\",\n      \"description\": \"CSRF on admin actions (product changes, refunds, role management) enables unauthorized administrative operations.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Enforce CSRF tokens and Origin checks; require MFA and re-auth; implement stepped-up approvals for sensitive admin operations; use admin-only subdomain with strict CSP and no third-party scripts.\",\n      \"applicable_controls\": [\"V3.4.1\", \"V2.1.1\", \"V10.1.2\"],\n      \"control_effectiveness\": \"High\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Unacceptable\"\n    },\n    {\n      \"threat_id\": \"THR-034\",\n      \"component\": \"Product Catalog\",\n      \"threat_category\": \"Tampering\",\n      \"description\": \"Image-based attacks (e.g., SVG with scripts) or EXIF payloads lead to stored XSS or exploitation of image processing libraries.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Convert uploads to safe raster formats (e.g., JPEG/PNG); strip metadata; validate MIME/type and magic numbers; virus/malware scan; serve from separate domain without cookies; set strict Content-Type and CSP.\",\n      \"applicable_controls\": [\"V12.1.1\", \"V12.4.1\", \"V10.4.2\"],\n      \"control_effectiveness\": \"High\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Accepted\"\n    },\n    {\n      \"threat_id\": \"THR-035\",\n      \"component\": \"Order Management\",\n      \"threat_category\": \"Repudiation\",\n      \"description\": \"Returns and refunds fraud (e.g., double refunds, shipping label abuse) due to weak business rules and insufficient audit.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Enforce RMA workflow with unique tokens; idempotent refund APIs; 4-eyes approval for high-value refunds; integrate carrier delivery/scan confirmation; maintain immutable audit trail.\",\n      \"applicable_controls\": [\"V11.1.1\", \"V7.2.1\", \"V4.2.2\"],\n      \"control_effectiveness\": \"Medium\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Requires Review\"\n    },\n    {\n      \"threat_id\": \"THR-036\",\n      \"component\": \"Data Layer\",\n      \"threat_category\": \"Elevation of Privilege\",\n      \"description\": \"KMS/Secrets Manager misuse or role compromise enables decryption of sensitive data and lateral movement.\",\n      \"likelihood\": \"Low\",\n      \"impact\": \"High\",\n      \"risk_level\": \"Medium\",\n      \"mitigation_strategy\": \"Harden KMS key policies; enable key usage alarms; rotate keys/secrets with short TTL; enforce least privilege and just-in-time access; use HSM-backed keys for critical material.\",\n      \"applicable_controls\": [\"V6.2.1\", \"V14.2.1\", \"V8.2.1\"],\n      \"control_effectiveness\": \"High\",\n      \"residual_risk_level\": \"Negligible\",\n      \"residual_risk_acceptance\": \"Accepted\"\n    },\n    {\n      \"threat_id\": \"THR-037\",\n      \"component\": \"Frontend Layer\",\n      \"threat_category\": \"Information Disclosure\",\n      \"description\": \"CORS misconfiguration (wildcard origins with credentials) allows malicious sites to read authenticated API responses.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Do not use wildcard with credentials; maintain strict origin allowlist; validate preflight requests; limit exposed headers; use separate origins for admin and public APIs.\",\n      \"applicable_controls\": [\"V10.1.2\", \"V13.2.2\"],\n      \"control_effectiveness\": \"High\",\n      \"residual_risk_level\": \"Low\",\n      \"residual_risk_acceptance\": \"Accepted\"\n    },\n    {\n      \"threat_id\": \"THR-038\",\n      \"component\": \"Application Services\",\n      \"threat_category\": \"Spoofing\",\n      \"description\": \"Session fixation due to missing session/token rotation on login, MFA, or privilege change lets attacker bind victim to known session ID.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Regenerate session IDs on authentication state changes; invalidate prior sessions on password reset; bind refresh tokens to device and rotate; short TTLs and inactivity timeouts.\",\n      \"applicable_controls\": [\"V3.2.1\", \"V3.3.1\", \"V2.1.1\"],\n      \"control_effectiveness\": \"High\",\n      \"residual_risk_level\": \"Low\",\n      \"residual_risk_acceptance\": \"Accepted\"\n    },\n    {\n      \"threat_id\": \"THR-039\",\n      \"component\": \"External Services\",\n      \"threat_category\": \"Tampering\",\n      \"description\": \"3DS/SCA downgrade or bypass (e.g., liability shift exploitation, incorrect exemption handling) increases fraud and chargebacks.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Enforce gateway-recommended 3DS flows; apply step-up authentication based on risk signals; verify 3DS authentication values in server; monitor chargebacks; disable unnecessary exemptions; keep SDKs updated.\",\n      \"applicable_controls\": [\"V11.1.1\", \"V2.1.1\"],\n      \"control_effectiveness\": \"Medium\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Requires Review\"\n    }\n  ],\n  \"risk_summary\": \"Most critical threats requiring immediate attention are: broken access control/IDOR across APIs (THR-012), credential attacks leading to ATO (THR-013), pervasive XSS vectors (THR-006), and large-scale DDoS (THR-004). High-risk issues also include webhook spoofing (THR-016), admin CSRF and RBAC weaknesses (THR-033, THR-017), storage misconfigurations exposing data (THR-019/THR-023), and business logic tampering in checkout (THR-031). Primary attack vectors and entry points are the public web/API surface behind the CDN/WAF, client-side JavaScript and third-party tags, authentication and session flows, and integrations with payment/SSO providers. The overall risk posture is moderate-to-high for an internet-facing e-commerce platform: exposure is broad, and while cloud-managed security and RBAC/MFA reduce some classes of threats, successful exploitation of access control, input validation, or third-party integrations can cause severe data loss and fraud. Priority areas for security controls should be: enforce robust object-level authorization and role design; harden authentication (MFA, rate limiting, breached password checks); implement strong client-side defenses (CSP, output encoding, CSRF protection); secure third-party integrations (signature verification, strict redirect/state handling); protect data stores and backups with least privilege and encryption; and prepare for availability attacks with DDoS/bot mitigations and adaptive rate limits. Continuous monitoring, immutable audit logging, and secure SDLC (threat modeling in changes, SAST/DAST, code review) are essential to reduce residual risk.\"\n}",
   "pydantic": {
     "methodology": "STRIDE",
     "threats": [
       {
         "threat_id": "THR-001",
-        "component": "User Management",
+        "component": "Edge Layer",
         "threat_category": "Spoofing",
-        "description": "An attacker can spoof a user's identity by bypassing authentication mechanisms, potentially by leveraging weak password policies or not enforcing multi-factor authentication.",
+        "description": "Attacker forges client IP-related headers (X-Forwarded-For, X-Real-IP, True-Client-IP) to bypass geo/IP-based controls, rate limits, or fraud rules enforced at CDN/WAF or app gateway.",
+        "likelihood": "Medium",
+        "impact": "Medium",
+        "risk_level": "Medium",
+        "mitigation_strategy": "Treat only provider-populated headers as trusted; strip or overwrite untrusted IP headers at the edge; enable CDN-origin communication over TLS with mutual trust; configure gateway to use the CDN\u2019s authenticated client IP header; implement device/account-level rate limiting in addition to IP-based.",
+        "applicable_controls": [
+          "V10.1.1",
+          "V10.2.3",
+          "V14.2.1"
+        ],
+        "control_effectiveness": "High",
+        "residual_risk_level": "Low",
+        "residual_risk_acceptance": "Accepted"
+      },
+      {
+        "threat_id": "THR-002",
+        "component": "Edge Layer",
+        "threat_category": "Tampering",
+        "description": "Host header poisoning leading to cache poisoning or backend routing to unintended virtual hosts/origins. Could enable web cache deception or SSRF via misrouted requests.",
+        "likelihood": "Medium",
+        "impact": "High",
+        "risk_level": "High",
+        "mitigation_strategy": "Enforce strict Host/SNI allowlist at CDN/WAF and gateway; normalize and validate scheme/host before cache keying; configure origin override to canonical host; disable user-influenced headers in cache keys unless required.",
+        "applicable_controls": [
+          "V10.1.1",
+          "V14.3.2",
+          "V5.1.1"
+        ],
+        "control_effectiveness": "High",
+        "residual_risk_level": "Medium",
+        "residual_risk_acceptance": "Requires Review"
+      },
+      {
+        "threat_id": "THR-003",
+        "component": "Edge Layer",
+        "threat_category": "Information Disclosure",
+        "description": "TLS misconfiguration or mixed-content allows leakage of session identifiers or PII in Referer headers or over downgraded connections.",
+        "likelihood": "Medium",
+        "impact": "High",
+        "risk_level": "High",
+        "mitigation_strategy": "Enforce TLS 1.2+ with strong ciphers; enable HSTS with preload; set Secure/HttpOnly/SameSite on cookies; set Referrer-Policy to strict-origin-when-cross-origin or stricter; block mixed content via CSP.",
+        "applicable_controls": [
+          "V9.1.1",
+          "V10.4.1",
+          "V10.3.1"
+        ],
+        "control_effectiveness": "High",
+        "residual_risk_level": "Medium",
+        "residual_risk_acceptance": "Accepted"
+      },
+      {
+        "threat_id": "THR-004",
+        "component": "Edge Layer",
+        "threat_category": "Denial of Service",
+        "description": "Volumetric DDoS or L7 request floods overwhelm network, CDN, or origin capacity, causing storefront and API outage.",
         "likelihood": "High",
         "impact": "High",
         "risk_level": "Critical",
-        "mitigation_strategy": "Enforce strong password policies, implement multi-factor authentication for all user accounts.",
+        "mitigation_strategy": "Use managed DDoS protection with automatic detection/scrubbing; enable CDN caching and request challenge (JS/managed challenge); implement adaptive rate limiting and surge queueing; autoscale origins; define runbooks and traffic baselines.",
         "applicable_controls": [
-          "V2.1.1",
-          "V3.2.3"
+          "V10.2.3",
+          "V1.1.2"
         ],
         "control_effectiveness": "Medium",
         "residual_risk_level": "High",
         "residual_risk_acceptance": "Requires Review"
       },
       {
-        "threat_id": "THR-002",
-        "component": "User Management",
-        "threat_category": "Repudiation",
-        "description": "A user could deny having performed an action (e.g., a purchase) if there is no logging mechanism or audit trail in place.",
-        "likelihood": "Medium",
-        "impact": "Medium",
-        "risk_level": "Medium",
-        "mitigation_strategy": "Implement comprehensive logging of user actions, including purchases and account changes.",
-        "applicable_controls": [
-          "V4.1.1"
-        ],
-        "control_effectiveness": "High",
-        "residual_risk_level": "Low",
-        "residual_risk_acceptance": "Accepted"
-      },
-      {
-        "threat_id": "THR-003",
-        "component": "Product Catalog",
-        "threat_category": "Tampering",
-        "description": "An attacker could tamper with product information in the catalog, leading to incorrect pricing or misleading product details.",
-        "likelihood": "Medium",
-        "impact": "High",
-        "risk_level": "High",
-        "mitigation_strategy": "Implement input validation, use checksums or hashes to verify product data integrity.",
-        "applicable_controls": [
-          "V2.2.3"
-        ],
-        "control_effectiveness": "Medium",
-        "residual_risk_level": "Medium",
-        "residual_risk_acceptance": "Requires Review"
-      },
-      {
-        "threat_id": "THR-004",
-        "component": "Shopping Cart & Checkout",
-        "threat_category": "Denial of Service",
-        "description": "An attacker could overwhelm the shopping cart service with excessive requests, leading to service unavailability.",
-        "likelihood": "Medium",
-        "impact": "High",
-        "risk_level": "High",
-        "mitigation_strategy": "Implement rate limiting on API endpoints, use CAPTCHA to mitigate automated requests.",
-        "applicable_controls": [
-          "V1.3.2"
-        ],
-        "control_effectiveness": "Medium",
-        "residual_risk_level": "Medium",
-        "residual_risk_acceptance": "Requires Review"
-      },
-      {
         "threat_id": "THR-005",
-        "component": "Backend API",
-        "threat_category": "Information Disclosure",
-        "description": "Sensitive data could be disclosed through insecure APIs, such as user information or payment data.",
-        "likelihood": "High",
+        "component": "Edge Layer",
+        "threat_category": "Denial of Service",
+        "description": "Cache-busting by appending random query params to static asset URLs forces CDN misses and overloads origins, degrading performance.",
+        "likelihood": "Medium",
         "impact": "High",
-        "risk_level": "Critical",
-        "mitigation_strategy": "Use HTTPS to encrypt data in transit and implement robust authentication and authorization mechanisms.",
+        "risk_level": "High",
+        "mitigation_strategy": "Configure CDN to ignore irrelevant query parameters for static assets; key cache by path + whitelist of parameters; enforce bot management; serve immutable assets with versioned filenames and long TTL.",
         "applicable_controls": [
-          "V2.1.3"
+          "V10.2.3",
+          "V14.4.1"
         ],
-        "control_effectiveness": "High",
-        "residual_risk_level": "Low",
+        "control_effectiveness": "Medium",
+        "residual_risk_level": "Medium",
         "residual_risk_acceptance": "Accepted"
       },
       {
         "threat_id": "THR-006",
-        "component": "Payment Gateway",
+        "component": "Frontend Layer",
         "threat_category": "Tampering",
-        "description": "An attacker could intercept and modify payment data in transit, leading to financial fraud.",
-        "likelihood": "Medium",
+        "description": "Stored/reflected/DOM XSS via product reviews, search, or admin content injection enabling session theft, checkout tampering, or skimming.",
+        "likelihood": "High",
         "impact": "High",
-        "risk_level": "High",
-        "mitigation_strategy": "Ensure the payment gateway uses strong encryption and perform regular security audits.",
+        "risk_level": "Critical",
+        "mitigation_strategy": "Default-to-escape templating; strict output encoding by context; sanitize and store UGC in safe subset; enforce CSP (no unsafe-inline; nonce-based); disallow inline event handlers; use Trusted Types where possible; isolate image/media on cookieless domain.",
         "applicable_controls": [
-          "V2.2.2"
+          "V5.3.3",
+          "V5.1.3",
+          "V10.4.2"
         ],
-        "control_effectiveness": "Medium",
+        "control_effectiveness": "High",
         "residual_risk_level": "Medium",
         "residual_risk_acceptance": "Requires Review"
       },
       {
         "threat_id": "THR-007",
-        "component": "Admin Panel",
-        "threat_category": "Elevation of Privilege",
-        "description": "An unprivileged user could gain access to the admin panel through misconfigured permissions.",
+        "component": "Frontend Layer",
+        "threat_category": "Tampering",
+        "description": "CSRF on state-changing endpoints (address add/update, add-to-cart, checkout) allows unauthorized actions using victim\u2019s session.",
         "likelihood": "Medium",
         "impact": "High",
         "risk_level": "High",
-        "mitigation_strategy": "Implement strict access controls and user privilege management.",
+        "mitigation_strategy": "Use same-site cookies (SameSite=Lax/Strict) plus anti-CSRF tokens (synchronized or double submit) on all unsafe methods; enforce Origin/Referer checks; require re-auth/MFA for sensitive actions.",
         "applicable_controls": [
-          "V2.1.2"
+          "V3.4.1",
+          "V10.3.1",
+          "V10.1.2"
         ],
-        "control_effectiveness": "Medium",
+        "control_effectiveness": "High",
         "residual_risk_level": "Medium",
-        "residual_risk_acceptance": "Requires Review"
+        "residual_risk_acceptance": "Accepted"
       },
       {
         "threat_id": "THR-008",
-        "component": "User Interface",
-        "threat_category": "Cross-site Scripting (XSS)",
-        "description": "An attacker could inject malicious scripts into web pages viewed by other users, stealing their session data.",
-        "likelihood": "High",
+        "component": "Frontend Layer",
+        "threat_category": "Elevation of Privilege",
+        "description": "Clickjacking on admin or checkout popups frames the site, tricking users into privileged actions.",
+        "likelihood": "Medium",
         "impact": "High",
-        "risk_level": "Critical",
-        "mitigation_strategy": "Implement input sanitization and output encoding practices.",
+        "risk_level": "High",
+        "mitigation_strategy": "Set X-Frame-Options: DENY and CSP frame-ancestors 'none' (or strict allowlist); require user presence (re-auth, consent) for high-risk operations; implement UI anti-clickjacking defenses.",
         "applicable_controls": [
-          "V4.2.1"
+          "V10.4.2",
+          "V3.2.4"
         ],
         "control_effectiveness": "High",
-        "residual_risk_level": "Low",
+        "residual_risk_level": "Medium",
         "residual_risk_acceptance": "Accepted"
       },
       {
         "threat_id": "THR-009",
-        "component": "Database",
-        "threat_category": "SQL Injection",
-        "description": "An attacker could exploit vulnerabilities in the database layer to execute arbitrary SQL commands, exposing sensitive data.",
-        "likelihood": "High",
-        "impact": "Critical",
-        "risk_level": "Critical",
-        "mitigation_strategy": "Implement parameterized queries and prepared statements, regularly conduct security assessments.",
+        "component": "Frontend Layer",
+        "threat_category": "Information Disclosure",
+        "description": "Access tokens or session identifiers stored in localStorage are exfiltrated via XSS or malicious extensions leading to account takeover.",
+        "likelihood": "Medium",
+        "impact": "High",
+        "risk_level": "High",
+        "mitigation_strategy": "Use HttpOnly, Secure, same-site cookies for sessions; rotate session IDs on privilege changes; implement short token TTL and refresh with server-side rotation; device/account anomaly detection.",
         "applicable_controls": [
-          "V2.3.1"
+          "V3.4.2",
+          "V3.3.1",
+          "V10.3.1"
         ],
         "control_effectiveness": "High",
-        "residual_risk_level": "Low",
+        "residual_risk_level": "Medium",
         "residual_risk_acceptance": "Accepted"
       },
       {
         "threat_id": "THR-010",
-        "component": "Order Management",
-        "threat_category": "Information Disclosure",
-        "description": "Sensitive order information could be disclosed due to improper access controls.",
+        "component": "Frontend Layer",
+        "threat_category": "Tampering",
+        "description": "Third-party tag manager or analytics script compromise (Magecart-style) skims credentials or payment tokens client-side.",
         "likelihood": "Medium",
         "impact": "High",
         "risk_level": "High",
-        "mitigation_strategy": "Implement strict access controls for user order views, ensuring only owners can view their orders.",
+        "mitigation_strategy": "Minimize third-party JS; self-host critical scripts; enforce CSP with strict allowlist and nonces; require Subresource Integrity for external scripts; runtime integrity monitoring and change control.",
         "applicable_controls": [
-          "V3.3.2"
+          "V10.4.2",
+          "V14.3.1"
         ],
         "control_effectiveness": "Medium",
         "residual_risk_level": "Medium",
@@ -166,111 +181,125 @@
       },
       {
         "threat_id": "THR-011",
-        "component": "Shopping Cart & Checkout",
-        "threat_category": "Denial of Service",
-        "description": "Flooding checkout processes could result in service unavailability for legitimate customers.",
+        "component": "Application Services",
+        "threat_category": "Tampering",
+        "description": "SQL injection in search, product management, or admin analytics endpoints enables data exfiltration or modification.",
         "likelihood": "Medium",
         "impact": "High",
         "risk_level": "High",
-        "mitigation_strategy": "Apply throttling mechanisms to limit request rates during checkout.",
+        "mitigation_strategy": "Use parameterized queries/ORM; enforce strict input validation and encoding; least-privileged DB accounts; WAF SQLi rules; automated SAST/DAST and query linting; prepared statements everywhere.",
         "applicable_controls": [
-          "V1.3.3"
+          "V5.3.2",
+          "V5.1.1",
+          "V4.3.3"
         ],
-        "control_effectiveness": "Medium",
+        "control_effectiveness": "High",
         "residual_risk_level": "Medium",
         "residual_risk_acceptance": "Requires Review"
       },
       {
         "threat_id": "THR-012",
-        "component": "Product Catalog",
-        "threat_category": "Denial of Service",
-        "description": "An attacker could cause the application to become unresponsive by submitting excessive requests for product catalog queries.",
-        "likelihood": "Medium",
-        "impact": "Medium",
-        "risk_level": "Medium",
-        "mitigation_strategy": "Implement API rate limiting to reduce the impact of excessive requests.",
+        "component": "Application Services",
+        "threat_category": "Elevation of Privilege",
+        "description": "Broken access control/IDOR on orders, carts, or profiles allows users to read or modify other customers\u2019 data by guessing IDs.",
+        "likelihood": "High",
+        "impact": "High",
+        "risk_level": "Critical",
+        "mitigation_strategy": "Enforce object- and record-level authorization on every API; scope queries by subject identity; use opaque IDs; add authorization tests; deny by default; log and alert on access violations.",
         "applicable_controls": [
-          "V1.3.1"
+          "V4.1.3",
+          "V13.1.1",
+          "V4.2.1"
         ],
-        "control_effectiveness": "Medium",
-        "residual_risk_level": "Low",
-        "residual_risk_acceptance": "Accepted"
+        "control_effectiveness": "High",
+        "residual_risk_level": "Medium",
+        "residual_risk_acceptance": "Unacceptable"
       },
       {
         "threat_id": "THR-013",
-        "component": "User Management",
-        "threat_category": "Elevation of Privilege",
-        "description": "An attacker could exploit insecure password reset processes to gain unauthorized account access.",
+        "component": "Application Services",
+        "threat_category": "Spoofing",
+        "description": "Credential stuffing/brute force against login leads to account takeover despite passwords.",
         "likelihood": "High",
         "impact": "High",
         "risk_level": "Critical",
-        "mitigation_strategy": "Implement strong verification steps for password reset, such as email confirmation.",
+        "mitigation_strategy": "Enforce MFA for users and admins; rate-limit and lockout with progressive delays; CAPTCHA after anomalies; use credential stuffing detections; monitor for breached passwords; device/IP reputation checks.",
         "applicable_controls": [
-          "V2.1.4"
+          "V2.1.1",
+          "V2.1.7",
+          "V10.2.3"
         ],
         "control_effectiveness": "High",
-        "residual_risk_level": "Low",
-        "residual_risk_acceptance": "Accepted"
+        "residual_risk_level": "Medium",
+        "residual_risk_acceptance": "Requires Review"
       },
       {
         "threat_id": "THR-014",
-        "component": "Backend API",
-        "threat_category": "API Abuse",
-        "description": "An attacker could abuse the API by making excessive requests, resulting in resource exhaustion.",
-        "likelihood": "High",
-        "impact": "Medium",
+        "component": "Application Services",
+        "threat_category": "Repudiation",
+        "description": "Password reset flow leaks user existence or uses predictable/long-lived tokens; attacker resets victim\u2019s password or enumerates accounts.",
+        "likelihood": "Medium",
+        "impact": "High",
         "risk_level": "High",
-        "mitigation_strategy": "Implement rate limiting and monitoring to detect and block abnormal behavior.",
+        "mitigation_strategy": "Use one-time, short-lived, cryptographically strong reset tokens tied to user and device; store token hashes server-side; generic responses for reset and registration; equalize timing; rate limit attempts; notify user on reset events.",
         "applicable_controls": [
-          "V1.1.1"
-        ],
-        "control_effectiveness": "Medium",
-        "residual_risk_level": "Medium",
-        "residual_risk_acceptance": "Requires Review"
-      },
-      {
-        "threat_id": "THR-015",
-        "component": "Payment Gateway",
-        "threat_category": "Information Disclosure",
-        "description": "Sensitive payment information could be exposed due to misconfigurations or vulnerabilities in the payment processing logic.",
-        "likelihood": "High",
-        "impact": "Critical",
-        "risk_level": "Critical",
-        "mitigation_strategy": "Conduct regular security assessments and audits of the payment processing system.",
-        "applicable_controls": [
-          "V2.2.1"
+          "V2.1.6",
+          "V3.1.2",
+          "V10.2.3"
         ],
         "control_effectiveness": "High",
-        "residual_risk_level": "Low",
+        "residual_risk_level": "Medium",
         "residual_risk_acceptance": "Accepted"
       },
       {
-        "threat_id": "THR-016",
-        "component": "Admin Panel",
+        "threat_id": "THR-015",
+        "component": "Application Services",
         "threat_category": "Tampering",
-        "description": "An attacker could tamper with admin panel data leading to unauthorized changes or deletions.",
+        "description": "SSRF via image URL ingestion, webhooks, or address validation callbacks allows internal network access or metadata service probing.",
         "likelihood": "Medium",
         "impact": "High",
         "risk_level": "High",
-        "mitigation_strategy": "Ensure proper session management and limit access to the admin panel to authorized users only.",
+        "mitigation_strategy": "Disallow arbitrary URL fetching; if required, enforce allowlists, DNS pinning, and URL scheme/port validation; egress filter to block RFC1918/metadata; use isolated fetcher service without sensitive network access.",
         "applicable_controls": [
-          "V2.1.2"
+          "V12.5.1",
+          "V14.2.3",
+          "V14.4.2"
         ],
         "control_effectiveness": "Medium",
         "residual_risk_level": "Medium",
         "residual_risk_acceptance": "Requires Review"
       },
       {
-        "threat_id": "THR-017",
-        "component": "Database",
-        "threat_category": "Denial of Service",
-        "description": "An attacker could overload the database with excessive queries, rendering it unresponsive.",
+        "threat_id": "THR-016",
+        "component": "Application Services",
+        "threat_category": "Spoofing",
+        "description": "Payment or PayPal webhooks are forged or replayed to mark orders as paid or trigger refunds without real authorization.",
         "likelihood": "Medium",
         "impact": "High",
         "risk_level": "High",
-        "mitigation_strategy": "Implement query optimization and monitoring to detect unusual query patterns.",
+        "mitigation_strategy": "Verify webhook signatures with shared secret/public key; enforce mTLS or source IP allowlists; include and verify idempotency keys and timestamps; reject replays; correlate with gateway-side API retrieval.",
         "applicable_controls": [
-          "V1.3.3"
+          "V13.2.5",
+          "V10.1.1",
+          "V4.3.4"
+        ],
+        "control_effectiveness": "High",
+        "residual_risk_level": "Medium",
+        "residual_risk_acceptance": "Unacceptable"
+      },
+      {
+        "threat_id": "THR-017",
+        "component": "Application Services",
+        "threat_category": "Elevation of Privilege",
+        "description": "RBAC misconfiguration grants excessive admin privileges (e.g., analytics user can process refunds or manage roles).",
+        "likelihood": "Medium",
+        "impact": "High",
+        "risk_level": "High",
+        "mitigation_strategy": "Define least-privilege role matrix and SoD; implement policy-as-code authorization (e.g., ABAC) with centralized enforcement; periodic access reviews; require approvals for privilege changes; log all admin actions.",
+        "applicable_controls": [
+          "V4.1.1",
+          "V4.2.2",
+          "V7.2.1"
         ],
         "control_effectiveness": "Medium",
         "residual_risk_level": "Medium",
@@ -278,14 +307,321 @@
       },
       {
         "threat_id": "THR-018",
-        "component": "User Interface",
-        "threat_category": "CSRF",
-        "description": "An attacker could exploit Cross-Site Request Forgery vulnerabilities to perform unauthorized actions on behalf of users.",
+        "component": "Application Services",
+        "threat_category": "Elevation of Privilege",
+        "description": "Mass assignment or over-posting lets attacker set sensitive fields (e.g., role, price, discount, isAdmin) via API payloads.",
         "likelihood": "Medium",
         "impact": "High",
         "risk_level": "High",
-        "mitigation_strategy": "Implement CSRF tokens in forms and validate them on the server side.",
+        "mitigation_strategy": "Use explicit allowlists/DTOs for updatable fields; ignore/strip unknown fields; server-side recomputation of sensitive values; authorization checks on field-level changes.",
         "applicable_controls": [
+          "V5.1.5",
+          "V4.2.1",
+          "V13.2.1"
+        ],
+        "control_effectiveness": "High",
+        "residual_risk_level": "Medium",
+        "residual_risk_acceptance": "Accepted"
+      },
+      {
+        "threat_id": "THR-019",
+        "component": "Data Layer",
+        "threat_category": "Information Disclosure",
+        "description": "Object storage (e.g., S3) misconfiguration exposes product images, receipts, or attachments containing PII to the public or unauthorized roles.",
+        "likelihood": "Medium",
+        "impact": "High",
+        "risk_level": "High",
+        "mitigation_strategy": "Block public access at the bucket level; enforce private ACLs and IAM policies; serve via presigned URLs with short TTL and minimal scope; segregate public vs private buckets; malware scan uploads.",
+        "applicable_controls": [
+          "V8.3.1",
+          "V12.1.1",
+          "V14.4.1"
+        ],
+        "control_effectiveness": "High",
+        "residual_risk_level": "Medium",
+        "residual_risk_acceptance": "Accepted"
+      },
+      {
+        "threat_id": "THR-020",
+        "component": "Data Layer",
+        "threat_category": "Information Disclosure",
+        "description": "Compromise of database credentials or IAM role results in exfiltration of PII, order data, and auth metadata.",
+        "likelihood": "Medium",
+        "impact": "High",
+        "risk_level": "High",
+        "mitigation_strategy": "Use IAM-based DB auth where possible; rotate credentials frequently; enforce network isolation (private subnets, SGs); encrypt at rest and use field-level encryption for sensitive data; monitor queries and anomalous access; enable least privilege.",
+        "applicable_controls": [
+          "V6.1.1",
+          "V8.2.1",
+          "V14.2.1"
+        ],
+        "control_effectiveness": "Medium",
+        "residual_risk_level": "Medium",
+        "residual_risk_acceptance": "Unacceptable"
+      },
+      {
+        "threat_id": "THR-021",
+        "component": "Data Layer",
+        "threat_category": "Tampering",
+        "description": "Redis cache exposed or without ACL/TLS allows cache poisoning, key theft (sessions, carts), or remote access.",
+        "likelihood": "Medium",
+        "impact": "Medium",
+        "risk_level": "Medium",
+        "mitigation_strategy": "Restrict Redis to VPC/private networks; enable TLS and AUTH/ACL; separate key namespaces; disable dangerous commands; set key TTLs; monitor for unusual misses/hits.",
+        "applicable_controls": [
+          "V14.2.1",
+          "V3.3.1"
+        ],
+        "control_effectiveness": "High",
+        "residual_risk_level": "Low",
+        "residual_risk_acceptance": "Accepted"
+      },
+      {
+        "threat_id": "THR-022",
+        "component": "Data Layer",
+        "threat_category": "Tampering",
+        "description": "Message queue/event bus poisoning or replay leads to unauthorized order status changes, fraudulent refunds, or workflow triggers.",
+        "likelihood": "Medium",
+        "impact": "High",
+        "risk_level": "High",
+        "mitigation_strategy": "Authenticate producers/consumers per topic; sign and timestamp messages; use schema registry and validation; enforce idempotency; monitor DLQ and unusual message patterns; least privilege IAM.",
+        "applicable_controls": [
+          "V13.2.1",
+          "V4.3.4",
+          "V14.2.1"
+        ],
+        "control_effectiveness": "Medium",
+        "residual_risk_level": "Medium",
+        "residual_risk_acceptance": "Requires Review"
+      },
+      {
+        "threat_id": "THR-023",
+        "component": "Data Layer",
+        "threat_category": "Information Disclosure",
+        "description": "Backups/snapshots (RDBMS, search indices) are publicly shared or not encrypted, exposing entire datasets if discovered.",
+        "likelihood": "Medium",
+        "impact": "High",
+        "risk_level": "High",
+        "mitigation_strategy": "Encrypt backups with KMS; restrict snapshot sharing; inventory and scan backup stores; enforce lifecycle and retention; test restores securely; monitor for public exposure.",
+        "applicable_controls": [
+          "V8.3.1",
+          "V14.4.1",
+          "V6.2.1"
+        ],
+        "control_effectiveness": "High",
+        "residual_risk_level": "Medium",
+        "residual_risk_acceptance": "Accepted"
+      },
+      {
+        "threat_id": "THR-024",
+        "component": "External Services",
+        "threat_category": "Spoofing",
+        "description": "SSO/IdP misconfiguration (issuer/audience mismatch, missing nonce/state) enables token substitution or login CSRF leading to admin account takeover.",
+        "likelihood": "Medium",
+        "impact": "High",
+        "risk_level": "High",
+        "mitigation_strategy": "Validate issuer, audience, nonce/state; require signed and optionally encrypted tokens; enforce MFA at IdP; restrict redirect URIs; implement JIT provisioning with least privilege; rotate keys and validate kid.",
+        "applicable_controls": [
+          "V2.2.4",
+          "V2.2.5",
+          "V10.1.1"
+        ],
+        "control_effectiveness": "High",
+        "residual_risk_level": "Medium",
+        "residual_risk_acceptance": "Unacceptable"
+      },
+      {
+        "threat_id": "THR-025",
+        "component": "External Services",
+        "threat_category": "Tampering",
+        "description": "Open redirect in payment return/callback URLs enables phishing and session fixation or completes orders without proper verification.",
+        "likelihood": "Medium",
+        "impact": "High",
+        "risk_level": "High",
+        "mitigation_strategy": "Strictly validate return URLs against allowlist; bind state parameter to session; verify payment status server-side via gateway API before order fulfillment; deny arbitrary redirect targets.",
+        "applicable_controls": [
+          "V10.1.3",
+          "V13.2.5",
+          "V11.1.1"
+        ],
+        "control_effectiveness": "High",
+        "residual_risk_level": "Medium",
+        "residual_risk_acceptance": "Accepted"
+      },
+      {
+        "threat_id": "THR-026",
+        "component": "External Services",
+        "threat_category": "Information Disclosure",
+        "description": "Email/SMS provider account compromise allows interception of OTPs and password resets or mass phishing from trusted domain.",
+        "likelihood": "Medium",
+        "impact": "High",
+        "risk_level": "High",
+        "mitigation_strategy": "Enable provider MFA and SSO; restrict API keys by IP and scope; rotate credentials; implement DMARC/DKIM/SPF; segregate transactional vs marketing accounts; monitor for anomalies and unauthorized templates.",
+        "applicable_controls": [
+          "V2.2.1",
+          "V14.2.1",
+          "V7.2.2"
+        ],
+        "control_effectiveness": "Medium",
+        "residual_risk_level": "Medium",
+        "residual_risk_acceptance": "Requires Review"
+      },
+      {
+        "threat_id": "THR-027",
+        "component": "Security & Observability",
+        "threat_category": "Information Disclosure",
+        "description": "Logs, traces, or metrics contain PII (emails, addresses, tokens) leading to privacy breach via SIEM or developer tools.",
+        "likelihood": "High",
+        "impact": "Medium",
+        "risk_level": "High",
+        "mitigation_strategy": "Implement centralized PII redaction/filters in logging libraries; structured logging; encrypt logs at rest/in transit; role-based access to SIEM; sampling and retention limits; periodic scans for secrets/PII.",
+        "applicable_controls": [
+          "V7.3.1",
+          "V8.1.1",
+          "V7.2.1"
+        ],
+        "control_effectiveness": "High",
+        "residual_risk_level": "Low",
+        "residual_risk_acceptance": "Accepted"
+      },
+      {
+        "threat_id": "THR-028",
+        "component": "Security & Observability",
+        "threat_category": "Repudiation",
+        "description": "Log tampering or deletion by privileged users prevents forensic analysis and dispute resolution for fraudulent actions.",
+        "likelihood": "Medium",
+        "impact": "High",
+        "risk_level": "High",
+        "mitigation_strategy": "Ship logs off-host in near-real-time; use append-only/immutable storage (WORM) and cryptographic signing; separate duties for log access; monitor deletion/rotation events; maintain secure time synchronization.",
+        "applicable_controls": [
+          "V7.2.1",
+          "V7.4.1",
+          "V1.1.1"
+        ],
+        "control_effectiveness": "High",
+        "residual_risk_level": "Medium",
+        "residual_risk_acceptance": "Requires Review"
+      },
+      {
+        "threat_id": "THR-029",
+        "component": "Application Services",
+        "threat_category": "Denial of Service",
+        "description": "API abuse and scraping of catalog/search endpoints bypasses simple rate limits, causing resource exhaustion and data harvesting.",
+        "likelihood": "High",
+        "impact": "Medium",
+        "risk_level": "High",
+        "mitigation_strategy": "Implement adaptive per-user/device/IP rate limits, user-level quotas, and burst controls; deploy bot detection; require API keys for partner APIs; paginate and cache; watermark responses for misuse detection.",
+        "applicable_controls": [
+          "V10.2.3",
+          "V11.1.1",
+          "V13.2.2"
+        ],
+        "control_effectiveness": "Medium",
+        "residual_risk_level": "Medium",
+        "residual_risk_acceptance": "Accepted"
+      },
+      {
+        "threat_id": "THR-030",
+        "component": "Order Management",
+        "threat_category": "Information Disclosure",
+        "description": "Order tracking endpoints expose data via predictable tracking IDs or missing ownership checks (IDOR), revealing PII or order details.",
+        "likelihood": "Medium",
+        "impact": "High",
+        "risk_level": "High",
+        "mitigation_strategy": "Use unguessable opaque tracking identifiers; enforce user/owner authorization for any order detail; minimize data in tracking responses; separate public carrier tracking from internal order data.",
+        "applicable_controls": [
+          "V4.1.3",
+          "V13.1.1",
+          "V8.2.2"
+        ],
+        "control_effectiveness": "High",
+        "residual_risk_level": "Medium",
+        "residual_risk_acceptance": "Accepted"
+      },
+      {
+        "threat_id": "THR-031",
+        "component": "Shopping Cart & Checkout",
+        "threat_category": "Tampering",
+        "description": "Client-side price, discount, or quantity manipulation via hidden fields or intercepted API calls results in underpayment or free items.",
+        "likelihood": "Medium",
+        "impact": "High",
+        "risk_level": "High",
+        "mitigation_strategy": "Treat server as source of truth; recompute totals on server; validate discounts/coupons server-side; sign cart line-items or use server-side carts; verify inventory and pricing at payment authorization time.",
+        "applicable_controls": [
+          "V11.1.1",
+          "V4.2.1",
+          "V13.2.1"
+        ],
+        "control_effectiveness": "High",
+        "residual_risk_level": "Medium",
+        "residual_risk_acceptance": "Unacceptable"
+      },
+      {
+        "threat_id": "THR-032",
+        "component": "User Management",
+        "threat_category": "Information Disclosure",
+        "description": "Account enumeration via registration or password reset responses reveals whether an email/phone is registered.",
+        "likelihood": "High",
+        "impact": "Medium",
+        "risk_level": "High",
+        "mitigation_strategy": "Return generic responses; constant-time processing; rate-limit attempts; require CAPTCHA after thresholds; alert on enumeration patterns.",
+        "applicable_controls": [
+          "V2.1.6",
+          "V10.2.3",
+          "V7.2.1"
+        ],
+        "control_effectiveness": "High",
+        "residual_risk_level": "Low",
+        "residual_risk_acceptance": "Accepted"
+      },
+      {
+        "threat_id": "THR-033",
+        "component": "Admin Panel",
+        "threat_category": "Tampering",
+        "description": "CSRF on admin actions (product changes, refunds, role management) enables unauthorized administrative operations.",
+        "likelihood": "Medium",
+        "impact": "High",
+        "risk_level": "High",
+        "mitigation_strategy": "Enforce CSRF tokens and Origin checks; require MFA and re-auth; implement stepped-up approvals for sensitive admin operations; use admin-only subdomain with strict CSP and no third-party scripts.",
+        "applicable_controls": [
+          "V3.4.1",
+          "V2.1.1",
+          "V10.1.2"
+        ],
+        "control_effectiveness": "High",
+        "residual_risk_level": "Medium",
+        "residual_risk_acceptance": "Unacceptable"
+      },
+      {
+        "threat_id": "THR-034",
+        "component": "Product Catalog",
+        "threat_category": "Tampering",
+        "description": "Image-based attacks (e.g., SVG with scripts) or EXIF payloads lead to stored XSS or exploitation of image processing libraries.",
+        "likelihood": "Medium",
+        "impact": "High",
+        "risk_level": "High",
+        "mitigation_strategy": "Convert uploads to safe raster formats (e.g., JPEG/PNG); strip metadata; validate MIME/type and magic numbers; virus/malware scan; serve from separate domain without cookies; set strict Content-Type and CSP.",
+        "applicable_controls": [
+          "V12.1.1",
+          "V12.4.1",
+          "V10.4.2"
+        ],
+        "control_effectiveness": "High",
+        "residual_risk_level": "Medium",
+        "residual_risk_acceptance": "Accepted"
+      },
+      {
+        "threat_id": "THR-035",
+        "component": "Order Management",
+        "threat_category": "Repudiation",
+        "description": "Returns and refunds fraud (e.g., double refunds, shipping label abuse) due to weak business rules and insufficient audit.",
+        "likelihood": "Medium",
+        "impact": "High",
+        "risk_level": "High",
+        "mitigation_strategy": "Enforce RMA workflow with unique tokens; idempotent refund APIs; 4-eyes approval for high-value refunds; integrate carrier delivery/scan confirmation; maintain immutable audit trail.",
+        "applicable_controls": [
+          "V11.1.1",
+          "V7.2.1",
           "V4.2.2"
         ],
         "control_effectiveness": "Medium",
@@ -293,203 +629,256 @@
         "residual_risk_acceptance": "Requires Review"
       },
       {
-        "threat_id": "THR-019",
-        "component": "User Management",
-        "threat_category": "Information Disclosure",
-        "description": "Sensitive user information could be disclosed if session management is incorrectly implemented.",
-        "likelihood": "Medium",
+        "threat_id": "THR-036",
+        "component": "Data Layer",
+        "threat_category": "Elevation of Privilege",
+        "description": "KMS/Secrets Manager misuse or role compromise enables decryption of sensitive data and lateral movement.",
+        "likelihood": "Low",
         "impact": "High",
-        "risk_level": "High",
-        "mitigation_strategy": "Ensure proper session expiration and invalidate sessions on log out.",
+        "risk_level": "Medium",
+        "mitigation_strategy": "Harden KMS key policies; enable key usage alarms; rotate keys/secrets with short TTL; enforce least privilege and just-in-time access; use HSM-backed keys for critical material.",
         "applicable_controls": [
-          "V2.1.3"
+          "V6.2.1",
+          "V14.2.1",
+          "V8.2.1"
         ],
-        "control_effectiveness": "Medium",
-        "residual_risk_level": "Medium",
-        "residual_risk_acceptance": "Requires Review"
+        "control_effectiveness": "High",
+        "residual_risk_level": "Negligible",
+        "residual_risk_acceptance": "Accepted"
       },
       {
-        "threat_id": "THR-020",
-        "component": "Product Catalog",
-        "threat_category": "Elevation of Privilege",
-        "description": "An attacker may gain elevated access to update product listings by exploiting vulnerabilities in the product management logic.",
+        "threat_id": "THR-037",
+        "component": "Frontend Layer",
+        "threat_category": "Information Disclosure",
+        "description": "CORS misconfiguration (wildcard origins with credentials) allows malicious sites to read authenticated API responses.",
         "likelihood": "Medium",
         "impact": "High",
         "risk_level": "High",
-        "mitigation_strategy": "Conduct security reviews to validate admin access controls and input validation.",
+        "mitigation_strategy": "Do not use wildcard with credentials; maintain strict origin allowlist; validate preflight requests; limit exposed headers; use separate origins for admin and public APIs.",
         "applicable_controls": [
-          "V2.1.2"
+          "V10.1.2",
+          "V13.2.2"
+        ],
+        "control_effectiveness": "High",
+        "residual_risk_level": "Low",
+        "residual_risk_acceptance": "Accepted"
+      },
+      {
+        "threat_id": "THR-038",
+        "component": "Application Services",
+        "threat_category": "Spoofing",
+        "description": "Session fixation due to missing session/token rotation on login, MFA, or privilege change lets attacker bind victim to known session ID.",
+        "likelihood": "Medium",
+        "impact": "High",
+        "risk_level": "High",
+        "mitigation_strategy": "Regenerate session IDs on authentication state changes; invalidate prior sessions on password reset; bind refresh tokens to device and rotate; short TTLs and inactivity timeouts.",
+        "applicable_controls": [
+          "V3.2.1",
+          "V3.3.1",
+          "V2.1.1"
+        ],
+        "control_effectiveness": "High",
+        "residual_risk_level": "Low",
+        "residual_risk_acceptance": "Accepted"
+      },
+      {
+        "threat_id": "THR-039",
+        "component": "External Services",
+        "threat_category": "Tampering",
+        "description": "3DS/SCA downgrade or bypass (e.g., liability shift exploitation, incorrect exemption handling) increases fraud and chargebacks.",
+        "likelihood": "Medium",
+        "impact": "High",
+        "risk_level": "High",
+        "mitigation_strategy": "Enforce gateway-recommended 3DS flows; apply step-up authentication based on risk signals; verify 3DS authentication values in server; monitor chargebacks; disable unnecessary exemptions; keep SDKs updated.",
+        "applicable_controls": [
+          "V11.1.1",
+          "V2.1.1"
         ],
         "control_effectiveness": "Medium",
         "residual_risk_level": "Medium",
         "residual_risk_acceptance": "Requires Review"
       }
     ],
-    "risk_summary": "The e-commerce platform faces significant risks primarily associated with critical components including user management, backend APIs, and payment gateways, where threats such as spoofing and sensitive data exposure are highly likely to occur. The overall risk posture indicates a need for immediate attention to threats related to authentication bypass, SQL injection, and unauthorized access to admin functionalities. Key attack vectors include API abuse, improper access controls, and vulnerabilities in session management. The recommended areas for priority security controls are multi-factor authentication implementation, input validation mechanisms, and robust logging practices to reduce overall risk exposure."
+    "risk_summary": "Most critical threats requiring immediate attention are: broken access control/IDOR across APIs (THR-012), credential attacks leading to ATO (THR-013), pervasive XSS vectors (THR-006), and large-scale DDoS (THR-004). High-risk issues also include webhook spoofing (THR-016), admin CSRF and RBAC weaknesses (THR-033, THR-017), storage misconfigurations exposing data (THR-019/THR-023), and business logic tampering in checkout (THR-031). Primary attack vectors and entry points are the public web/API surface behind the CDN/WAF, client-side JavaScript and third-party tags, authentication and session flows, and integrations with payment/SSO providers. The overall risk posture is moderate-to-high for an internet-facing e-commerce platform: exposure is broad, and while cloud-managed security and RBAC/MFA reduce some classes of threats, successful exploitation of access control, input validation, or third-party integrations can cause severe data loss and fraud. Priority areas for security controls should be: enforce robust object-level authorization and role design; harden authentication (MFA, rate limiting, breached password checks); implement strong client-side defenses (CSP, output encoding, CSRF protection); secure third-party integrations (signature verification, strict redirect/state handling); protect data stores and backups with least privilege and encryption; and prepare for availability attacks with DDoS/bot mitigations and adaptive rate limits. Continuous monitoring, immutable audit logging, and secure SDLC (threat modeling in changes, SAST/DAST, code review) are essential to reduce residual risk."
   },
   "tasks": [
     {
       "name": "perform_threat_modeling",
-      "raw": "{\n  \"methodology\": \"STRIDE\",\n  \"threats\": [\n    {\n      \"threat_id\": \"THR-001\",\n      \"component\": \"User Management\",\n      \"threat_category\": \"Spoofing\",\n      \"description\": \"An attacker can spoof a user's identity by bypassing authentication mechanisms, potentially by leveraging weak password policies or not enforcing multi-factor authentication.\",\n      \"likelihood\": \"High\",\n      \"impact\": \"High\",\n      \"risk_level\": \"Critical\",\n      \"mitigation_strategy\": \"Enforce strong password policies, implement multi-factor authentication for all user accounts.\",\n      \"applicable_controls\": [\"V2.1.1\", \"V3.2.3\"],\n      \"control_effectiveness\": \"Medium\",\n      \"residual_risk_level\": \"High\",\n      \"residual_risk_acceptance\": \"Requires Review\"\n    },\n    {\n      \"threat_id\": \"THR-002\",\n      \"component\": \"User Management\",\n      \"threat_category\": \"Repudiation\",\n      \"description\": \"A user could deny having performed an action (e.g., a purchase) if there is no logging mechanism or audit trail in place.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"Medium\",\n      \"risk_level\": \"Medium\",\n      \"mitigation_strategy\": \"Implement comprehensive logging of user actions, including purchases and account changes.\",\n      \"applicable_controls\": [\"V4.1.1\"],\n      \"control_effectiveness\": \"High\",\n      \"residual_risk_level\": \"Low\",\n      \"residual_risk_acceptance\": \"Accepted\"\n    },\n    {\n      \"threat_id\": \"THR-003\",\n      \"component\": \"Product Catalog\",\n      \"threat_category\": \"Tampering\",\n      \"description\": \"An attacker could tamper with product information in the catalog, leading to incorrect pricing or misleading product details.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Implement input validation, use checksums or hashes to verify product data integrity.\",\n      \"applicable_controls\": [\"V2.2.3\"],\n      \"control_effectiveness\": \"Medium\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Requires Review\"\n    },\n    {\n      \"threat_id\": \"THR-004\",\n      \"component\": \"Shopping Cart & Checkout\",\n      \"threat_category\": \"Denial of Service\",\n      \"description\": \"An attacker could overwhelm the shopping cart service with excessive requests, leading to service unavailability.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Implement rate limiting on API endpoints, use CAPTCHA to mitigate automated requests.\",\n      \"applicable_controls\": [\"V1.3.2\"],\n      \"control_effectiveness\": \"Medium\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Requires Review\"\n    },\n    {\n      \"threat_id\": \"THR-005\",\n      \"component\": \"Backend API\",\n      \"threat_category\": \"Information Disclosure\",\n      \"description\": \"Sensitive data could be disclosed through insecure APIs, such as user information or payment data.\",\n      \"likelihood\": \"High\",\n      \"impact\": \"High\",\n      \"risk_level\": \"Critical\",\n      \"mitigation_strategy\": \"Use HTTPS to encrypt data in transit and implement robust authentication and authorization mechanisms.\",\n      \"applicable_controls\": [\"V2.1.3\"],\n      \"control_effectiveness\": \"High\",\n      \"residual_risk_level\": \"Low\",\n      \"residual_risk_acceptance\": \"Accepted\"\n    },\n    {\n      \"threat_id\": \"THR-006\",\n      \"component\": \"Payment Gateway\",\n      \"threat_category\": \"Tampering\",\n      \"description\": \"An attacker could intercept and modify payment data in transit, leading to financial fraud.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Ensure the payment gateway uses strong encryption and perform regular security audits.\",\n      \"applicable_controls\": [\"V2.2.2\"],\n      \"control_effectiveness\": \"Medium\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Requires Review\"\n    },\n    {\n      \"threat_id\": \"THR-007\",\n      \"component\": \"Admin Panel\",\n      \"threat_category\": \"Elevation of Privilege\",\n      \"description\": \"An unprivileged user could gain access to the admin panel through misconfigured permissions.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Implement strict access controls and user privilege management.\",\n      \"applicable_controls\": [\"V2.1.2\"],\n      \"control_effectiveness\": \"Medium\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Requires Review\"\n    },\n    {\n      \"threat_id\": \"THR-008\",\n      \"component\": \"User Interface\",\n      \"threat_category\": \"Cross-site Scripting (XSS)\",\n      \"description\": \"An attacker could inject malicious scripts into web pages viewed by other users, stealing their session data.\",\n      \"likelihood\": \"High\",\n      \"impact\": \"High\",\n      \"risk_level\": \"Critical\",\n      \"mitigation_strategy\": \"Implement input sanitization and output encoding practices.\",\n      \"applicable_controls\": [\"V4.2.1\"],\n      \"control_effectiveness\": \"High\",\n      \"residual_risk_level\": \"Low\",\n      \"residual_risk_acceptance\": \"Accepted\"\n    },\n    {\n      \"threat_id\": \"THR-009\",\n      \"component\": \"Database\",\n      \"threat_category\": \"SQL Injection\",\n      \"description\": \"An attacker could exploit vulnerabilities in the database layer to execute arbitrary SQL commands, exposing sensitive data.\",\n      \"likelihood\": \"High\",\n      \"impact\": \"Critical\",\n      \"risk_level\": \"Critical\",\n      \"mitigation_strategy\": \"Implement parameterized queries and prepared statements, regularly conduct security assessments.\",\n      \"applicable_controls\": [\"V2.3.1\"],\n      \"control_effectiveness\": \"High\",\n      \"residual_risk_level\": \"Low\",\n      \"residual_risk_acceptance\": \"Accepted\"\n    },\n    {\n      \"threat_id\": \"THR-010\",\n      \"component\": \"Order Management\",\n      \"threat_category\": \"Information Disclosure\",\n      \"description\": \"Sensitive order information could be disclosed due to improper access controls.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Implement strict access controls for user order views, ensuring only owners can view their orders.\",\n      \"applicable_controls\": [\"V3.3.2\"],\n      \"control_effectiveness\": \"Medium\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Requires Review\"\n    },\n    {\n      \"threat_id\": \"THR-011\",\n      \"component\": \"Shopping Cart & Checkout\",\n      \"threat_category\": \"Denial of Service\",\n      \"description\": \"Flooding checkout processes could result in service unavailability for legitimate customers.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Apply throttling mechanisms to limit request rates during checkout.\",\n      \"applicable_controls\": [\"V1.3.3\"],\n      \"control_effectiveness\": \"Medium\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Requires Review\"\n    },\n    {\n      \"threat_id\": \"THR-012\",\n      \"component\": \"Product Catalog\",\n      \"threat_category\": \"Denial of Service\",\n      \"description\": \"An attacker could cause the application to become unresponsive by submitting excessive requests for product catalog queries.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"Medium\",\n      \"risk_level\": \"Medium\",\n      \"mitigation_strategy\": \"Implement API rate limiting to reduce the impact of excessive requests.\",\n      \"applicable_controls\": [\"V1.3.1\"],\n      \"control_effectiveness\": \"Medium\",\n      \"residual_risk_level\": \"Low\",\n      \"residual_risk_acceptance\": \"Accepted\"\n    },\n    {\n      \"threat_id\": \"THR-013\",\n      \"component\": \"User Management\",\n      \"threat_category\": \"Elevation of Privilege\",\n      \"description\": \"An attacker could exploit insecure password reset processes to gain unauthorized account access.\",\n      \"likelihood\": \"High\",\n      \"impact\": \"High\",\n      \"risk_level\": \"Critical\",\n      \"mitigation_strategy\": \"Implement strong verification steps for password reset, such as email confirmation.\",\n      \"applicable_controls\": [\"V2.1.4\"],\n      \"control_effectiveness\": \"High\",\n      \"residual_risk_level\": \"Low\",\n      \"residual_risk_acceptance\": \"Accepted\"\n    },\n    {\n      \"threat_id\": \"THR-014\",\n      \"component\": \"Backend API\",\n      \"threat_category\": \"API Abuse\",\n      \"description\": \"An attacker could abuse the API by making excessive requests, resulting in resource exhaustion.\",\n      \"likelihood\": \"High\",\n      \"impact\": \"Medium\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Implement rate limiting and monitoring to detect and block abnormal behavior.\",\n      \"applicable_controls\": [\"V1.1.1\"],\n      \"control_effectiveness\": \"Medium\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Requires Review\"\n    },\n    {\n      \"threat_id\": \"THR-015\",\n      \"component\": \"Payment Gateway\",\n      \"threat_category\": \"Information Disclosure\",\n      \"description\": \"Sensitive payment information could be exposed due to misconfigurations or vulnerabilities in the payment processing logic.\",\n      \"likelihood\": \"High\",\n      \"impact\": \"Critical\",\n      \"risk_level\": \"Critical\",\n      \"mitigation_strategy\": \"Conduct regular security assessments and audits of the payment processing system.\",\n      \"applicable_controls\": [\"V2.2.1\"],\n      \"control_effectiveness\": \"High\",\n      \"residual_risk_level\": \"Low\",\n      \"residual_risk_acceptance\": \"Accepted\"\n    },\n    {\n      \"threat_id\": \"THR-016\",\n      \"component\": \"Admin Panel\",\n      \"threat_category\": \"Tampering\",\n      \"description\": \"An attacker could tamper with admin panel data leading to unauthorized changes or deletions.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Ensure proper session management and limit access to the admin panel to authorized users only.\",\n      \"applicable_controls\": [\"V2.1.2\"],\n      \"control_effectiveness\": \"Medium\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Requires Review\"\n    },\n    {\n      \"threat_id\": \"THR-017\",\n      \"component\": \"Database\",\n      \"threat_category\": \"Denial of Service\",\n      \"description\": \"An attacker could overload the database with excessive queries, rendering it unresponsive.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Implement query optimization and monitoring to detect unusual query patterns.\",\n      \"applicable_controls\": [\"V1.3.3\"],\n      \"control_effectiveness\": \"Medium\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Requires Review\"\n    },\n    {\n      \"threat_id\": \"THR-018\",\n      \"component\": \"User Interface\",\n      \"threat_category\": \"CSRF\",\n      \"description\": \"An attacker could exploit Cross-Site Request Forgery vulnerabilities to perform unauthorized actions on behalf of users.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Implement CSRF tokens in forms and validate them on the server side.\",\n      \"applicable_controls\": [\"V4.2.2\"],\n      \"control_effectiveness\": \"Medium\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Requires Review\"\n    },\n    {\n      \"threat_id\": \"THR-019\",\n      \"component\": \"User Management\",\n      \"threat_category\": \"Information Disclosure\",\n      \"description\": \"Sensitive user information could be disclosed if session management is incorrectly implemented.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Ensure proper session expiration and invalidate sessions on log out.\",\n      \"applicable_controls\": [\"V2.1.3\"],\n      \"control_effectiveness\": \"Medium\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Requires Review\"\n    },\n    {\n      \"threat_id\": \"THR-020\",\n      \"component\": \"Product Catalog\",\n      \"threat_category\": \"Elevation of Privilege\",\n      \"description\": \"An attacker may gain elevated access to update product listings by exploiting vulnerabilities in the product management logic.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Conduct security reviews to validate admin access controls and input validation.\",\n      \"applicable_controls\": [\"V2.1.2\"],\n      \"control_effectiveness\": \"Medium\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Requires Review\"\n    }\n  ],\n  \"risk_summary\": \"The e-commerce platform faces significant risks primarily associated with critical components including user management, backend APIs, and payment gateways, where threats such as spoofing and sensitive data exposure are highly likely to occur. The overall risk posture indicates a need for immediate attention to threats related to authentication bypass, SQL injection, and unauthorized access to admin functionalities. Key attack vectors include API abuse, improper access controls, and vulnerabilities in session management. The recommended areas for priority security controls are multi-factor authentication implementation, input validation mechanisms, and robust logging practices to reduce overall risk exposure.\"\n}",
+      "raw": "{\n  \"methodology\": \"STRIDE\",\n  \"threats\": [\n    {\n      \"threat_id\": \"THR-001\",\n      \"component\": \"Edge Layer\",\n      \"threat_category\": \"Spoofing\",\n      \"description\": \"Attacker forges client IP-related headers (X-Forwarded-For, X-Real-IP, True-Client-IP) to bypass geo/IP-based controls, rate limits, or fraud rules enforced at CDN/WAF or app gateway.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"Medium\",\n      \"risk_level\": \"Medium\",\n      \"mitigation_strategy\": \"Treat only provider-populated headers as trusted; strip or overwrite untrusted IP headers at the edge; enable CDN-origin communication over TLS with mutual trust; configure gateway to use the CDN\u2019s authenticated client IP header; implement device/account-level rate limiting in addition to IP-based.\",\n      \"applicable_controls\": [\"V10.1.1\", \"V10.2.3\", \"V14.2.1\"],\n      \"control_effectiveness\": \"High\",\n      \"residual_risk_level\": \"Low\",\n      \"residual_risk_acceptance\": \"Accepted\"\n    },\n    {\n      \"threat_id\": \"THR-002\",\n      \"component\": \"Edge Layer\",\n      \"threat_category\": \"Tampering\",\n      \"description\": \"Host header poisoning leading to cache poisoning or backend routing to unintended virtual hosts/origins. Could enable web cache deception or SSRF via misrouted requests.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Enforce strict Host/SNI allowlist at CDN/WAF and gateway; normalize and validate scheme/host before cache keying; configure origin override to canonical host; disable user-influenced headers in cache keys unless required.\",\n      \"applicable_controls\": [\"V10.1.1\", \"V14.3.2\", \"V5.1.1\"],\n      \"control_effectiveness\": \"High\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Requires Review\"\n    },\n    {\n      \"threat_id\": \"THR-003\",\n      \"component\": \"Edge Layer\",\n      \"threat_category\": \"Information Disclosure\",\n      \"description\": \"TLS misconfiguration or mixed-content allows leakage of session identifiers or PII in Referer headers or over downgraded connections.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Enforce TLS 1.2+ with strong ciphers; enable HSTS with preload; set Secure/HttpOnly/SameSite on cookies; set Referrer-Policy to strict-origin-when-cross-origin or stricter; block mixed content via CSP.\",\n      \"applicable_controls\": [\"V9.1.1\", \"V10.4.1\", \"V10.3.1\"],\n      \"control_effectiveness\": \"High\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Accepted\"\n    },\n    {\n      \"threat_id\": \"THR-004\",\n      \"component\": \"Edge Layer\",\n      \"threat_category\": \"Denial of Service\",\n      \"description\": \"Volumetric DDoS or L7 request floods overwhelm network, CDN, or origin capacity, causing storefront and API outage.\",\n      \"likelihood\": \"High\",\n      \"impact\": \"High\",\n      \"risk_level\": \"Critical\",\n      \"mitigation_strategy\": \"Use managed DDoS protection with automatic detection/scrubbing; enable CDN caching and request challenge (JS/managed challenge); implement adaptive rate limiting and surge queueing; autoscale origins; define runbooks and traffic baselines.\",\n      \"applicable_controls\": [\"V10.2.3\", \"V1.1.2\"],\n      \"control_effectiveness\": \"Medium\",\n      \"residual_risk_level\": \"High\",\n      \"residual_risk_acceptance\": \"Requires Review\"\n    },\n    {\n      \"threat_id\": \"THR-005\",\n      \"component\": \"Edge Layer\",\n      \"threat_category\": \"Denial of Service\",\n      \"description\": \"Cache-busting by appending random query params to static asset URLs forces CDN misses and overloads origins, degrading performance.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Configure CDN to ignore irrelevant query parameters for static assets; key cache by path + whitelist of parameters; enforce bot management; serve immutable assets with versioned filenames and long TTL.\",\n      \"applicable_controls\": [\"V10.2.3\", \"V14.4.1\"],\n      \"control_effectiveness\": \"Medium\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Accepted\"\n    },\n    {\n      \"threat_id\": \"THR-006\",\n      \"component\": \"Frontend Layer\",\n      \"threat_category\": \"Tampering\",\n      \"description\": \"Stored/reflected/DOM XSS via product reviews, search, or admin content injection enabling session theft, checkout tampering, or skimming.\",\n      \"likelihood\": \"High\",\n      \"impact\": \"High\",\n      \"risk_level\": \"Critical\",\n      \"mitigation_strategy\": \"Default-to-escape templating; strict output encoding by context; sanitize and store UGC in safe subset; enforce CSP (no unsafe-inline; nonce-based); disallow inline event handlers; use Trusted Types where possible; isolate image/media on cookieless domain.\",\n      \"applicable_controls\": [\"V5.3.3\", \"V5.1.3\", \"V10.4.2\"],\n      \"control_effectiveness\": \"High\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Requires Review\"\n    },\n    {\n      \"threat_id\": \"THR-007\",\n      \"component\": \"Frontend Layer\",\n      \"threat_category\": \"Tampering\",\n      \"description\": \"CSRF on state-changing endpoints (address add/update, add-to-cart, checkout) allows unauthorized actions using victim\u2019s session.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Use same-site cookies (SameSite=Lax/Strict) plus anti-CSRF tokens (synchronized or double submit) on all unsafe methods; enforce Origin/Referer checks; require re-auth/MFA for sensitive actions.\",\n      \"applicable_controls\": [\"V3.4.1\", \"V10.3.1\", \"V10.1.2\"],\n      \"control_effectiveness\": \"High\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Accepted\"\n    },\n    {\n      \"threat_id\": \"THR-008\",\n      \"component\": \"Frontend Layer\",\n      \"threat_category\": \"Elevation of Privilege\",\n      \"description\": \"Clickjacking on admin or checkout popups frames the site, tricking users into privileged actions.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Set X-Frame-Options: DENY and CSP frame-ancestors 'none' (or strict allowlist); require user presence (re-auth, consent) for high-risk operations; implement UI anti-clickjacking defenses.\",\n      \"applicable_controls\": [\"V10.4.2\", \"V3.2.4\"],\n      \"control_effectiveness\": \"High\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Accepted\"\n    },\n    {\n      \"threat_id\": \"THR-009\",\n      \"component\": \"Frontend Layer\",\n      \"threat_category\": \"Information Disclosure\",\n      \"description\": \"Access tokens or session identifiers stored in localStorage are exfiltrated via XSS or malicious extensions leading to account takeover.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Use HttpOnly, Secure, same-site cookies for sessions; rotate session IDs on privilege changes; implement short token TTL and refresh with server-side rotation; device/account anomaly detection.\",\n      \"applicable_controls\": [\"V3.4.2\", \"V3.3.1\", \"V10.3.1\"],\n      \"control_effectiveness\": \"High\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Accepted\"\n    },\n    {\n      \"threat_id\": \"THR-010\",\n      \"component\": \"Frontend Layer\",\n      \"threat_category\": \"Tampering\",\n      \"description\": \"Third-party tag manager or analytics script compromise (Magecart-style) skims credentials or payment tokens client-side.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Minimize third-party JS; self-host critical scripts; enforce CSP with strict allowlist and nonces; require Subresource Integrity for external scripts; runtime integrity monitoring and change control.\",\n      \"applicable_controls\": [\"V10.4.2\", \"V14.3.1\"],\n      \"control_effectiveness\": \"Medium\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Requires Review\"\n    },\n    {\n      \"threat_id\": \"THR-011\",\n      \"component\": \"Application Services\",\n      \"threat_category\": \"Tampering\",\n      \"description\": \"SQL injection in search, product management, or admin analytics endpoints enables data exfiltration or modification.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Use parameterized queries/ORM; enforce strict input validation and encoding; least-privileged DB accounts; WAF SQLi rules; automated SAST/DAST and query linting; prepared statements everywhere.\",\n      \"applicable_controls\": [\"V5.3.2\", \"V5.1.1\", \"V4.3.3\"],\n      \"control_effectiveness\": \"High\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Requires Review\"\n    },\n    {\n      \"threat_id\": \"THR-012\",\n      \"component\": \"Application Services\",\n      \"threat_category\": \"Elevation of Privilege\",\n      \"description\": \"Broken access control/IDOR on orders, carts, or profiles allows users to read or modify other customers\u2019 data by guessing IDs.\",\n      \"likelihood\": \"High\",\n      \"impact\": \"High\",\n      \"risk_level\": \"Critical\",\n      \"mitigation_strategy\": \"Enforce object- and record-level authorization on every API; scope queries by subject identity; use opaque IDs; add authorization tests; deny by default; log and alert on access violations.\",\n      \"applicable_controls\": [\"V4.1.3\", \"V13.1.1\", \"V4.2.1\"],\n      \"control_effectiveness\": \"High\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Unacceptable\"\n    },\n    {\n      \"threat_id\": \"THR-013\",\n      \"component\": \"Application Services\",\n      \"threat_category\": \"Spoofing\",\n      \"description\": \"Credential stuffing/brute force against login leads to account takeover despite passwords.\",\n      \"likelihood\": \"High\",\n      \"impact\": \"High\",\n      \"risk_level\": \"Critical\",\n      \"mitigation_strategy\": \"Enforce MFA for users and admins; rate-limit and lockout with progressive delays; CAPTCHA after anomalies; use credential stuffing detections; monitor for breached passwords; device/IP reputation checks.\",\n      \"applicable_controls\": [\"V2.1.1\", \"V2.1.7\", \"V10.2.3\"],\n      \"control_effectiveness\": \"High\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Requires Review\"\n    },\n    {\n      \"threat_id\": \"THR-014\",\n      \"component\": \"Application Services\",\n      \"threat_category\": \"Repudiation\",\n      \"description\": \"Password reset flow leaks user existence or uses predictable/long-lived tokens; attacker resets victim\u2019s password or enumerates accounts.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Use one-time, short-lived, cryptographically strong reset tokens tied to user and device; store token hashes server-side; generic responses for reset and registration; equalize timing; rate limit attempts; notify user on reset events.\",\n      \"applicable_controls\": [\"V2.1.6\", \"V3.1.2\", \"V10.2.3\"],\n      \"control_effectiveness\": \"High\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Accepted\"\n    },\n    {\n      \"threat_id\": \"THR-015\",\n      \"component\": \"Application Services\",\n      \"threat_category\": \"Tampering\",\n      \"description\": \"SSRF via image URL ingestion, webhooks, or address validation callbacks allows internal network access or metadata service probing.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Disallow arbitrary URL fetching; if required, enforce allowlists, DNS pinning, and URL scheme/port validation; egress filter to block RFC1918/metadata; use isolated fetcher service without sensitive network access.\",\n      \"applicable_controls\": [\"V12.5.1\", \"V14.2.3\", \"V14.4.2\"],\n      \"control_effectiveness\": \"Medium\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Requires Review\"\n    },\n    {\n      \"threat_id\": \"THR-016\",\n      \"component\": \"Application Services\",\n      \"threat_category\": \"Spoofing\",\n      \"description\": \"Payment or PayPal webhooks are forged or replayed to mark orders as paid or trigger refunds without real authorization.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Verify webhook signatures with shared secret/public key; enforce mTLS or source IP allowlists; include and verify idempotency keys and timestamps; reject replays; correlate with gateway-side API retrieval.\",\n      \"applicable_controls\": [\"V13.2.5\", \"V10.1.1\", \"V4.3.4\"],\n      \"control_effectiveness\": \"High\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Unacceptable\"\n    },\n    {\n      \"threat_id\": \"THR-017\",\n      \"component\": \"Application Services\",\n      \"threat_category\": \"Elevation of Privilege\",\n      \"description\": \"RBAC misconfiguration grants excessive admin privileges (e.g., analytics user can process refunds or manage roles).\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Define least-privilege role matrix and SoD; implement policy-as-code authorization (e.g., ABAC) with centralized enforcement; periodic access reviews; require approvals for privilege changes; log all admin actions.\",\n      \"applicable_controls\": [\"V4.1.1\", \"V4.2.2\", \"V7.2.1\"],\n      \"control_effectiveness\": \"Medium\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Requires Review\"\n    },\n    {\n      \"threat_id\": \"THR-018\",\n      \"component\": \"Application Services\",\n      \"threat_category\": \"Elevation of Privilege\",\n      \"description\": \"Mass assignment or over-posting lets attacker set sensitive fields (e.g., role, price, discount, isAdmin) via API payloads.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Use explicit allowlists/DTOs for updatable fields; ignore/strip unknown fields; server-side recomputation of sensitive values; authorization checks on field-level changes.\",\n      \"applicable_controls\": [\"V5.1.5\", \"V4.2.1\", \"V13.2.1\"],\n      \"control_effectiveness\": \"High\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Accepted\"\n    },\n    {\n      \"threat_id\": \"THR-019\",\n      \"component\": \"Data Layer\",\n      \"threat_category\": \"Information Disclosure\",\n      \"description\": \"Object storage (e.g., S3) misconfiguration exposes product images, receipts, or attachments containing PII to the public or unauthorized roles.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Block public access at the bucket level; enforce private ACLs and IAM policies; serve via presigned URLs with short TTL and minimal scope; segregate public vs private buckets; malware scan uploads.\",\n      \"applicable_controls\": [\"V8.3.1\", \"V12.1.1\", \"V14.4.1\"],\n      \"control_effectiveness\": \"High\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Accepted\"\n    },\n    {\n      \"threat_id\": \"THR-020\",\n      \"component\": \"Data Layer\",\n      \"threat_category\": \"Information Disclosure\",\n      \"description\": \"Compromise of database credentials or IAM role results in exfiltration of PII, order data, and auth metadata.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Use IAM-based DB auth where possible; rotate credentials frequently; enforce network isolation (private subnets, SGs); encrypt at rest and use field-level encryption for sensitive data; monitor queries and anomalous access; enable least privilege.\",\n      \"applicable_controls\": [\"V6.1.1\", \"V8.2.1\", \"V14.2.1\"],\n      \"control_effectiveness\": \"Medium\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Unacceptable\"\n    },\n    {\n      \"threat_id\": \"THR-021\",\n      \"component\": \"Data Layer\",\n      \"threat_category\": \"Tampering\",\n      \"description\": \"Redis cache exposed or without ACL/TLS allows cache poisoning, key theft (sessions, carts), or remote access.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"Medium\",\n      \"risk_level\": \"Medium\",\n      \"mitigation_strategy\": \"Restrict Redis to VPC/private networks; enable TLS and AUTH/ACL; separate key namespaces; disable dangerous commands; set key TTLs; monitor for unusual misses/hits.\",\n      \"applicable_controls\": [\"V14.2.1\", \"V3.3.1\"],\n      \"control_effectiveness\": \"High\",\n      \"residual_risk_level\": \"Low\",\n      \"residual_risk_acceptance\": \"Accepted\"\n    },\n    {\n      \"threat_id\": \"THR-022\",\n      \"component\": \"Data Layer\",\n      \"threat_category\": \"Tampering\",\n      \"description\": \"Message queue/event bus poisoning or replay leads to unauthorized order status changes, fraudulent refunds, or workflow triggers.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Authenticate producers/consumers per topic; sign and timestamp messages; use schema registry and validation; enforce idempotency; monitor DLQ and unusual message patterns; least privilege IAM.\",\n      \"applicable_controls\": [\"V13.2.1\", \"V4.3.4\", \"V14.2.1\"],\n      \"control_effectiveness\": \"Medium\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Requires Review\"\n    },\n    {\n      \"threat_id\": \"THR-023\",\n      \"component\": \"Data Layer\",\n      \"threat_category\": \"Information Disclosure\",\n      \"description\": \"Backups/snapshots (RDBMS, search indices) are publicly shared or not encrypted, exposing entire datasets if discovered.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Encrypt backups with KMS; restrict snapshot sharing; inventory and scan backup stores; enforce lifecycle and retention; test restores securely; monitor for public exposure.\",\n      \"applicable_controls\": [\"V8.3.1\", \"V14.4.1\", \"V6.2.1\"],\n      \"control_effectiveness\": \"High\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Accepted\"\n    },\n    {\n      \"threat_id\": \"THR-024\",\n      \"component\": \"External Services\",\n      \"threat_category\": \"Spoofing\",\n      \"description\": \"SSO/IdP misconfiguration (issuer/audience mismatch, missing nonce/state) enables token substitution or login CSRF leading to admin account takeover.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Validate issuer, audience, nonce/state; require signed and optionally encrypted tokens; enforce MFA at IdP; restrict redirect URIs; implement JIT provisioning with least privilege; rotate keys and validate kid.\",\n      \"applicable_controls\": [\"V2.2.4\", \"V2.2.5\", \"V10.1.1\"],\n      \"control_effectiveness\": \"High\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Unacceptable\"\n    },\n    {\n      \"threat_id\": \"THR-025\",\n      \"component\": \"External Services\",\n      \"threat_category\": \"Tampering\",\n      \"description\": \"Open redirect in payment return/callback URLs enables phishing and session fixation or completes orders without proper verification.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Strictly validate return URLs against allowlist; bind state parameter to session; verify payment status server-side via gateway API before order fulfillment; deny arbitrary redirect targets.\",\n      \"applicable_controls\": [\"V10.1.3\", \"V13.2.5\", \"V11.1.1\"],\n      \"control_effectiveness\": \"High\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Accepted\"\n    },\n    {\n      \"threat_id\": \"THR-026\",\n      \"component\": \"External Services\",\n      \"threat_category\": \"Information Disclosure\",\n      \"description\": \"Email/SMS provider account compromise allows interception of OTPs and password resets or mass phishing from trusted domain.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Enable provider MFA and SSO; restrict API keys by IP and scope; rotate credentials; implement DMARC/DKIM/SPF; segregate transactional vs marketing accounts; monitor for anomalies and unauthorized templates.\",\n      \"applicable_controls\": [\"V2.2.1\", \"V14.2.1\", \"V7.2.2\"],\n      \"control_effectiveness\": \"Medium\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Requires Review\"\n    },\n    {\n      \"threat_id\": \"THR-027\",\n      \"component\": \"Security & Observability\",\n      \"threat_category\": \"Information Disclosure\",\n      \"description\": \"Logs, traces, or metrics contain PII (emails, addresses, tokens) leading to privacy breach via SIEM or developer tools.\",\n      \"likelihood\": \"High\",\n      \"impact\": \"Medium\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Implement centralized PII redaction/filters in logging libraries; structured logging; encrypt logs at rest/in transit; role-based access to SIEM; sampling and retention limits; periodic scans for secrets/PII.\",\n      \"applicable_controls\": [\"V7.3.1\", \"V8.1.1\", \"V7.2.1\"],\n      \"control_effectiveness\": \"High\",\n      \"residual_risk_level\": \"Low\",\n      \"residual_risk_acceptance\": \"Accepted\"\n    },\n    {\n      \"threat_id\": \"THR-028\",\n      \"component\": \"Security & Observability\",\n      \"threat_category\": \"Repudiation\",\n      \"description\": \"Log tampering or deletion by privileged users prevents forensic analysis and dispute resolution for fraudulent actions.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Ship logs off-host in near-real-time; use append-only/immutable storage (WORM) and cryptographic signing; separate duties for log access; monitor deletion/rotation events; maintain secure time synchronization.\",\n      \"applicable_controls\": [\"V7.2.1\", \"V7.4.1\", \"V1.1.1\"],\n      \"control_effectiveness\": \"High\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Requires Review\"\n    },\n    {\n      \"threat_id\": \"THR-029\",\n      \"component\": \"Application Services\",\n      \"threat_category\": \"Denial of Service\",\n      \"description\": \"API abuse and scraping of catalog/search endpoints bypasses simple rate limits, causing resource exhaustion and data harvesting.\",\n      \"likelihood\": \"High\",\n      \"impact\": \"Medium\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Implement adaptive per-user/device/IP rate limits, user-level quotas, and burst controls; deploy bot detection; require API keys for partner APIs; paginate and cache; watermark responses for misuse detection.\",\n      \"applicable_controls\": [\"V10.2.3\", \"V11.1.1\", \"V13.2.2\"],\n      \"control_effectiveness\": \"Medium\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Accepted\"\n    },\n    {\n      \"threat_id\": \"THR-030\",\n      \"component\": \"Order Management\",\n      \"threat_category\": \"Information Disclosure\",\n      \"description\": \"Order tracking endpoints expose data via predictable tracking IDs or missing ownership checks (IDOR), revealing PII or order details.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Use unguessable opaque tracking identifiers; enforce user/owner authorization for any order detail; minimize data in tracking responses; separate public carrier tracking from internal order data.\",\n      \"applicable_controls\": [\"V4.1.3\", \"V13.1.1\", \"V8.2.2\"],\n      \"control_effectiveness\": \"High\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Accepted\"\n    },\n    {\n      \"threat_id\": \"THR-031\",\n      \"component\": \"Shopping Cart & Checkout\",\n      \"threat_category\": \"Tampering\",\n      \"description\": \"Client-side price, discount, or quantity manipulation via hidden fields or intercepted API calls results in underpayment or free items.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Treat server as source of truth; recompute totals on server; validate discounts/coupons server-side; sign cart line-items or use server-side carts; verify inventory and pricing at payment authorization time.\",\n      \"applicable_controls\": [\"V11.1.1\", \"V4.2.1\", \"V13.2.1\"],\n      \"control_effectiveness\": \"High\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Unacceptable\"\n    },\n    {\n      \"threat_id\": \"THR-032\",\n      \"component\": \"User Management\",\n      \"threat_category\": \"Information Disclosure\",\n      \"description\": \"Account enumeration via registration or password reset responses reveals whether an email/phone is registered.\",\n      \"likelihood\": \"High\",\n      \"impact\": \"Medium\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Return generic responses; constant-time processing; rate-limit attempts; require CAPTCHA after thresholds; alert on enumeration patterns.\",\n      \"applicable_controls\": [\"V2.1.6\", \"V10.2.3\", \"V7.2.1\"],\n      \"control_effectiveness\": \"High\",\n      \"residual_risk_level\": \"Low\",\n      \"residual_risk_acceptance\": \"Accepted\"\n    },\n    {\n      \"threat_id\": \"THR-033\",\n      \"component\": \"Admin Panel\",\n      \"threat_category\": \"Tampering\",\n      \"description\": \"CSRF on admin actions (product changes, refunds, role management) enables unauthorized administrative operations.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Enforce CSRF tokens and Origin checks; require MFA and re-auth; implement stepped-up approvals for sensitive admin operations; use admin-only subdomain with strict CSP and no third-party scripts.\",\n      \"applicable_controls\": [\"V3.4.1\", \"V2.1.1\", \"V10.1.2\"],\n      \"control_effectiveness\": \"High\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Unacceptable\"\n    },\n    {\n      \"threat_id\": \"THR-034\",\n      \"component\": \"Product Catalog\",\n      \"threat_category\": \"Tampering\",\n      \"description\": \"Image-based attacks (e.g., SVG with scripts) or EXIF payloads lead to stored XSS or exploitation of image processing libraries.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Convert uploads to safe raster formats (e.g., JPEG/PNG); strip metadata; validate MIME/type and magic numbers; virus/malware scan; serve from separate domain without cookies; set strict Content-Type and CSP.\",\n      \"applicable_controls\": [\"V12.1.1\", \"V12.4.1\", \"V10.4.2\"],\n      \"control_effectiveness\": \"High\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Accepted\"\n    },\n    {\n      \"threat_id\": \"THR-035\",\n      \"component\": \"Order Management\",\n      \"threat_category\": \"Repudiation\",\n      \"description\": \"Returns and refunds fraud (e.g., double refunds, shipping label abuse) due to weak business rules and insufficient audit.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Enforce RMA workflow with unique tokens; idempotent refund APIs; 4-eyes approval for high-value refunds; integrate carrier delivery/scan confirmation; maintain immutable audit trail.\",\n      \"applicable_controls\": [\"V11.1.1\", \"V7.2.1\", \"V4.2.2\"],\n      \"control_effectiveness\": \"Medium\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Requires Review\"\n    },\n    {\n      \"threat_id\": \"THR-036\",\n      \"component\": \"Data Layer\",\n      \"threat_category\": \"Elevation of Privilege\",\n      \"description\": \"KMS/Secrets Manager misuse or role compromise enables decryption of sensitive data and lateral movement.\",\n      \"likelihood\": \"Low\",\n      \"impact\": \"High\",\n      \"risk_level\": \"Medium\",\n      \"mitigation_strategy\": \"Harden KMS key policies; enable key usage alarms; rotate keys/secrets with short TTL; enforce least privilege and just-in-time access; use HSM-backed keys for critical material.\",\n      \"applicable_controls\": [\"V6.2.1\", \"V14.2.1\", \"V8.2.1\"],\n      \"control_effectiveness\": \"High\",\n      \"residual_risk_level\": \"Negligible\",\n      \"residual_risk_acceptance\": \"Accepted\"\n    },\n    {\n      \"threat_id\": \"THR-037\",\n      \"component\": \"Frontend Layer\",\n      \"threat_category\": \"Information Disclosure\",\n      \"description\": \"CORS misconfiguration (wildcard origins with credentials) allows malicious sites to read authenticated API responses.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Do not use wildcard with credentials; maintain strict origin allowlist; validate preflight requests; limit exposed headers; use separate origins for admin and public APIs.\",\n      \"applicable_controls\": [\"V10.1.2\", \"V13.2.2\"],\n      \"control_effectiveness\": \"High\",\n      \"residual_risk_level\": \"Low\",\n      \"residual_risk_acceptance\": \"Accepted\"\n    },\n    {\n      \"threat_id\": \"THR-038\",\n      \"component\": \"Application Services\",\n      \"threat_category\": \"Spoofing\",\n      \"description\": \"Session fixation due to missing session/token rotation on login, MFA, or privilege change lets attacker bind victim to known session ID.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Regenerate session IDs on authentication state changes; invalidate prior sessions on password reset; bind refresh tokens to device and rotate; short TTLs and inactivity timeouts.\",\n      \"applicable_controls\": [\"V3.2.1\", \"V3.3.1\", \"V2.1.1\"],\n      \"control_effectiveness\": \"High\",\n      \"residual_risk_level\": \"Low\",\n      \"residual_risk_acceptance\": \"Accepted\"\n    },\n    {\n      \"threat_id\": \"THR-039\",\n      \"component\": \"External Services\",\n      \"threat_category\": \"Tampering\",\n      \"description\": \"3DS/SCA downgrade or bypass (e.g., liability shift exploitation, incorrect exemption handling) increases fraud and chargebacks.\",\n      \"likelihood\": \"Medium\",\n      \"impact\": \"High\",\n      \"risk_level\": \"High\",\n      \"mitigation_strategy\": \"Enforce gateway-recommended 3DS flows; apply step-up authentication based on risk signals; verify 3DS authentication values in server; monitor chargebacks; disable unnecessary exemptions; keep SDKs updated.\",\n      \"applicable_controls\": [\"V11.1.1\", \"V2.1.1\"],\n      \"control_effectiveness\": \"Medium\",\n      \"residual_risk_level\": \"Medium\",\n      \"residual_risk_acceptance\": \"Requires Review\"\n    }\n  ],\n  \"risk_summary\": \"Most critical threats requiring immediate attention are: broken access control/IDOR across APIs (THR-012), credential attacks leading to ATO (THR-013), pervasive XSS vectors (THR-006), and large-scale DDoS (THR-004). High-risk issues also include webhook spoofing (THR-016), admin CSRF and RBAC weaknesses (THR-033, THR-017), storage misconfigurations exposing data (THR-019/THR-023), and business logic tampering in checkout (THR-031). Primary attack vectors and entry points are the public web/API surface behind the CDN/WAF, client-side JavaScript and third-party tags, authentication and session flows, and integrations with payment/SSO providers. The overall risk posture is moderate-to-high for an internet-facing e-commerce platform: exposure is broad, and while cloud-managed security and RBAC/MFA reduce some classes of threats, successful exploitation of access control, input validation, or third-party integrations can cause severe data loss and fraud. Priority areas for security controls should be: enforce robust object-level authorization and role design; harden authentication (MFA, rate limiting, breached password checks); implement strong client-side defenses (CSP, output encoding, CSRF protection); secure third-party integrations (signature verification, strict redirect/state handling); protect data stores and backups with least privilege and encryption; and prepare for availability attacks with DDoS/bot mitigations and adaptive rate limits. Continuous monitoring, immutable audit logging, and secure SDLC (threat modeling in changes, SAST/DAST, code review) are essential to reduce residual risk.\"\n}",
       "pydantic": {
         "methodology": "STRIDE",
         "threats": [
           {
             "threat_id": "THR-001",
-            "component": "User Management",
+            "component": "Edge Layer",
             "threat_category": "Spoofing",
-            "description": "An attacker can spoof a user's identity by bypassing authentication mechanisms, potentially by leveraging weak password policies or not enforcing multi-factor authentication.",
+            "description": "Attacker forges client IP-related headers (X-Forwarded-For, X-Real-IP, True-Client-IP) to bypass geo/IP-based controls, rate limits, or fraud rules enforced at CDN/WAF or app gateway.",
+            "likelihood": "Medium",
+            "impact": "Medium",
+            "risk_level": "Medium",
+            "mitigation_strategy": "Treat only provider-populated headers as trusted; strip or overwrite untrusted IP headers at the edge; enable CDN-origin communication over TLS with mutual trust; configure gateway to use the CDN\u2019s authenticated client IP header; implement device/account-level rate limiting in addition to IP-based.",
+            "applicable_controls": [
+              "V10.1.1",
+              "V10.2.3",
+              "V14.2.1"
+            ],
+            "control_effectiveness": "High",
+            "residual_risk_level": "Low",
+            "residual_risk_acceptance": "Accepted"
+          },
+          {
+            "threat_id": "THR-002",
+            "component": "Edge Layer",
+            "threat_category": "Tampering",
+            "description": "Host header poisoning leading to cache poisoning or backend routing to unintended virtual hosts/origins. Could enable web cache deception or SSRF via misrouted requests.",
+            "likelihood": "Medium",
+            "impact": "High",
+            "risk_level": "High",
+            "mitigation_strategy": "Enforce strict Host/SNI allowlist at CDN/WAF and gateway; normalize and validate scheme/host before cache keying; configure origin override to canonical host; disable user-influenced headers in cache keys unless required.",
+            "applicable_controls": [
+              "V10.1.1",
+              "V14.3.2",
+              "V5.1.1"
+            ],
+            "control_effectiveness": "High",
+            "residual_risk_level": "Medium",
+            "residual_risk_acceptance": "Requires Review"
+          },
+          {
+            "threat_id": "THR-003",
+            "component": "Edge Layer",
+            "threat_category": "Information Disclosure",
+            "description": "TLS misconfiguration or mixed-content allows leakage of session identifiers or PII in Referer headers or over downgraded connections.",
+            "likelihood": "Medium",
+            "impact": "High",
+            "risk_level": "High",
+            "mitigation_strategy": "Enforce TLS 1.2+ with strong ciphers; enable HSTS with preload; set Secure/HttpOnly/SameSite on cookies; set Referrer-Policy to strict-origin-when-cross-origin or stricter; block mixed content via CSP.",
+            "applicable_controls": [
+              "V9.1.1",
+              "V10.4.1",
+              "V10.3.1"
+            ],
+            "control_effectiveness": "High",
+            "residual_risk_level": "Medium",
+            "residual_risk_acceptance": "Accepted"
+          },
+          {
+            "threat_id": "THR-004",
+            "component": "Edge Layer",
+            "threat_category": "Denial of Service",
+            "description": "Volumetric DDoS or L7 request floods overwhelm network, CDN, or origin capacity, causing storefront and API outage.",
             "likelihood": "High",
             "impact": "High",
             "risk_level": "Critical",
-            "mitigation_strategy": "Enforce strong password policies, implement multi-factor authentication for all user accounts.",
+            "mitigation_strategy": "Use managed DDoS protection with automatic detection/scrubbing; enable CDN caching and request challenge (JS/managed challenge); implement adaptive rate limiting and surge queueing; autoscale origins; define runbooks and traffic baselines.",
             "applicable_controls": [
-              "V2.1.1",
-              "V3.2.3"
+              "V10.2.3",
+              "V1.1.2"
             ],
             "control_effectiveness": "Medium",
             "residual_risk_level": "High",
             "residual_risk_acceptance": "Requires Review"
           },
           {
-            "threat_id": "THR-002",
-            "component": "User Management",
-            "threat_category": "Repudiation",
-            "description": "A user could deny having performed an action (e.g., a purchase) if there is no logging mechanism or audit trail in place.",
-            "likelihood": "Medium",
-            "impact": "Medium",
-            "risk_level": "Medium",
-            "mitigation_strategy": "Implement comprehensive logging of user actions, including purchases and account changes.",
-            "applicable_controls": [
-              "V4.1.1"
-            ],
-            "control_effectiveness": "High",
-            "residual_risk_level": "Low",
-            "residual_risk_acceptance": "Accepted"
-          },
-          {
-            "threat_id": "THR-003",
-            "component": "Product Catalog",
-            "threat_category": "Tampering",
-            "description": "An attacker could tamper with product information in the catalog, leading to incorrect pricing or misleading product details.",
-            "likelihood": "Medium",
-            "impact": "High",
-            "risk_level": "High",
-            "mitigation_strategy": "Implement input validation, use checksums or hashes to verify product data integrity.",
-            "applicable_controls": [
-              "V2.2.3"
-            ],
-            "control_effectiveness": "Medium",
-            "residual_risk_level": "Medium",
-            "residual_risk_acceptance": "Requires Review"
-          },
-          {
-            "threat_id": "THR-004",
-            "component": "Shopping Cart & Checkout",
-            "threat_category": "Denial of Service",
-            "description": "An attacker could overwhelm the shopping cart service with excessive requests, leading to service unavailability.",
-            "likelihood": "Medium",
-            "impact": "High",
-            "risk_level": "High",
-            "mitigation_strategy": "Implement rate limiting on API endpoints, use CAPTCHA to mitigate automated requests.",
-            "applicable_controls": [
-              "V1.3.2"
-            ],
-            "control_effectiveness": "Medium",
-            "residual_risk_level": "Medium",
-            "residual_risk_acceptance": "Requires Review"
-          },
-          {
             "threat_id": "THR-005",
-            "component": "Backend API",
-            "threat_category": "Information Disclosure",
-            "description": "Sensitive data could be disclosed through insecure APIs, such as user information or payment data.",
-            "likelihood": "High",
+            "component": "Edge Layer",
+            "threat_category": "Denial of Service",
+            "description": "Cache-busting by appending random query params to static asset URLs forces CDN misses and overloads origins, degrading performance.",
+            "likelihood": "Medium",
             "impact": "High",
-            "risk_level": "Critical",
-            "mitigation_strategy": "Use HTTPS to encrypt data in transit and implement robust authentication and authorization mechanisms.",
+            "risk_level": "High",
+            "mitigation_strategy": "Configure CDN to ignore irrelevant query parameters for static assets; key cache by path + whitelist of parameters; enforce bot management; serve immutable assets with versioned filenames and long TTL.",
             "applicable_controls": [
-              "V2.1.3"
+              "V10.2.3",
+              "V14.4.1"
             ],
-            "control_effectiveness": "High",
-            "residual_risk_level": "Low",
+            "control_effectiveness": "Medium",
+            "residual_risk_level": "Medium",
             "residual_risk_acceptance": "Accepted"
           },
           {
             "threat_id": "THR-006",
-            "component": "Payment Gateway",
+            "component": "Frontend Layer",
             "threat_category": "Tampering",
-            "description": "An attacker could intercept and modify payment data in transit, leading to financial fraud.",
-            "likelihood": "Medium",
+            "description": "Stored/reflected/DOM XSS via product reviews, search, or admin content injection enabling session theft, checkout tampering, or skimming.",
+            "likelihood": "High",
             "impact": "High",
-            "risk_level": "High",
-            "mitigation_strategy": "Ensure the payment gateway uses strong encryption and perform regular security audits.",
+            "risk_level": "Critical",
+            "mitigation_strategy": "Default-to-escape templating; strict output encoding by context; sanitize and store UGC in safe subset; enforce CSP (no unsafe-inline; nonce-based); disallow inline event handlers; use Trusted Types where possible; isolate image/media on cookieless domain.",
             "applicable_controls": [
-              "V2.2.2"
+              "V5.3.3",
+              "V5.1.3",
+              "V10.4.2"
             ],
-            "control_effectiveness": "Medium",
+            "control_effectiveness": "High",
             "residual_risk_level": "Medium",
             "residual_risk_acceptance": "Requires Review"
           },
           {
             "threat_id": "THR-007",
-            "component": "Admin Panel",
-            "threat_category": "Elevation of Privilege",
-            "description": "An unprivileged user could gain access to the admin panel through misconfigured permissions.",
+            "component": "Frontend Layer",
+            "threat_category": "Tampering",
+            "description": "CSRF on state-changing endpoints (address add/update, add-to-cart, checkout) allows unauthorized actions using victim\u2019s session.",
             "likelihood": "Medium",
             "impact": "High",
             "risk_level": "High",
-            "mitigation_strategy": "Implement strict access controls and user privilege management.",
+            "mitigation_strategy": "Use same-site cookies (SameSite=Lax/Strict) plus anti-CSRF tokens (synchronized or double submit) on all unsafe methods; enforce Origin/Referer checks; require re-auth/MFA for sensitive actions.",
             "applicable_controls": [
-              "V2.1.2"
+              "V3.4.1",
+              "V10.3.1",
+              "V10.1.2"
             ],
-            "control_effectiveness": "Medium",
+            "control_effectiveness": "High",
             "residual_risk_level": "Medium",
-            "residual_risk_acceptance": "Requires Review"
+            "residual_risk_acceptance": "Accepted"
           },
           {
             "threat_id": "THR-008",
-            "component": "User Interface",
-            "threat_category": "Cross-site Scripting (XSS)",
-            "description": "An attacker could inject malicious scripts into web pages viewed by other users, stealing their session data.",
-            "likelihood": "High",
+            "component": "Frontend Layer",
+            "threat_category": "Elevation of Privilege",
+            "description": "Clickjacking on admin or checkout popups frames the site, tricking users into privileged actions.",
+            "likelihood": "Medium",
             "impact": "High",
-            "risk_level": "Critical",
-            "mitigation_strategy": "Implement input sanitization and output encoding practices.",
+            "risk_level": "High",
+            "mitigation_strategy": "Set X-Frame-Options: DENY and CSP frame-ancestors 'none' (or strict allowlist); require user presence (re-auth, consent) for high-risk operations; implement UI anti-clickjacking defenses.",
             "applicable_controls": [
-              "V4.2.1"
+              "V10.4.2",
+              "V3.2.4"
             ],
             "control_effectiveness": "High",
-            "residual_risk_level": "Low",
+            "residual_risk_level": "Medium",
             "residual_risk_acceptance": "Accepted"
           },
           {
             "threat_id": "THR-009",
-            "component": "Database",
-            "threat_category": "SQL Injection",
-            "description": "An attacker could exploit vulnerabilities in the database layer to execute arbitrary SQL commands, exposing sensitive data.",
-            "likelihood": "High",
-            "impact": "Critical",
-            "risk_level": "Critical",
-            "mitigation_strategy": "Implement parameterized queries and prepared statements, regularly conduct security assessments.",
+            "component": "Frontend Layer",
+            "threat_category": "Information Disclosure",
+            "description": "Access tokens or session identifiers stored in localStorage are exfiltrated via XSS or malicious extensions leading to account takeover.",
+            "likelihood": "Medium",
+            "impact": "High",
+            "risk_level": "High",
+            "mitigation_strategy": "Use HttpOnly, Secure, same-site cookies for sessions; rotate session IDs on privilege changes; implement short token TTL and refresh with server-side rotation; device/account anomaly detection.",
             "applicable_controls": [
-              "V2.3.1"
+              "V3.4.2",
+              "V3.3.1",
+              "V10.3.1"
             ],
             "control_effectiveness": "High",
-            "residual_risk_level": "Low",
+            "residual_risk_level": "Medium",
             "residual_risk_acceptance": "Accepted"
           },
           {
             "threat_id": "THR-010",
-            "component": "Order Management",
-            "threat_category": "Information Disclosure",
-            "description": "Sensitive order information could be disclosed due to improper access controls.",
+            "component": "Frontend Layer",
+            "threat_category": "Tampering",
+            "description": "Third-party tag manager or analytics script compromise (Magecart-style) skims credentials or payment tokens client-side.",
             "likelihood": "Medium",
             "impact": "High",
             "risk_level": "High",
-            "mitigation_strategy": "Implement strict access controls for user order views, ensuring only owners can view their orders.",
+            "mitigation_strategy": "Minimize third-party JS; self-host critical scripts; enforce CSP with strict allowlist and nonces; require Subresource Integrity for external scripts; runtime integrity monitoring and change control.",
             "applicable_controls": [
-              "V3.3.2"
+              "V10.4.2",
+              "V14.3.1"
             ],
             "control_effectiveness": "Medium",
             "residual_risk_level": "Medium",
@@ -497,111 +886,125 @@
           },
           {
             "threat_id": "THR-011",
-            "component": "Shopping Cart & Checkout",
-            "threat_category": "Denial of Service",
-            "description": "Flooding checkout processes could result in service unavailability for legitimate customers.",
+            "component": "Application Services",
+            "threat_category": "Tampering",
+            "description": "SQL injection in search, product management, or admin analytics endpoints enables data exfiltration or modification.",
             "likelihood": "Medium",
             "impact": "High",
             "risk_level": "High",
-            "mitigation_strategy": "Apply throttling mechanisms to limit request rates during checkout.",
+            "mitigation_strategy": "Use parameterized queries/ORM; enforce strict input validation and encoding; least-privileged DB accounts; WAF SQLi rules; automated SAST/DAST and query linting; prepared statements everywhere.",
             "applicable_controls": [
-              "V1.3.3"
+              "V5.3.2",
+              "V5.1.1",
+              "V4.3.3"
             ],
-            "control_effectiveness": "Medium",
+            "control_effectiveness": "High",
             "residual_risk_level": "Medium",
             "residual_risk_acceptance": "Requires Review"
           },
           {
             "threat_id": "THR-012",
-            "component": "Product Catalog",
-            "threat_category": "Denial of Service",
-            "description": "An attacker could cause the application to become unresponsive by submitting excessive requests for product catalog queries.",
-            "likelihood": "Medium",
-            "impact": "Medium",
-            "risk_level": "Medium",
-            "mitigation_strategy": "Implement API rate limiting to reduce the impact of excessive requests.",
+            "component": "Application Services",
+            "threat_category": "Elevation of Privilege",
+            "description": "Broken access control/IDOR on orders, carts, or profiles allows users to read or modify other customers\u2019 data by guessing IDs.",
+            "likelihood": "High",
+            "impact": "High",
+            "risk_level": "Critical",
+            "mitigation_strategy": "Enforce object- and record-level authorization on every API; scope queries by subject identity; use opaque IDs; add authorization tests; deny by default; log and alert on access violations.",
             "applicable_controls": [
-              "V1.3.1"
+              "V4.1.3",
+              "V13.1.1",
+              "V4.2.1"
             ],
-            "control_effectiveness": "Medium",
-            "residual_risk_level": "Low",
-            "residual_risk_acceptance": "Accepted"
+            "control_effectiveness": "High",
+            "residual_risk_level": "Medium",
+            "residual_risk_acceptance": "Unacceptable"
           },
           {
             "threat_id": "THR-013",
-            "component": "User Management",
-            "threat_category": "Elevation of Privilege",
-            "description": "An attacker could exploit insecure password reset processes to gain unauthorized account access.",
+            "component": "Application Services",
+            "threat_category": "Spoofing",
+            "description": "Credential stuffing/brute force against login leads to account takeover despite passwords.",
             "likelihood": "High",
             "impact": "High",
             "risk_level": "Critical",
-            "mitigation_strategy": "Implement strong verification steps for password reset, such as email confirmation.",
+            "mitigation_strategy": "Enforce MFA for users and admins; rate-limit and lockout with progressive delays; CAPTCHA after anomalies; use credential stuffing detections; monitor for breached passwords; device/IP reputation checks.",
             "applicable_controls": [
-              "V2.1.4"
+              "V2.1.1",
+              "V2.1.7",
+              "V10.2.3"
             ],
             "control_effectiveness": "High",
-            "residual_risk_level": "Low",
-            "residual_risk_acceptance": "Accepted"
+            "residual_risk_level": "Medium",
+            "residual_risk_acceptance": "Requires Review"
           },
           {
             "threat_id": "THR-014",
-            "component": "Backend API",
-            "threat_category": "API Abuse",
-            "description": "An attacker could abuse the API by making excessive requests, resulting in resource exhaustion.",
-            "likelihood": "High",
-            "impact": "Medium",
+            "component": "Application Services",
+            "threat_category": "Repudiation",
+            "description": "Password reset flow leaks user existence or uses predictable/long-lived tokens; attacker resets victim\u2019s password or enumerates accounts.",
+            "likelihood": "Medium",
+            "impact": "High",
             "risk_level": "High",
-            "mitigation_strategy": "Implement rate limiting and monitoring to detect and block abnormal behavior.",
+            "mitigation_strategy": "Use one-time, short-lived, cryptographically strong reset tokens tied to user and device; store token hashes server-side; generic responses for reset and registration; equalize timing; rate limit attempts; notify user on reset events.",
             "applicable_controls": [
-              "V1.1.1"
-            ],
-            "control_effectiveness": "Medium",
-            "residual_risk_level": "Medium",
-            "residual_risk_acceptance": "Requires Review"
-          },
-          {
-            "threat_id": "THR-015",
-            "component": "Payment Gateway",
-            "threat_category": "Information Disclosure",
-            "description": "Sensitive payment information could be exposed due to misconfigurations or vulnerabilities in the payment processing logic.",
-            "likelihood": "High",
-            "impact": "Critical",
-            "risk_level": "Critical",
-            "mitigation_strategy": "Conduct regular security assessments and audits of the payment processing system.",
-            "applicable_controls": [
-              "V2.2.1"
+              "V2.1.6",
+              "V3.1.2",
+              "V10.2.3"
             ],
             "control_effectiveness": "High",
-            "residual_risk_level": "Low",
+            "residual_risk_level": "Medium",
             "residual_risk_acceptance": "Accepted"
           },
           {
-            "threat_id": "THR-016",
-            "component": "Admin Panel",
+            "threat_id": "THR-015",
+            "component": "Application Services",
             "threat_category": "Tampering",
-            "description": "An attacker could tamper with admin panel data leading to unauthorized changes or deletions.",
+            "description": "SSRF via image URL ingestion, webhooks, or address validation callbacks allows internal network access or metadata service probing.",
             "likelihood": "Medium",
             "impact": "High",
             "risk_level": "High",
-            "mitigation_strategy": "Ensure proper session management and limit access to the admin panel to authorized users only.",
+            "mitigation_strategy": "Disallow arbitrary URL fetching; if required, enforce allowlists, DNS pinning, and URL scheme/port validation; egress filter to block RFC1918/metadata; use isolated fetcher service without sensitive network access.",
             "applicable_controls": [
-              "V2.1.2"
+              "V12.5.1",
+              "V14.2.3",
+              "V14.4.2"
             ],
             "control_effectiveness": "Medium",
             "residual_risk_level": "Medium",
             "residual_risk_acceptance": "Requires Review"
           },
           {
-            "threat_id": "THR-017",
-            "component": "Database",
-            "threat_category": "Denial of Service",
-            "description": "An attacker could overload the database with excessive queries, rendering it unresponsive.",
+            "threat_id": "THR-016",
+            "component": "Application Services",
+            "threat_category": "Spoofing",
+            "description": "Payment or PayPal webhooks are forged or replayed to mark orders as paid or trigger refunds without real authorization.",
             "likelihood": "Medium",
             "impact": "High",
             "risk_level": "High",
-            "mitigation_strategy": "Implement query optimization and monitoring to detect unusual query patterns.",
+            "mitigation_strategy": "Verify webhook signatures with shared secret/public key; enforce mTLS or source IP allowlists; include and verify idempotency keys and timestamps; reject replays; correlate with gateway-side API retrieval.",
             "applicable_controls": [
-              "V1.3.3"
+              "V13.2.5",
+              "V10.1.1",
+              "V4.3.4"
+            ],
+            "control_effectiveness": "High",
+            "residual_risk_level": "Medium",
+            "residual_risk_acceptance": "Unacceptable"
+          },
+          {
+            "threat_id": "THR-017",
+            "component": "Application Services",
+            "threat_category": "Elevation of Privilege",
+            "description": "RBAC misconfiguration grants excessive admin privileges (e.g., analytics user can process refunds or manage roles).",
+            "likelihood": "Medium",
+            "impact": "High",
+            "risk_level": "High",
+            "mitigation_strategy": "Define least-privilege role matrix and SoD; implement policy-as-code authorization (e.g., ABAC) with centralized enforcement; periodic access reviews; require approvals for privilege changes; log all admin actions.",
+            "applicable_controls": [
+              "V4.1.1",
+              "V4.2.2",
+              "V7.2.1"
             ],
             "control_effectiveness": "Medium",
             "residual_risk_level": "Medium",
@@ -609,14 +1012,321 @@
           },
           {
             "threat_id": "THR-018",
-            "component": "User Interface",
-            "threat_category": "CSRF",
-            "description": "An attacker could exploit Cross-Site Request Forgery vulnerabilities to perform unauthorized actions on behalf of users.",
+            "component": "Application Services",
+            "threat_category": "Elevation of Privilege",
+            "description": "Mass assignment or over-posting lets attacker set sensitive fields (e.g., role, price, discount, isAdmin) via API payloads.",
             "likelihood": "Medium",
             "impact": "High",
             "risk_level": "High",
-            "mitigation_strategy": "Implement CSRF tokens in forms and validate them on the server side.",
+            "mitigation_strategy": "Use explicit allowlists/DTOs for updatable fields; ignore/strip unknown fields; server-side recomputation of sensitive values; authorization checks on field-level changes.",
             "applicable_controls": [
+              "V5.1.5",
+              "V4.2.1",
+              "V13.2.1"
+            ],
+            "control_effectiveness": "High",
+            "residual_risk_level": "Medium",
+            "residual_risk_acceptance": "Accepted"
+          },
+          {
+            "threat_id": "THR-019",
+            "component": "Data Layer",
+            "threat_category": "Information Disclosure",
+            "description": "Object storage (e.g., S3) misconfiguration exposes product images, receipts, or attachments containing PII to the public or unauthorized roles.",
+            "likelihood": "Medium",
+            "impact": "High",
+            "risk_level": "High",
+            "mitigation_strategy": "Block public access at the bucket level; enforce private ACLs and IAM policies; serve via presigned URLs with short TTL and minimal scope; segregate public vs private buckets; malware scan uploads.",
+            "applicable_controls": [
+              "V8.3.1",
+              "V12.1.1",
+              "V14.4.1"
+            ],
+            "control_effectiveness": "High",
+            "residual_risk_level": "Medium",
+            "residual_risk_acceptance": "Accepted"
+          },
+          {
+            "threat_id": "THR-020",
+            "component": "Data Layer",
+            "threat_category": "Information Disclosure",
+            "description": "Compromise of database credentials or IAM role results in exfiltration of PII, order data, and auth metadata.",
+            "likelihood": "Medium",
+            "impact": "High",
+            "risk_level": "High",
+            "mitigation_strategy": "Use IAM-based DB auth where possible; rotate credentials frequently; enforce network isolation (private subnets, SGs); encrypt at rest and use field-level encryption for sensitive data; monitor queries and anomalous access; enable least privilege.",
+            "applicable_controls": [
+              "V6.1.1",
+              "V8.2.1",
+              "V14.2.1"
+            ],
+            "control_effectiveness": "Medium",
+            "residual_risk_level": "Medium",
+            "residual_risk_acceptance": "Unacceptable"
+          },
+          {
+            "threat_id": "THR-021",
+            "component": "Data Layer",
+            "threat_category": "Tampering",
+            "description": "Redis cache exposed or without ACL/TLS allows cache poisoning, key theft (sessions, carts), or remote access.",
+            "likelihood": "Medium",
+            "impact": "Medium",
+            "risk_level": "Medium",
+            "mitigation_strategy": "Restrict Redis to VPC/private networks; enable TLS and AUTH/ACL; separate key namespaces; disable dangerous commands; set key TTLs; monitor for unusual misses/hits.",
+            "applicable_controls": [
+              "V14.2.1",
+              "V3.3.1"
+            ],
+            "control_effectiveness": "High",
+            "residual_risk_level": "Low",
+            "residual_risk_acceptance": "Accepted"
+          },
+          {
+            "threat_id": "THR-022",
+            "component": "Data Layer",
+            "threat_category": "Tampering",
+            "description": "Message queue/event bus poisoning or replay leads to unauthorized order status changes, fraudulent refunds, or workflow triggers.",
+            "likelihood": "Medium",
+            "impact": "High",
+            "risk_level": "High",
+            "mitigation_strategy": "Authenticate producers/consumers per topic; sign and timestamp messages; use schema registry and validation; enforce idempotency; monitor DLQ and unusual message patterns; least privilege IAM.",
+            "applicable_controls": [
+              "V13.2.1",
+              "V4.3.4",
+              "V14.2.1"
+            ],
+            "control_effectiveness": "Medium",
+            "residual_risk_level": "Medium",
+            "residual_risk_acceptance": "Requires Review"
+          },
+          {
+            "threat_id": "THR-023",
+            "component": "Data Layer",
+            "threat_category": "Information Disclosure",
+            "description": "Backups/snapshots (RDBMS, search indices) are publicly shared or not encrypted, exposing entire datasets if discovered.",
+            "likelihood": "Medium",
+            "impact": "High",
+            "risk_level": "High",
+            "mitigation_strategy": "Encrypt backups with KMS; restrict snapshot sharing; inventory and scan backup stores; enforce lifecycle and retention; test restores securely; monitor for public exposure.",
+            "applicable_controls": [
+              "V8.3.1",
+              "V14.4.1",
+              "V6.2.1"
+            ],
+            "control_effectiveness": "High",
+            "residual_risk_level": "Medium",
+            "residual_risk_acceptance": "Accepted"
+          },
+          {
+            "threat_id": "THR-024",
+            "component": "External Services",
+            "threat_category": "Spoofing",
+            "description": "SSO/IdP misconfiguration (issuer/audience mismatch, missing nonce/state) enables token substitution or login CSRF leading to admin account takeover.",
+            "likelihood": "Medium",
+            "impact": "High",
+            "risk_level": "High",
+            "mitigation_strategy": "Validate issuer, audience, nonce/state; require signed and optionally encrypted tokens; enforce MFA at IdP; restrict redirect URIs; implement JIT provisioning with least privilege; rotate keys and validate kid.",
+            "applicable_controls": [
+              "V2.2.4",
+              "V2.2.5",
+              "V10.1.1"
+            ],
+            "control_effectiveness": "High",
+            "residual_risk_level": "Medium",
+            "residual_risk_acceptance": "Unacceptable"
+          },
+          {
+            "threat_id": "THR-025",
+            "component": "External Services",
+            "threat_category": "Tampering",
+            "description": "Open redirect in payment return/callback URLs enables phishing and session fixation or completes orders without proper verification.",
+            "likelihood": "Medium",
+            "impact": "High",
+            "risk_level": "High",
+            "mitigation_strategy": "Strictly validate return URLs against allowlist; bind state parameter to session; verify payment status server-side via gateway API before order fulfillment; deny arbitrary redirect targets.",
+            "applicable_controls": [
+              "V10.1.3",
+              "V13.2.5",
+              "V11.1.1"
+            ],
+            "control_effectiveness": "High",
+            "residual_risk_level": "Medium",
+            "residual_risk_acceptance": "Accepted"
+          },
+          {
+            "threat_id": "THR-026",
+            "component": "External Services",
+            "threat_category": "Information Disclosure",
+            "description": "Email/SMS provider account compromise allows interception of OTPs and password resets or mass phishing from trusted domain.",
+            "likelihood": "Medium",
+            "impact": "High",
+            "risk_level": "High",
+            "mitigation_strategy": "Enable provider MFA and SSO; restrict API keys by IP and scope; rotate credentials; implement DMARC/DKIM/SPF; segregate transactional vs marketing accounts; monitor for anomalies and unauthorized templates.",
+            "applicable_controls": [
+              "V2.2.1",
+              "V14.2.1",
+              "V7.2.2"
+            ],
+            "control_effectiveness": "Medium",
+            "residual_risk_level": "Medium",
+            "residual_risk_acceptance": "Requires Review"
+          },
+          {
+            "threat_id": "THR-027",
+            "component": "Security & Observability",
+            "threat_category": "Information Disclosure",
+            "description": "Logs, traces, or metrics contain PII (emails, addresses, tokens) leading to privacy breach via SIEM or developer tools.",
+            "likelihood": "High",
+            "impact": "Medium",
+            "risk_level": "High",
+            "mitigation_strategy": "Implement centralized PII redaction/filters in logging libraries; structured logging; encrypt logs at rest/in transit; role-based access to SIEM; sampling and retention limits; periodic scans for secrets/PII.",
+            "applicable_controls": [
+              "V7.3.1",
+              "V8.1.1",
+              "V7.2.1"
+            ],
+            "control_effectiveness": "High",
+            "residual_risk_level": "Low",
+            "residual_risk_acceptance": "Accepted"
+          },
+          {
+            "threat_id": "THR-028",
+            "component": "Security & Observability",
+            "threat_category": "Repudiation",
+            "description": "Log tampering or deletion by privileged users prevents forensic analysis and dispute resolution for fraudulent actions.",
+            "likelihood": "Medium",
+            "impact": "High",
+            "risk_level": "High",
+            "mitigation_strategy": "Ship logs off-host in near-real-time; use append-only/immutable storage (WORM) and cryptographic signing; separate duties for log access; monitor deletion/rotation events; maintain secure time synchronization.",
+            "applicable_controls": [
+              "V7.2.1",
+              "V7.4.1",
+              "V1.1.1"
+            ],
+            "control_effectiveness": "High",
+            "residual_risk_level": "Medium",
+            "residual_risk_acceptance": "Requires Review"
+          },
+          {
+            "threat_id": "THR-029",
+            "component": "Application Services",
+            "threat_category": "Denial of Service",
+            "description": "API abuse and scraping of catalog/search endpoints bypasses simple rate limits, causing resource exhaustion and data harvesting.",
+            "likelihood": "High",
+            "impact": "Medium",
+            "risk_level": "High",
+            "mitigation_strategy": "Implement adaptive per-user/device/IP rate limits, user-level quotas, and burst controls; deploy bot detection; require API keys for partner APIs; paginate and cache; watermark responses for misuse detection.",
+            "applicable_controls": [
+              "V10.2.3",
+              "V11.1.1",
+              "V13.2.2"
+            ],
+            "control_effectiveness": "Medium",
+            "residual_risk_level": "Medium",
+            "residual_risk_acceptance": "Accepted"
+          },
+          {
+            "threat_id": "THR-030",
+            "component": "Order Management",
+            "threat_category": "Information Disclosure",
+            "description": "Order tracking endpoints expose data via predictable tracking IDs or missing ownership checks (IDOR), revealing PII or order details.",
+            "likelihood": "Medium",
+            "impact": "High",
+            "risk_level": "High",
+            "mitigation_strategy": "Use unguessable opaque tracking identifiers; enforce user/owner authorization for any order detail; minimize data in tracking responses; separate public carrier tracking from internal order data.",
+            "applicable_controls": [
+              "V4.1.3",
+              "V13.1.1",
+              "V8.2.2"
+            ],
+            "control_effectiveness": "High",
+            "residual_risk_level": "Medium",
+            "residual_risk_acceptance": "Accepted"
+          },
+          {
+            "threat_id": "THR-031",
+            "component": "Shopping Cart & Checkout",
+            "threat_category": "Tampering",
+            "description": "Client-side price, discount, or quantity manipulation via hidden fields or intercepted API calls results in underpayment or free items.",
+            "likelihood": "Medium",
+            "impact": "High",
+            "risk_level": "High",
+            "mitigation_strategy": "Treat server as source of truth; recompute totals on server; validate discounts/coupons server-side; sign cart line-items or use server-side carts; verify inventory and pricing at payment authorization time.",
+            "applicable_controls": [
+              "V11.1.1",
+              "V4.2.1",
+              "V13.2.1"
+            ],
+            "control_effectiveness": "High",
+            "residual_risk_level": "Medium",
+            "residual_risk_acceptance": "Unacceptable"
+          },
+          {
+            "threat_id": "THR-032",
+            "component": "User Management",
+            "threat_category": "Information Disclosure",
+            "description": "Account enumeration via registration or password reset responses reveals whether an email/phone is registered.",
+            "likelihood": "High",
+            "impact": "Medium",
+            "risk_level": "High",
+            "mitigation_strategy": "Return generic responses; constant-time processing; rate-limit attempts; require CAPTCHA after thresholds; alert on enumeration patterns.",
+            "applicable_controls": [
+              "V2.1.6",
+              "V10.2.3",
+              "V7.2.1"
+            ],
+            "control_effectiveness": "High",
+            "residual_risk_level": "Low",
+            "residual_risk_acceptance": "Accepted"
+          },
+          {
+            "threat_id": "THR-033",
+            "component": "Admin Panel",
+            "threat_category": "Tampering",
+            "description": "CSRF on admin actions (product changes, refunds, role management) enables unauthorized administrative operations.",
+            "likelihood": "Medium",
+            "impact": "High",
+            "risk_level": "High",
+            "mitigation_strategy": "Enforce CSRF tokens and Origin checks; require MFA and re-auth; implement stepped-up approvals for sensitive admin operations; use admin-only subdomain with strict CSP and no third-party scripts.",
+            "applicable_controls": [
+              "V3.4.1",
+              "V2.1.1",
+              "V10.1.2"
+            ],
+            "control_effectiveness": "High",
+            "residual_risk_level": "Medium",
+            "residual_risk_acceptance": "Unacceptable"
+          },
+          {
+            "threat_id": "THR-034",
+            "component": "Product Catalog",
+            "threat_category": "Tampering",
+            "description": "Image-based attacks (e.g., SVG with scripts) or EXIF payloads lead to stored XSS or exploitation of image processing libraries.",
+            "likelihood": "Medium",
+            "impact": "High",
+            "risk_level": "High",
+            "mitigation_strategy": "Convert uploads to safe raster formats (e.g., JPEG/PNG); strip metadata; validate MIME/type and magic numbers; virus/malware scan; serve from separate domain without cookies; set strict Content-Type and CSP.",
+            "applicable_controls": [
+              "V12.1.1",
+              "V12.4.1",
+              "V10.4.2"
+            ],
+            "control_effectiveness": "High",
+            "residual_risk_level": "Medium",
+            "residual_risk_acceptance": "Accepted"
+          },
+          {
+            "threat_id": "THR-035",
+            "component": "Order Management",
+            "threat_category": "Repudiation",
+            "description": "Returns and refunds fraud (e.g., double refunds, shipping label abuse) due to weak business rules and insufficient audit.",
+            "likelihood": "Medium",
+            "impact": "High",
+            "risk_level": "High",
+            "mitigation_strategy": "Enforce RMA workflow with unique tokens; idempotent refund APIs; 4-eyes approval for high-value refunds; integrate carrier delivery/scan confirmation; maintain immutable audit trail.",
+            "applicable_controls": [
+              "V11.1.1",
+              "V7.2.1",
               "V4.2.2"
             ],
             "control_effectiveness": "Medium",
@@ -624,39 +1334,77 @@
             "residual_risk_acceptance": "Requires Review"
           },
           {
-            "threat_id": "THR-019",
-            "component": "User Management",
-            "threat_category": "Information Disclosure",
-            "description": "Sensitive user information could be disclosed if session management is incorrectly implemented.",
-            "likelihood": "Medium",
+            "threat_id": "THR-036",
+            "component": "Data Layer",
+            "threat_category": "Elevation of Privilege",
+            "description": "KMS/Secrets Manager misuse or role compromise enables decryption of sensitive data and lateral movement.",
+            "likelihood": "Low",
             "impact": "High",
-            "risk_level": "High",
-            "mitigation_strategy": "Ensure proper session expiration and invalidate sessions on log out.",
+            "risk_level": "Medium",
+            "mitigation_strategy": "Harden KMS key policies; enable key usage alarms; rotate keys/secrets with short TTL; enforce least privilege and just-in-time access; use HSM-backed keys for critical material.",
             "applicable_controls": [
-              "V2.1.3"
+              "V6.2.1",
+              "V14.2.1",
+              "V8.2.1"
             ],
-            "control_effectiveness": "Medium",
-            "residual_risk_level": "Medium",
-            "residual_risk_acceptance": "Requires Review"
+            "control_effectiveness": "High",
+            "residual_risk_level": "Negligible",
+            "residual_risk_acceptance": "Accepted"
           },
           {
-            "threat_id": "THR-020",
-            "component": "Product Catalog",
-            "threat_category": "Elevation of Privilege",
-            "description": "An attacker may gain elevated access to update product listings by exploiting vulnerabilities in the product management logic.",
+            "threat_id": "THR-037",
+            "component": "Frontend Layer",
+            "threat_category": "Information Disclosure",
+            "description": "CORS misconfiguration (wildcard origins with credentials) allows malicious sites to read authenticated API responses.",
             "likelihood": "Medium",
             "impact": "High",
             "risk_level": "High",
-            "mitigation_strategy": "Conduct security reviews to validate admin access controls and input validation.",
+            "mitigation_strategy": "Do not use wildcard with credentials; maintain strict origin allowlist; validate preflight requests; limit exposed headers; use separate origins for admin and public APIs.",
             "applicable_controls": [
-              "V2.1.2"
+              "V10.1.2",
+              "V13.2.2"
+            ],
+            "control_effectiveness": "High",
+            "residual_risk_level": "Low",
+            "residual_risk_acceptance": "Accepted"
+          },
+          {
+            "threat_id": "THR-038",
+            "component": "Application Services",
+            "threat_category": "Spoofing",
+            "description": "Session fixation due to missing session/token rotation on login, MFA, or privilege change lets attacker bind victim to known session ID.",
+            "likelihood": "Medium",
+            "impact": "High",
+            "risk_level": "High",
+            "mitigation_strategy": "Regenerate session IDs on authentication state changes; invalidate prior sessions on password reset; bind refresh tokens to device and rotate; short TTLs and inactivity timeouts.",
+            "applicable_controls": [
+              "V3.2.1",
+              "V3.3.1",
+              "V2.1.1"
+            ],
+            "control_effectiveness": "High",
+            "residual_risk_level": "Low",
+            "residual_risk_acceptance": "Accepted"
+          },
+          {
+            "threat_id": "THR-039",
+            "component": "External Services",
+            "threat_category": "Tampering",
+            "description": "3DS/SCA downgrade or bypass (e.g., liability shift exploitation, incorrect exemption handling) increases fraud and chargebacks.",
+            "likelihood": "Medium",
+            "impact": "High",
+            "risk_level": "High",
+            "mitigation_strategy": "Enforce gateway-recommended 3DS flows; apply step-up authentication based on risk signals; verify 3DS authentication values in server; monitor chargebacks; disable unnecessary exemptions; keep SDKs updated.",
+            "applicable_controls": [
+              "V11.1.1",
+              "V2.1.1"
             ],
             "control_effectiveness": "Medium",
             "residual_risk_level": "Medium",
             "residual_risk_acceptance": "Requires Review"
           }
         ],
-        "risk_summary": "The e-commerce platform faces significant risks primarily associated with critical components including user management, backend APIs, and payment gateways, where threats such as spoofing and sensitive data exposure are highly likely to occur. The overall risk posture indicates a need for immediate attention to threats related to authentication bypass, SQL injection, and unauthorized access to admin functionalities. Key attack vectors include API abuse, improper access controls, and vulnerabilities in session management. The recommended areas for priority security controls are multi-factor authentication implementation, input validation mechanisms, and robust logging practices to reduce overall risk exposure."
+        "risk_summary": "Most critical threats requiring immediate attention are: broken access control/IDOR across APIs (THR-012), credential attacks leading to ATO (THR-013), pervasive XSS vectors (THR-006), and large-scale DDoS (THR-004). High-risk issues also include webhook spoofing (THR-016), admin CSRF and RBAC weaknesses (THR-033, THR-017), storage misconfigurations exposing data (THR-019/THR-023), and business logic tampering in checkout (THR-031). Primary attack vectors and entry points are the public web/API surface behind the CDN/WAF, client-side JavaScript and third-party tags, authentication and session flows, and integrations with payment/SSO providers. The overall risk posture is moderate-to-high for an internet-facing e-commerce platform: exposure is broad, and while cloud-managed security and RBAC/MFA reduce some classes of threats, successful exploitation of access control, input validation, or third-party integrations can cause severe data loss and fraud. Priority areas for security controls should be: enforce robust object-level authorization and role design; harden authentication (MFA, rate limiting, breached password checks); implement strong client-side defenses (CSP, output encoding, CSRF protection); secure third-party integrations (signature verification, strict redirect/state handling); protect data stores and backups with least privilege and encryption; and prepare for availability attacks with DDoS/bot mitigations and adaptive rate limits. Continuous monitoring, immutable audit logging, and secure SDLC (threat modeling in changes, SAST/DAST, code review) are essential to reduce residual risk."
       }
     }
   ]
