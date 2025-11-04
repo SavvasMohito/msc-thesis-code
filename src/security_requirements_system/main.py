@@ -1684,24 +1684,12 @@ The following high-level functional requirements have been identified and analyz
             markdown += f"### 4.1. Architectural Overview\n\n{self.state.architecture_summary}\n\n"
 
             markdown += "### 4.2. Architecture Diagram\n\n"
+
             if self.state.architecture_diagram:
                 # Add CSS to make Mermaid SVG full width
-                markdown += "<style>\n.mermaid svg { width: 100% !important; max-width: 100% !important; }\n</style>\n\n"
+                markdown += "<style>\n svg { width: 100% !important; max-width: 100% !important; }\n.nodeLabel { white-space: normal !important; }\n</style>\n\n"
                 markdown += "```{mermaid}\n"
-                # Update Mermaid init to use full width
-                diagram_content = self.state.architecture_diagram
-                if "%%{init:" in diagram_content:
-                    # Replace existing init with one that includes useMaxWidth
-                    diagram_content = diagram_content.replace(
-                        "%%{init: {'theme':'dark'}}%%",
-                        "%%{init: {'theme':'dark', 'flowchart': {'htmlLabels': True, 'useMaxWidth': True}}}%%",
-                    )
-                else:
-                    # Add init if it doesn't exist
-                    diagram_content = (
-                        "%%{init: {'theme':'dark', 'flowchart': {'htmlLabels': True, 'useMaxWidth': True}}}%%\n" + diagram_content
-                    )
-                markdown += diagram_content
+                markdown += self.state.architecture_diagram
                 markdown += "\n```\n\n"
             else:
                 markdown += "*Architecture diagram not available.*\n\n"
