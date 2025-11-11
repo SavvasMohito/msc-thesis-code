@@ -10,12 +10,26 @@ from weaviate.classes.query import Filter
 
 
 class WeaviateQueryInput(BaseModel):
-    """Input schema for WeaviateQueryTool."""
+    """Input schema for WeaviateQueryTool.
 
-    query: str = Field(..., description="The search query to find relevant security controls")
-    limit: int = Field(default=5, description="Number of results to return")
+    IMPORTANT: Pass arguments as a dictionary with keys: query, limit (optional), standard_filter (optional).
+    Example: {"query": "authentication", "limit": 10}
+    """
+
+    query: str = Field(
+        ...,
+        description="The search query string describing the security concern. Examples: 'authentication', 'encryption', 'access control', 'role-based access control'. This is a REQUIRED string parameter.",
+        examples=["authentication", "encryption", "access control"],
+    )
+    limit: int = Field(
+        default=5,
+        description="Number of results to return. Default is 5. This is an OPTIONAL integer parameter.",
+        examples=[5, 10, 20],
+    )
     standard_filter: Optional[str] = Field(
-        default=None, description="Filter by specific standard (e.g., 'OWASP', 'NIST', 'ISO27001'). If None, searches all standards."
+        default=None,
+        description="Optional filter by specific standard. Valid values: 'OWASP', 'NIST', or 'ISO27001'. If not provided or None, searches all standards. This is an OPTIONAL string parameter.",
+        examples=["OWASP", "NIST", "ISO27001"],
     )
 
 
@@ -24,11 +38,12 @@ class WeaviateQueryTool(BaseTool):
 
     name: str = "Query Security Standards Database"
     description: str = (
-        "Use this tool to search the security standards database containing controls from "
-        "OWASP ASVS, NIST SP 800-53, and ISO 27001. Provide a semantic query describing "
-        "the security concern (e.g., 'authentication', 'encryption', 'access control'). "
-        "The tool searches across all standards and returns the best matching controls. "
-        "Returns controls with their exact IDs, descriptions, chapters, sections, and standard. "
+        "Search the security standards database for controls from OWASP ASVS, NIST SP 800-53, and ISO 27001. "
+        "Call this tool with a dictionary containing: 'query' (required string), 'limit' (optional int, default 5), "
+        "and 'standard_filter' (optional string: 'OWASP', 'NIST', or 'ISO27001'). "
+        "Example: Call with {'query': 'authentication multi-factor', 'limit': 10} "
+        "or {'query': 'encryption', 'limit': 5, 'standard_filter': 'OWASP'}. "
+        "The tool returns matching controls with their exact IDs, descriptions, chapters, sections, and standard. "
         "You MUST use this tool to find controls - copy the data exactly from tool results."
     )
     args_schema: Type[BaseModel] = WeaviateQueryInput
@@ -40,6 +55,16 @@ class WeaviateQueryTool(BaseTool):
         standard_filter: Optional[str] = None,
     ) -> str:
         """Execute the query against Weaviate."""
+        # Validate inputs
+        if not isinstance(query, str) or not query.strip():
+            return "Error: 'query' parameter must be a non-empty string."
+
+        if not isinstance(limit, int) or limit < 1:
+            limit = 5  # Default to 5 if invalid
+
+        if standard_filter is not None and not isinstance(standard_filter, str):
+            standard_filter = None  # Ignore invalid filter
+
         try:
             # Connect to Weaviate
             client = weaviate.connect_to_local(
