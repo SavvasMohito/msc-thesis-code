@@ -1,0 +1,53 @@
+validate_security_requirements:
+  description: >
+    Validate the generated security requirements against the original business requirements:
+    
+    Original Requirements:
+    {requirements_text}
+    
+    Requirements Analysis:
+    {analyzed_requirements}
+    
+    Security Controls:
+    {security_controls}
+    
+    AI/ML Security:
+    {ai_security}
+    
+    Compliance Requirements:
+    {compliance_requirements}
+    
+    Perform comprehensive validation:
+    
+    1. COMPLETENESS (0-1 score):
+       - Are all identified security concerns addressed?
+       - Are there missing security domains?
+       - Is coverage comprehensive across authentication, authorization, data protection, etc.?
+    
+    2. CONSISTENCY (0-1 score):
+       - Do requirements contradict each other?
+       - Are similar concerns handled consistently?
+       - Do controls work together harmoniously?
+    
+    3. CORRECTNESS (0-1 score):
+       - Are controls appropriate for identified risks?
+       - Are standards applied correctly?
+       - Are AI/ML controls relevant if AI is present?
+    
+    4. IMPLEMENTABILITY (0-1 score):
+       - Are requirements specific and actionable?
+       - Can developers implement these?
+       - Are there ambiguous or vague requirements?
+    
+    5. ALIGNMENT (0-1 score):
+       - Do security requirements align with business requirements?
+       - Are we securing what actually needs to be built?
+       - Are we over-engineering or under-protecting?
+    
+    Calculate overall score (average of above 5 scores).
+    
+    If score < 0.8, provide specific, actionable feedback on what to improve.
+  expected_output: >
+    A JSON object matching the ValidationOutput schema.
+  agent: validation_expert
+

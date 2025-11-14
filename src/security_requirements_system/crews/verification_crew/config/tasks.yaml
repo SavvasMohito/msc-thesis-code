@@ -1,0 +1,141 @@
+design_verification_strategy:
+  description: >
+    Based on all security controls and requirements identified:
+
+    Security Controls:
+    {security_controls}
+
+    Compliance Requirements:
+    {compliance_requirements}
+
+    Your goal is to design a comprehensive security verification and testing strategy.
+
+    CRITICAL INSTRUCTIONS:
+    1. Define the overall testing_approach:
+       - How testing integrates into the SDLC
+       - Balance between automated and manual testing
+       - Risk-based testing prioritization
+       - Shift-left security principles
+    
+    2. For each major testing method, provide detailed testing_methods:
+       
+       a) STATIC APPLICATION SECURITY TESTING (SAST):
+          - Description: Analyze source code for vulnerabilities
+          - Applicable controls: Input validation, injection flaws, hardcoded secrets
+          - Frequency: Every commit/build
+          - Tools: SonarQube, Semgrep, Checkmarx, CodeQL
+       
+       b) DYNAMIC APPLICATION SECURITY TESTING (DAST):
+          - Description: Test running application for vulnerabilities
+          - Applicable controls: Authentication, authorization, XSS, CSRF, SQL injection
+          - Frequency: Nightly/weekly
+          - Tools: OWASP ZAP, Burp Suite, Acunetix
+       
+       c) DEPENDENCY SCANNING:
+          - Description: Identify vulnerabilities in third-party libraries
+          - Applicable controls: Supply chain security
+          - Frequency: Every build
+          - Tools: Snyk, Dependabot, OWASP Dependency-Check
+       
+       d) SECRETS SCANNING:
+          - Description: Detect exposed credentials and API keys
+          - Applicable controls: Cryptographic protection
+          - Frequency: Every commit
+          - Tools: TruffleHog, GitLeaks, GitHub Secret Scanning
+       
+       e) CONTAINER/INFRASTRUCTURE SCANNING:
+          - Description: Scan containers and infrastructure as code
+          - Applicable controls: Configuration management
+          - Frequency: Every deployment
+          - Tools: Trivy, Clair, Prowler, ScoutSuite
+       
+       f) PENETRATION TESTING:
+          - Description: Manual security assessment by ethical hackers
+          - Applicable controls: All high-risk controls
+          - Frequency: Quarterly or before major releases
+          - Tools: Custom scripts, Metasploit, Burp Suite Pro
+       
+       g) SECURITY CODE REVIEW:
+          - Description: Manual review of critical security code
+          - Applicable controls: Authentication, authorization, crypto implementations
+          - Frequency: For critical features
+          - Tools: GitHub/GitLab code review, security checklists
+       
+       h) COMPLIANCE SCANNING:
+          - Description: Automated compliance checks
+          - Applicable controls: All compliance-related controls
+          - Frequency: Continuous
+          - Tools: AWS Config, Azure Policy, Cloud Custodian
+    
+    3. Define compliance_verification:
+       - How multi-standard compliance (OWASP ASVS, NIST SP 800-53, ISO 27001) will be verified
+       - Regulatory audit preparation (HIPAA, GDPR, PCI-DSS, etc.)
+       - Evidence collection and documentation
+       - Third-party audit recommendations
+    
+    4. Define continuous_monitoring strategy:
+       - Security Information and Event Management (SIEM)
+       - Intrusion Detection/Prevention Systems (IDS/IPS)
+       - Log aggregation and analysis
+       - Anomaly detection and behavioral analytics
+       - Incident response integration
+    
+    5. Define kpis (Key Performance Indicators):
+       - Mean time to detect (MTTD) security issues
+       - Mean time to remediate (MTTR) vulnerabilities
+       - Percentage of critical vulnerabilities patched within SLA
+       - Security test coverage percentage
+       - False positive rate in automated scanning
+       - Compliance audit pass rate
+    
+    6. Map each testing method to specific security controls (from OWASP ASVS, NIST SP 800-53, ISO 27001) it verifies
+    
+    7. Output as clean, well-formatted MARKDOWN matching the structure below.
+  expected_output: >
+    A comprehensive verification and testing strategy in MARKDOWN format with the following structure:
+    
+    IMPORTANT: Output the markdown content directly. DO NOT wrap your output in ```markdown code blocks.
+    
+    ### 11.1. Testing Approach
+    
+    A paragraph describing the overall approach (e.g., "Integrate security testing throughout the software development lifecycle (SDLC) with an emphasis on continuous security practices. Balance automated scanning with manual evaluations to prioritize high-risk areas based on business impact, adhering to shift-left security principles by incorporating security testing earlier and continuously.")
+    
+    ### 11.2. Testing Methods
+    
+    A markdown table with columns: Method | Frequency | Tools
+    
+    Example:
+    | Method | Frequency | Tools |
+    |--------|-----------|-------|
+    | STATIC APPLICATION SECURITY TESTING (SAST) | Every commit/build | SonarQube, Semgrep, Checkmarx |
+    | DYNAMIC APPLICATION SECURITY TESTING (DAST) | Nightly/weekly | OWASP ZAP, Burp Suite, Acunetix |
+    | DEPENDENCY SCANNING | Every build | Snyk, Dependabot, OWASP Dependency-Check |
+    | SECRETS SCANNING | Every commit | TruffleHog, GitLeaks, GitHub Secret Scanning |
+    | CONTAINER/INFRASTRUCTURE SCANNING | Every deployment | Trivy, Clair, Prowler |
+    | PENETRATION TESTING | Quarterly or before major releases | Custom scripts, Metasploit, Burp Suite Pro |
+    | SECURITY CODE REVIEW | For critical features | GitHub/GitLab code review, Security checklists |
+    | COMPLIANCE SCANNING | Continuous | AWS Config, Azure Policy, Cloud Custodian |
+    
+    ### 11.3. Compliance Verification
+    
+    A paragraph describing how compliance will be verified (e.g., "Multi-standard compliance (OWASP ASVS, NIST SP 800-53, ISO 27001) will be verified through automated tools and manual checks against regulatory requirements such as GDPR, CCPA, and PCI-DSS. Audit preparation will involve ensuring documentation and evidence collection for external audits. Recommendations will include engaging third-party auditors for comprehensive evaluations.")
+    
+    ### 11.4. Continuous Monitoring
+    
+    A paragraph describing the monitoring strategy (e.g., "Implement Security Information and Event Management (SIEM) for real-time monitoring, supported by Intrusion Detection/Prevention Systems (IDS/IPS) to identify and mitigate threats. All logs will be aggregated and analyzed for anomalies, with integration into incident response processes to ensure prompt action against security events.")
+    
+    ### 11.5. Key Performance Indicators (KPIs)
+    
+    A bulleted list:
+    - KPI 1
+    - KPI 2
+    
+    Example:
+    - Mean time to detect (MTTD) security issues
+    - Mean time to remediate (MTTR) vulnerabilities
+    - Percentage of critical vulnerabilities patched within SLA
+    - Security test coverage percentage
+    - False positive rate in automated scanning
+    - Compliance audit pass rate
+  agent: security_testing_expert
+

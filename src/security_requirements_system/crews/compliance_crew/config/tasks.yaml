@@ -1,0 +1,65 @@
+assess_compliance_requirements:
+  description: >
+    Review the requirements and identify regulatory compliance needs:
+    
+    Original Requirements:
+    {requirements_text}
+    
+    Requirements Analysis:
+    {analyzed_requirements}
+    
+    Identify compliance triggers:
+    1. Personal data handling → GDPR, CCPA
+    2. Health information → HIPAA, HITECH
+    3. Payment card data → PCI-DSS
+    4. Financial data → SOX, GLBA
+    5. Children's data → COPPA
+    6. Geographic restrictions → Data residency laws
+    7. Industry-specific regulations
+    
+    For each applicable regulation:
+    - Identify specific compliance requirements
+    - Map to necessary security controls
+    - Identify data subject rights that must be supported
+    - Specify retention and deletion requirements
+    - Define consent and privacy notice needs
+    - Identify breach notification requirements
+    - Specify audit and logging needs
+  expected_output: >
+    A comprehensive compliance requirements document in MARKDOWN format with the following structure:
+    
+    IMPORTANT: Output the markdown content directly. DO NOT wrap your output in ```markdown code blocks.
+    
+    ### 8.1. Applicable Regulations
+    
+    Begin with a comprehensive introduction paragraph explaining how regulations were identified based on data types, geographic scope, industry sector, and business operations. Explain that compliance requirements directly impact security controls, data handling procedures, and operational processes. Then provide a markdown table with columns: Regulation | Applicability Reason. For each regulation, clearly explain why it applies (e.g., "GDPR applies because the system processes personal data of EU residents").
+    
+    ### 8.2. Compliance Controls by Regulation
+    For each regulation, create a subsection (####) with bullet-pointed controls.
+    
+    ### 8.3. Data Subject Rights
+    A markdown table with columns: Right | Description
+    
+    ### 8.4. Privacy Requirements
+    Bold requirement types followed by descriptions (e.g., **Consent:** description).
+    
+    ### 8.5. Audit and Monitoring Requirements
+    Bold requirement types followed by descriptions (e.g., **Logging:** description).
+    
+    ### 8.6. Data Handling Rules
+    Bold rule types followed by descriptions (e.g., **Retention:** description).
+    
+    ### 8.7. Compliance Risk Assessment
+    Introduction paragraph followed by:
+    
+    **Key Compliance Risks:**
+    
+    - Risk 1 description
+    - Risk 2 description
+    - Risk 3 description
+    
+    IMPORTANT: Always include a blank line between the bold header "**Key Compliance Risks:**" and the bullet list. This ensures proper markdown rendering.
+    
+    If no compliance requirements identified, return: "*No compliance requirements identified.*"
+  agent: compliance_expert
+

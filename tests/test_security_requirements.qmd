@@ -1,0 +1,1756 @@
+---
+title: "Security Requirements Analysis Report"
+subtitle: "Comprehensive Security Analysis with Interactive Dashboard"
+author: "Security Requirements System v2.0"
+date: "2025-10-30 18:36:44"
+format:
+  html:
+    theme: cosmo
+    toc: true
+    toc-depth: 3
+    toc-location: left
+    embed-resources: true
+    code-fold: true
+    code-tools: true
+    fig-width: 8
+    fig-height: 5
+    fig-dpi: 300
+    number-sections: false
+    smooth-scroll: true
+  pdf:
+    pdf-engine: lualatex
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    fig-width: 7
+    fig-height: 4.5
+    fig-dpi: 300
+    fig-format: png
+    keep-tex: false
+    documentclass: report
+    papersize: a4
+    include-in-header:
+      text: |
+        \usepackage{fvextra}
+        \DefineVerbatimEnvironment{Highlighting}{Verbatim}{breaklines,commandchars=\\\{\}}
+execute:
+  echo: false
+  warning: false
+  message: false
+  freeze: auto
+jupyter: python3
+---
+
+*Generated: 2025-10-30 18:36:44*
+*Report Version: 2.0 - Comprehensive Security Analysis*
+
+---
+
+## 1. Executive Summary
+
+### 1.1. Purpose and Scope
+
+**Purpose:** This document presents a comprehensive security requirements analysis for the proposed application, mapping high-level business requirements to specific, actionable security controls based on industry standards (OWASP ASVS, NIST CSF, ISO 27001).
+
+**Scope:** This analysis covers all functional requirements provided, including stakeholder analysis, threat modeling, security control mapping, compliance requirements, architectural security recommendations, implementation planning, and verification strategies.
+
+### 1.2. Key Findings
+
+- **Validation Score**: 0.76/1.0
+- **Validation Status**: ❌ Needs Review
+- **Analysis Iterations**: 1
+- **Requirements Analyzed**: 12
+
+**Summary:** The e-commerce platform serves as a digital marketplace where users can register, browse products, manage their shopping cart, and securely complete transactions while allowing administrators to manage user accounts, product listings, and sales analytics through an admin panel.
+
+### 1.3. Security Overview Dashboard
+
+This interactive dashboard provides at-a-glance metrics for executives and stakeholders. For best experience, render this document with Quarto to enable interactive visualizations.
+
+**Dashboard Artifacts Location:** `test_outputs/test_artifacts/`
+
+::: {.panel-tabset}
+
+#### Risk
+
+```{python}
+#| label: load-metrics
+#| echo: false
+#| warning: false
+import json
+import pandas as pd
+from pathlib import Path
+
+# Load dashboard data artifacts
+artifacts_path = Path("test_outputs/test_artifacts")
+threats = pd.read_json(artifacts_path / "threats.json")
+asvs = pd.read_json(artifacts_path / "asvs_mapping.json")
+priorities = pd.read_json(artifacts_path / "priorities.json")
+compliance = pd.read_json(artifacts_path / "compliance.json")
+delivery = pd.read_json(artifacts_path / "delivery.json")
+coverage = pd.read_json(artifacts_path / "coverage.json")
+validation = json.loads((artifacts_path / "validation.json").read_text())
+```
+
+```{python}
+#| label: fig-risk-heatmap
+#| fig-cap: "Risk heat map showing threat distribution by likelihood and impact (1-5 scale)."
+#| echo: false
+#| warning: false
+try:
+    import plotly.express as px
+    import plotly.graph_objects as go
+    
+    # Create risk heatmap
+    heat = threats.groupby(["likelihood", "impact"]).size().reset_index(name="count")
+    
+    # Create a complete 5x5 grid
+    import numpy as np
+    l_range = range(1, 6)
+    i_range = range(1, 6)
+    grid_data = []
+    for l in l_range:
+        for i in i_range:
+            count = heat[(heat["likelihood"] == l) & (heat["impact"] == i)]["count"].sum()
+            grid_data.append({"likelihood": l, "impact": i, "count": int(count)})
+    
+    heat_df = pd.DataFrame(grid_data)
+    pivot = heat_df.pivot(index="impact", columns="likelihood", values="count").fillna(0)
+    
+    fig_risk = go.Figure(data=go.Heatmap(
+        z=pivot.values,
+        x=[f"L{x}" for x in pivot.columns],
+        y=[f"I{y}" for y in pivot.index],
+        text=pivot.values,
+        texttemplate="%{text:.0f}",
+        textfont={"size": 12},
+        colorscale="YlOrRd",
+        hoverongaps=False
+    ))
+    fig_risk.update_layout(
+        title="Threat Risk Matrix (Likelihood × Impact)",
+        xaxis_title="Likelihood →",
+        yaxis_title="Impact →",
+        height=400
+    )
+    fig_risk.show()
+except Exception as e:
+    print(f"⚠️ Could not generate risk heatmap: {e}")
+    print("\nRisk Distribution (Static):")
+    print(threats.groupby("risk_level").size())
+```
+
+**Top 5 Highest Risks:**
+
+```{python}
+#| echo: false
+#| warning: false
+top_risks = threats.nlargest(5, ["likelihood", "impact"])
+for idx, risk in top_risks.iterrows():
+    print(f"- **{risk['id']}** ({risk['risk_level']}): {risk['description'][:100]}...")
+```
+
+#### Controls
+
+```{python}
+#| label: fig-asvs-distribution
+#| fig-cap: "OWASP ASVS control distribution by verification category (V1-V14)."
+#| echo: false
+#| warning: false
+try:
+    import plotly.express as px
+    
+    # Group by ASVS category
+    dist = asvs.groupby("v_category").size().reset_index(name="controls")
+    dist = dist.sort_values("v_category")
+    
+    # Add percentage for better context
+    total = dist["controls"].sum()
+    dist["percentage"] = (dist["controls"] / total * 100).round(1)
+    
+    fig_asvs = px.bar(
+        dist, 
+        x="v_category", 
+        y="controls", 
+        text=[f"{c}<br>({p}%)" for c, p in zip(dist["controls"], dist["percentage"])],
+        title="ASVS Controls by Verification Category",
+        labels={"v_category": "ASVS Category", "controls": "Control Count"},
+        color="controls",
+        color_continuous_scale="Blues"
+    )
+    fig_asvs.update_traces(textposition='outside')
+    fig_asvs.update_layout(height=400, showlegend=False)
+    fig_asvs.show()
+except Exception as e:
+    print(f"⚠️ Could not generate ASVS chart: {e}")
+```
+
+```{python}
+#| label: fig-priority-breakdown
+#| fig-cap: "Security control priority distribution (Critical/High/Medium/Low)."
+#| echo: false
+#| warning: false
+try:
+    import plotly.express as px
+    
+    # Priority breakdown with color mapping
+    color_map = {
+        "Critical": "#c62828",
+        "High": "#f57c00",
+        "Medium": "#fbc02d",
+        "Low": "#388e3c"
+    }
+    
+    # Sort by priority level
+    priority_order = ["Critical", "High", "Medium", "Low"]
+    priorities_sorted = priorities.set_index("level").reindex(priority_order).reset_index()
+    
+    fig_prio = px.bar(
+        priorities_sorted, 
+        x="level", 
+        y="count", 
+        text="count",
+        title="Control Priority Breakdown",
+        labels={"level": "Priority Level", "count": "Number of Controls"},
+        color="level",
+        color_discrete_map=color_map
+    )
+    fig_prio.update_traces(textposition='outside')
+    fig_prio.update_layout(height=400, showlegend=False)
+    fig_prio.show()
+except Exception as e:
+    print(f"⚠️ Could not generate priority chart: {e}")
+```
+
+**Coverage Metrics:**
+
+```{python}
+#| echo: false
+#| warning: false
+total_controls = len(asvs)
+total_reqs = len(coverage)
+req_coverage = (coverage["has_asvs"].mean() * 100) if not coverage.empty else 0
+verif_coverage = (coverage["tests"].gt(0).mean() * 100) if not coverage.empty else 0
+
+# Calculate additional metrics
+avg_controls_per_req = (total_controls / total_reqs) if total_reqs > 0 else 0
+critical_controls = len(asvs[asvs["priority"] == "Critical"]) if "priority" in asvs.columns else 0
+
+print(f"- **Total ASVS Controls Mapped:** {total_controls}")
+print(f"- **Requirements with ASVS Mapping:** {req_coverage:.1f}% ({coverage['has_asvs'].sum()}/{total_reqs})")
+print(f"- **Average Controls per Requirement:** {avg_controls_per_req:.1f}")
+print(f"- **Critical Controls:** {critical_controls} ({critical_controls/total_controls*100:.1f}% of total)")
+print(f"- **Requirements with Verification:** {verif_coverage:.1f}% ({coverage['tests'].gt(0).sum()}/{total_reqs})")
+print(f"- **Recommended ASVS Level:** L2 (Standard)")
+```
+
+#### Compliance
+
+```{python}
+#| label: fig-compliance-rag
+#| fig-cap: "OWASP ASVS compliance status (Red-Amber-Green rating). Note: Only frameworks with mapped controls are shown."
+#| echo: false
+#| warning: false
+try:
+    import plotly.express as px
+    
+    # Filter to only show OWASP ASVS (since we only have ASVS controls mapped)
+    comp_filtered = compliance[compliance["framework"].str.contains("ASVS", case=False, na=False)]
+    
+    if comp_filtered.empty:
+        # Fallback to all if no ASVS found
+        comp_filtered = compliance
+    
+    # Compliance RAG status
+    status_map = {
+        "Compliant": "#2e7d32",
+        "In Progress": "#f9a825",
+        "Gap": "#c62828"
+    }
+    
+    # Sort frameworks alphabetically
+    comp_sorted = comp_filtered.sort_values("framework")
+    
+    fig_comp = px.bar(
+        comp_sorted,
+        x="framework",
+        y=[1] * len(comp_sorted),  # Equal height bars
+        color="status",
+        color_discrete_map=status_map,
+        title="OWASP ASVS Compliance Status",
+        labels={"framework": "Framework", "y": ""},
+        text="status",
+        height=400
+    )
+    fig_comp.update_layout(showlegend=True, yaxis_visible=False, yaxis_showticklabels=False)
+    fig_comp.update_traces(textposition='inside')
+    fig_comp.show()
+except Exception as e:
+    print(f"⚠️ Could not generate compliance chart: {e}")
+    print("\nCompliance Status (Static):")
+    for _, row in compliance.iterrows():
+        print(f"- **{row['framework']}**: {row['status']}")
+```
+
+**Compliance Summary:**
+
+```{python}
+#| echo: false
+#| warning: false
+for _, row in compliance.iterrows():
+    status_icon = "✅" if row["status"] == "Compliant" else "⚠️" if row["status"] == "In Progress" else "❌"
+    print(f"- {status_icon} **{row['framework']}**: {row['status']} (Next Audit: {row['next_audit']})")
+```
+
+#### Delivery
+
+```{python}
+#| label: fig-delivery-burndown
+#| fig-cap: "Projected implementation timeline by phase and week (based on priority-based planning)."
+#| echo: false
+#| warning: false
+try:
+    import plotly.express as px
+    import plotly.graph_objects as go
+    
+    # Create burndown chart with planned vs projected completion
+    fig_burn = go.Figure()
+    
+    for phase in delivery["phase"].unique():
+        phase_data = delivery[delivery["phase"] == phase]
+        
+        # Planned line
+        fig_burn.add_trace(go.Scatter(
+            x=phase_data["week"],
+            y=phase_data["planned"],
+            mode='lines',
+            name=f"{phase} (Planned)",
+            line=dict(dash='dash', color='gray'),
+            showlegend=True
+        ))
+        
+        # Projected completion line
+        fig_burn.add_trace(go.Scatter(
+            x=phase_data["week"],
+            y=phase_data["completed"],
+            mode='lines+markers',
+            name=f"{phase} (Projected)",
+            showlegend=True
+        ))
+    
+    fig_burn.update_layout(
+        title="Security Controls Implementation Timeline (Projected)",
+        xaxis_title="Week",
+        yaxis_title="Number of Controls",
+        height=400,
+        hovermode='x unified'
+    )
+    fig_burn.show()
+except Exception as e:
+    print(f"⚠️ Could not generate delivery chart: {e}")
+```
+
+**Implementation Timeline (Projected):**
+
+```{python}
+#| echo: false
+#| warning: false
+phase1 = delivery[delivery["phase"].str.contains("Phase 1")]
+phase2 = delivery[delivery["phase"].str.contains("Phase 2")]
+
+if not phase1.empty:
+    p1_progress = (phase1["completed"].iloc[-1] / phase1["planned"].iloc[-1] * 100) if phase1["planned"].iloc[-1] > 0 else 0
+    print(f"- **Phase 1 (Critical/High):** {p1_progress:.0f}% projected completion (Weeks 1-8)")
+
+if not phase2.empty:
+    p2_progress = (phase2["completed"].iloc[-1] / phase2["planned"].iloc[-1] * 100) if phase2["planned"].iloc[-1] > 0 else 0
+    print(f"- **Phase 2 (Medium):** {p2_progress:.0f}% projected completion (Weeks 9-16)")
+
+print(f"- **Phase 3 (Low/Ongoing):** Continuous improvement and monitoring")
+print(f"\n*Note: Timeline is based on priority-based planning and assumes steady implementation progress.*")
+```
+
+#### Data Quality
+
+**Validation Metrics:**
+
+```{python}
+#| echo: false
+#| warning: false
+val_score = validation.get("score", 0)
+val_passed = validation.get("passed", False)
+dims = validation.get("dims", {})
+
+status_icon = "✅" if val_passed else "⚠️" if val_score >= 0.7 else "❌"
+print(f"\n**Overall Validation Score:** {status_icon} {val_score:.2f}/1.0\n")
+
+if dims:
+    print("**Dimension Scores:**\n")
+    for dim, score in dims.items():
+        dim_icon = "✅" if score >= 0.8 else "⚠️" if score >= 0.7 else "❌"
+        print(f"- {dim_icon} **{dim.capitalize()}:** {score:.2f}")
+else:
+    print("*Dimension scores not available.*")
+```
+
+```{python}
+#| label: fig-data-quality
+#| fig-cap: "Data quality and coverage metrics."
+#| echo: false
+#| warning: false
+try:
+    import plotly.graph_objects as go
+    
+    # Calculate quality metrics
+    threats_linked_pct = (coverage["has_threat"].mean() * 100) if not coverage.empty else 0
+    
+    # Calculate average controls per requirement
+    avg_controls_per_req = (total_controls / total_reqs) if total_reqs > 0 else 0
+    
+    # For the chart, we'll show percentage-based metrics and handle avg controls separately
+    metrics = {
+        "Requirements Mapped": req_coverage,
+        "Threats Linked": threats_linked_pct,
+        "Verification Coverage": verif_coverage,
+        "Avg Controls/Req": avg_controls_per_req * 20,  # Scale for visual comparison (multiply by 20 to fit chart scale)
+        "Validation Score": val_score * 100
+    }
+    
+    # Create custom text labels (show actual values for avg controls, percentages for others)
+    text_labels = []
+    for key, val in metrics.items():
+        if key == "Avg Controls/Req":
+            text_labels.append(f"{avg_controls_per_req:.1f}")
+        else:
+            text_labels.append(f"{val:.1f}%")
+    
+    fig_quality = go.Figure(go.Bar(
+        x=list(metrics.values()),
+        y=list(metrics.keys()),
+        orientation='h',
+        text=text_labels,
+        textposition='outside',
+        marker=dict(
+            color=list(metrics.values()),
+            colorscale='RdYlGn',
+            cmin=0,
+            cmax=100
+        )
+    ))
+    
+    fig_quality.update_layout(
+        title="Data Quality & Coverage Metrics",
+        xaxis_title="Score / Percentage (%)",
+        xaxis=dict(range=[0, 110]),
+        height=400,
+        showlegend=False
+    )
+    fig_quality.show()
+except Exception as e:
+    print(f"⚠️ Could not generate quality chart: {e}")
+```
+
+**Coverage Statistics:**
+
+```{python}
+#| echo: false
+#| warning: false
+# Parser and data quality stats
+total_entries = len(coverage)
+with_threats = coverage["has_threat"].sum()
+with_controls = coverage["has_asvs"].sum()
+with_tests = coverage["tests"].gt(0).sum()
+
+print(f"\n**Traceability Matrix:**")
+print(f"- Total Requirements: {total_entries}")
+print(f"- Linked to Threats: {with_threats} ({with_threats/max(total_entries,1)*100:.1f}%)")
+print(f"- Mapped to ASVS: {with_controls} ({with_controls/max(total_entries,1)*100:.1f}%)")
+print(f"- With Verification: {with_tests} ({with_tests/max(total_entries,1)*100:.1f}%)")
+print(f"\n**Data Quality:** {"✅ Excellent" if val_score >= 0.8 else "⚠️ Good" if val_score >= 0.7 else "❌ Needs Improvement"}")
+```
+
+:::
+
+**Note:** To render this dashboard with interactive visualizations:
+```bash
+# Install Quarto: https://quarto.org/docs/get-started/
+quarto render security_requirements_*.md --to html    # Interactive HTML
+quarto render security_requirements_*.md --to pdf     # Static PDF
+```
+
+
+---
+
+## 2. Requirements Understanding
+
+### 2.1. High-Level Requirements Analysis
+
+The following high-level functional requirements have been identified and analyzed:
+
+1. User registration and login with multi-factor authentication
+2. Password reset functionality
+3. Profile management
+4. A searchable product catalog with detailed item descriptions
+5. Inventory management for products
+6. Add/remove items from shopping cart
+7. Secure payment processing (credit cards, PayPal)
+8. Order history tracking for users
+9. Order tracking functionality
+10. Returns and refunds management
+11. Admin panel for user and product management
+12. Sales analytics reporting
+
+### 2.2. Detailed Requirements Breakdown
+
+| Req ID | Requirement | Business Category | Security Sensitivity | Data Classification |
+|--------|-------------|-------------------|---------------------|---------------------|
+| REQ-001 | User registration and login with multi-factor auth... | Authentication | High | Confidential |
+| REQ-002 | Password reset functionality... | Authentication | High | Confidential |
+| REQ-003 | Profile management... | Data Management | Medium | Internal |
+| REQ-004 | A searchable product catalog with detailed item de... | Data Management | Low | Public |
+| REQ-005 | Inventory management for products... | Data Management | Medium | Internal |
+| REQ-006 | Add/remove items from shopping cart... | Data Management | Medium | Internal |
+| REQ-007 | Secure payment processing (credit cards, PayPal)... | Payment Processing | High | Restricted |
+| REQ-008 | Order history tracking for users... | Data Management | Medium | Internal |
+| REQ-009 | Order tracking functionality... | Data Management | Medium | Internal |
+| REQ-010 | Returns and refunds management... | Order Management | Medium | Internal |
+| REQ-011 | Admin panel for user and product management... | Administration | High | Restricted |
+| REQ-012 | Sales analytics reporting... | Administration | Medium | Internal |
+
+---
+
+## 3. Stakeholder Analysis
+
+### 3.1. Identified Stakeholders and User Personas
+
+| Role                        | Privilege Level | Trust Level      | Key Security Concerns                                                                                           |
+|-----------------------------|-----------------|------------------|------------------------------------------------------------------------------------------------------------------|
+| Customer                    | User            | Partially Trusted | Unauthorized access to personal data such as payment information, Account compromise through phishing attacks.    |
+| Admin                       | Admin           | Trusted           | Privilege escalation risks from malicious insiders, Data leaks due to mismanagement of user accounts and products. |
+| Product Manager             | User            | Trusted           | Unauthorized changes to product information, Exposure of inventory details due to inadequate access controls.     |
+| Payment Processor Service    | Service Account  | Trusted           | Data interception during payment processing, Weak API security leading to unauthorized transactions.               |
+| Third-Party Shipping Service | Service Account  | Partially Trusted | Data exposure during integration, Weak authentication leading to shipment address manipulation.                    |
+| Web Application Firewall     | Service Account  | Trusted           | Potential misconfigurations allowing unauthorized traffic, Difficulty in monitoring access logs effectively.      |
+
+### 3.2. Trust Model
+
+Trust boundaries are established at multiple levels, including the user interface, backend server, and database. Security mechanisms enforcing these boundaries comprise multi-factor authentication for users, role-based access control (RBAC) to ensure that users access only the data and functionalities necessary for their roles, and network segmentation to limit different functionalities and data access from potential threats. Customers can access their personal account, shopping cart, and transaction history; Admins have access to the entire system for managing users, products, and analytics; Product Managers can manage product listings; and Payment Processor Services can access secure payment data essential for processing transactions. The principle of least privilege is vital, granting each user the minimum permissions required to perform their functions, thereby minimizing the risk of unauthorized access and potential privilege escalation that could compromise the entire system.
+
+---
+
+## 4. System Architecture Analysis
+
+### 4.1. Architectural Overview
+
+The e-commerce platform serves as a digital marketplace where users can register, browse products, manage their shopping cart, and securely complete transactions while allowing administrators to manage user accounts, product listings, and sales analytics through an admin panel. The architecture consists of a frontend interface for user interactions and an admin dashboard, a backend API for business logic, a database for data persistence, and integration with third-party services like payment processors. These components interact via RESTful APIs
+
+### 4.2. Architecture Diagram
+
+```mermaid
+graph TD
+    A[User Interface] -->|Interacts with| B[Backend API]
+    B -->|CRUD operations| C[Database]
+    B -->|Payment Processing| D[Payment Gateway]
+    B -->|Admin Operations| E[Admin Panel]
+    C -->|Data management| F[Product Catalog]
+    C -->|User personal data| G[User Management]
+```
+
+### 4.3. Component Breakdown
+
+| Component | Responsibility | Security Criticality | External Dependencies |
+|-----------|----------------|---------------------|----------------------|
+| User Interface | Facilitates user interactions for produc... | High |  |
+| Backend API | Handles business logic, processes reques... | Critical | Payment Gateway API |
+| Database | Persistent storage of user data, product... | Critical |  |
+| Payment Gateway | Processes secure transactions for paymen... | Critical |  |
+| Admin Panel | Enables administrators to manage users, ... | High |  |
+
+---
+
+## 5. Threat Modeling
+
+### 5.1. Methodology
+
+STRIDE
+
+### 5.2. Identified Threats
+
+The following table summarizes the key threats identified through threat modeling:
+
+| Threat ID | Component | Category | Risk Level | Description |
+|-----------|-----------|----------|------------|-------------|
+| THR-001 | User Management | Spoofing | Critical | An attacker can spoof a user's identity by bypassing authent... |
+| THR-005 | Backend API | Information Disclosure | Critical | Sensitive data could be disclosed through insecure APIs, suc... |
+| THR-008 | User Interface | Cross-site Scripting (XSS) | Critical | An attacker could inject malicious scripts into web pages vi... |
+| THR-009 | Database | SQL Injection | Critical | An attacker could exploit vulnerabilities in the database la... |
+| THR-013 | User Management | Elevation of Privilege | Critical | An attacker could exploit insecure password reset processes ... |
+| THR-015 | Payment Gateway | Information Disclosure | Critical | Sensitive payment information could be exposed due to miscon... |
+| THR-003 | Product Catalog | Tampering | High | An attacker could tamper with product information in the cat... |
+| THR-004 | Shopping Cart & Checkout | Denial of Service | High | An attacker could overwhelm the shopping cart service with e... |
+| THR-006 | Payment Gateway | Tampering | High | An attacker could intercept and modify payment data in trans... |
+| THR-007 | Admin Panel | Elevation of Privilege | High | An unprivileged user could gain access to the admin panel th... |
+| THR-010 | Order Management | Information Disclosure | High | Sensitive order information could be disclosed due to improp... |
+| THR-011 | Shopping Cart & Checkout | Denial of Service | High | Flooding checkout processes could result in service unavaila... |
+| THR-014 | Backend API | API Abuse | High | An attacker could abuse the API by making excessive requests... |
+| THR-016 | Admin Panel | Tampering | High | An attacker could tamper with admin panel data leading to un... |
+| THR-017 | Database | Denial of Service | High | An attacker could overload the database with excessive queri... |
+| THR-018 | User Interface | CSRF | High | An attacker could exploit Cross-Site Request Forgery vulnera... |
+| THR-019 | User Management | Information Disclosure | High | Sensitive user information could be disclosed if session man... |
+| THR-020 | Product Catalog | Elevation of Privilege | High | An attacker may gain elevated access to update product listi... |
+| THR-002 | User Management | Repudiation | Medium | A user could deny having performed an action (e.g., a purcha... |
+| THR-012 | Product Catalog | Denial of Service | Medium | An attacker could cause the application to become unresponsi... |
+
+### 5.3. Risk Summary
+
+The e-commerce platform faces significant risks primarily associated with critical components including user management, backend APIs, and payment gateways, where threats such as spoofing and sensitive data exposure are highly likely to occur. The overall risk posture indicates a need for immediate attention to threats related to authentication bypass, SQL injection, and unauthorized access to admin functionalities. Key attack vectors include API abuse, improper access controls, and vulnerabilities in session management. The recommended areas for priority security controls are multi-factor authentication implementation, input validation mechanisms, and robust logging practices to reduce overall risk exposure.
+
+### 5.4. Residual Risk Assessment
+
+This section analyzes the residual risk after applying the recommended security controls:
+
+#### Before/After Risk Analysis
+
+| Threat ID | Initial Risk | Controls Applied | Control Effectiveness | Residual Risk | Status |
+|-----------|--------------|------------------|----------------------|---------------|--------|
+| THR-001 | Critical | V2.1.1, V3.2.3 | Medium | High | ⚠️ Requires Review |
+| THR-003 | High | V2.2.3 | Medium | Medium | ⚠️ Requires Review |
+| THR-004 | High | V1.3.2 | Medium | Medium | ⚠️ Requires Review |
+| THR-006 | High | V2.2.2 | Medium | Medium | ⚠️ Requires Review |
+| THR-007 | High | V2.1.2 | Medium | Medium | ⚠️ Requires Review |
+| THR-010 | High | V3.3.2 | Medium | Medium | ⚠️ Requires Review |
+| THR-011 | High | V1.3.3 | Medium | Medium | ⚠️ Requires Review |
+| THR-014 | High | V1.1.1 | Medium | Medium | ⚠️ Requires Review |
+| THR-016 | High | V2.1.2 | Medium | Medium | ⚠️ Requires Review |
+| THR-017 | High | V1.3.3 | Medium | Medium | ⚠️ Requires Review |
+| THR-018 | High | V4.2.2 | Medium | Medium | ⚠️ Requires Review |
+| THR-019 | High | V2.1.3 | Medium | Medium | ⚠️ Requires Review |
+| THR-020 | High | V2.1.2 | Medium | Medium | ⚠️ Requires Review |
+| THR-002 | Medium | V4.1.1 | High | Low | ✅ Accepted |
+| THR-005 | Critical | V2.1.3 | High | Low | ✅ Accepted |
+
+**Risk Reduction Summary:**
+
+- **Critical Risk Reduction:** 6 threats reduced from Critical to lower levels
+- **High Risk Reduction:** 12 threats reduced from High to lower levels
+- **Residual Risk Distribution:** 1 threats remain at Critical/High level
+
+**Risks Requiring Management Review:**
+
+- **THR-001**: An attacker can spoof a user's identity by bypassing authentication mechanisms, ... (Residual Risk: High)
+- **THR-003**: An attacker could tamper with product information in the catalog, leading to inc... (Residual Risk: Medium)
+- **THR-004**: An attacker could overwhelm the shopping cart service with excessive requests, l... (Residual Risk: Medium)
+- **THR-006**: An attacker could intercept and modify payment data in transit, leading to finan... (Residual Risk: Medium)
+- **THR-007**: An unprivileged user could gain access to the admin panel through misconfigured ... (Residual Risk: Medium)
+- **THR-010**: Sensitive order information could be disclosed due to improper access controls.... (Residual Risk: Medium)
+- **THR-011**: Flooding checkout processes could result in service unavailability for legitimat... (Residual Risk: Medium)
+- **THR-014**: An attacker could abuse the API by making excessive requests, resulting in resou... (Residual Risk: Medium)
+- **THR-016**: An attacker could tamper with admin panel data leading to unauthorized changes o... (Residual Risk: Medium)
+- **THR-017**: An attacker could overload the database with excessive queries, rendering it unr... (Residual Risk: Medium)
+
+---
+
+## 6. OWASP ASVS Security Requirements Mapping
+
+### 6.1. Recommended ASVS Compliance Level
+
+**Recommended Level:** L3
+
+### 6.2. Requirements Mapping
+
+The following table maps each high-level requirement to specific OWASP ASVS controls:
+
+
+#### 6.2.1. REQ-001: User registration and login with multi-factor authentication
+
+| Control ID | Level | Priority | Requirement |
+|------------|-------|----------|-------------|
+| V6.5.7 | L3 | Critical | Verify that biometric authentication mechanisms are only use... |
+| V6.5.4 | L2 | High | Verify that lookup secrets and out-of-band authentication co... |
+| V6.5.1 | L2 | High | Verify that lookup secrets, out-of-band authentication reque... |
+
+##### Control V6.5.7
+
+**Requirement:** Verify that biometric authentication mechanisms are only used as secondary factors together with either something you have or something you know.
+
+**Chapter/Section:** V6 / V6.5
+
+**Level:** L3 | **Priority:** Critical
+
+**Relevance:**
+This control ensures that biometric data is not the sole method of authentication, which could be vulnerable to spoofing. It supports secure multi-factor authentication by requiring additional forms of validation.
+
+**Integration Tips:**
+Implement a secondary factor requirement using a combination of something the user knows (like a password) alongside biometric means, and ensure that both factors are evaluated together to access sensitive functionalities.
+
+**Verification Method:** Automated SAST scanning
+
+
+##### Control V6.5.4
+
+**Requirement:** Verify that lookup secrets and out-of-band authentication codes have a minimum of 20 bits of entropy (typically 4 random alphanumeric characters or 6 random digits is sufficient).
+
+**Chapter/Section:** V6 / V6.5
+
+**Level:** L2 | **Priority:** High
+
+**Relevance:**
+This requirement ensures that the codes used for multi-factor authentication are sufficiently random and hard to guess, reducing vulnerability to attacks.
+
+**Integration Tips:**
+Utilize a cryptographically secure random number generator for generating one-time passwords or authentication codes and validate them during user login.
+
+**Verification Method:** Manual penetration testing
+
+
+##### Control V6.5.1
+
+**Requirement:** Verify that lookup secrets, out-of-band authentication requests or codes, and time-based one-time passwords (TOTPs) are only successfully usable once.
+
+**Chapter/Section:** V6 / V6.5
+
+**Level:** L2 | **Priority:** High
+
+**Relevance:**
+This control prevents replay attacks using previously used authentication codes, thereby securing user login processes against interception threats.
+
+**Integration Tips:**
+Implement a logging mechanism that marks codes as used after they are successfully applied, and immediately invalidate any outstanding codes once consumed.
+
+**Verification Method:** Code review
+
+
+#### 6.2.2. REQ-002: Password reset functionality
+
+| Control ID | Level | Priority | Requirement |
+|------------|-------|----------|-------------|
+| V6.4.6 | L3 | High | Verify that administrative users can initiate the password r... |
+| V6.4.3 | L2 | Critical | Verify that a secure process for resetting a forgotten passw... |
+
+##### Control V6.4.6
+
+**Requirement:** Verify that administrative users can initiate the password reset process for the user, but that this does not allow them to change or choose the user's password.
+
+**Chapter/Section:** V6 / V6.4
+
+**Level:** L3 | **Priority:** High
+
+**Relevance:**
+Ensures administrative actions do not unfairly override user autonomy and protects users from potential internal threats.
+
+**Integration Tips:**
+Implement a secure interface for admins that allows them to facilitate password resets indirectly, such as sending a reset link to the user rather than setting the password themselves.
+
+**Verification Method:** Manual penetration testing
+
+
+##### Control V6.4.3
+
+**Requirement:** Verify that a secure process for resetting a forgotten password is implemented, that does not bypass any enabled multi-factor authentication mechanisms.
+
+**Chapter/Section:** V6 / V6.4
+
+**Level:** L2 | **Priority:** Critical
+
+**Relevance:**
+The security of the password reset process is crucial as it could be targeted by attackers to access accounts.
+
+**Integration Tips:**
+Ensure that any reset mechanism includes verification steps that leverage existing multi-factor authentication options before permitting password change.
+
+**Verification Method:** Automated SAST scanning
+
+
+#### 6.2.3. REQ-003: Profile management
+
+| Control ID | Level | Priority | Requirement |
+|------------|-------|----------|-------------|
+| V7.5.1 | L2 | High | Verify that the application requires full re-authentication ... |
+
+##### Control V7.5.1
+
+**Requirement:** Verify that the application requires full re-authentication before allowing modifications to sensitive account attributes which may affect authentication such as email address, phone number, MFA configuration, or other information used in account recovery.
+
+**Chapter/Section:** V7 / V7.5
+
+**Level:** L2 | **Priority:** High
+
+**Relevance:**
+Re-authentication minimizes the risk of unauthorized changes to sensitive user details, thus protecting against unauthorized access.
+
+**Integration Tips:**
+Integrate a re-authentication step that leverages multi-factor authentication when users attempt to change critical details in their profiles.
+
+**Verification Method:** Manual penetration testing
+
+
+#### 6.2.4. REQ-004: A searchable product catalog with detailed item descriptions
+
+| Control ID | Level | Priority | Requirement |
+|------------|-------|----------|-------------|
+| V15.1.2 | L2 | Medium | Verify that an inventory catalog, such as software bill of m... |
+
+##### Control V15.1.2
+
+**Requirement:** Verify that an inventory catalog, such as software bill of materials (SBOM), is maintained of all third-party libraries in use, including verifying that components come from pre-defined, trusted, and continually maintained repositories.
+
+**Chapter/Section:** V15 / V15.1
+
+**Level:** L2 | **Priority:** Medium
+
+**Relevance:**
+Maintaining an inventory of components mitigates risks of using vulnerable or outdated dependencies that could compromise product security.
+
+**Integration Tips:**
+Regularly audit your third-party libraries against a known vulnerability database, ensuring all components are kept up to date.
+
+**Verification Method:** Code review
+
+
+#### 6.2.5. REQ-005: Inventory management for products
+
+| Control ID | Level | Priority | Requirement |
+|------------|-------|----------|-------------|
+| V15.1.2 | L2 | Medium | Verify that an inventory catalog, such as software bill of m... |
+
+##### Control V15.1.2
+
+**Requirement:** Verify that an inventory catalog, such as software bill of materials (SBOM), is maintained of all third-party libraries in use, including verifying that components come from pre-defined, trusted, and continually maintained repositories.
+
+**Chapter/Section:** V15 / V15.1
+
+**Level:** L2 | **Priority:** Medium
+
+**Relevance:**
+Maintaining a comprehensive inventory of products helps ensure that only secure and supported components are utilized.
+
+**Integration Tips:**
+Create a detailed log within the application that tracks inventory changes, including dates and user actions.
+
+**Verification Method:** Code review
+
+
+#### 6.2.6. REQ-006: Add/remove items from shopping cart
+
+| Control ID | Level | Priority | Requirement |
+|------------|-------|----------|-------------|
+| V14.3.3 | L2 | Medium | Verify that data stored in browser storage (such as localSto... |
+
+##### Control V14.3.3
+
+**Requirement:** Verify that data stored in browser storage (such as localStorage, sessionStorage, IndexedDB, or cookies) does not contain sensitive data, with the exception of session tokens.
+
+**Chapter/Section:** V14 / V14.3
+
+**Level:** L2 | **Priority:** Medium
+
+**Relevance:**
+This control prevents sensitive information from being exposed through client-side storage, which could be exploited by attackers.
+
+**Integration Tips:**
+Ensure that all data stored in the browser is limited to non-sensitive identifiers or keys, and critically review any caching mechanisms in use.
+
+**Verification Method:** Automated dynamic analysis
+
+
+#### 6.2.7. REQ-007: Secure payment processing (credit cards, PayPal)
+
+| Control ID | Level | Priority | Requirement |
+|------------|-------|----------|-------------|
+| V14.2.6 | L3 | Critical | Verify that the application only returns the minimum require... |
+
+##### Control V14.2.6
+
+**Requirement:** Verify that the application only returns the minimum required sensitive data for the application's functionality. For example, only returning some of the digits of a credit card number and not the full number.
+
+**Chapter/Section:** V14 / V14.2
+
+**Level:** L3 | **Priority:** Critical
+
+**Relevance:**
+Limiting the amount of sensitive data exposed reduces the risk of data breaches and compliance violations.
+
+**Integration Tips:**
+Implement logic to mask sensitive data during retrieval operations and ensure that transactions comply with the PCI DSS standards.
+
+**Verification Method:** Manual penetration testing
+
+
+#### 6.2.8. REQ-008: Order history tracking for users
+
+| Control ID | Level | Priority | Requirement |
+|------------|-------|----------|-------------|
+| V16.4.3 | L2 | High | Verify that logs are securely transmitted to a logically sep... |
+
+##### Control V16.4.3
+
+**Requirement:** Verify that logs are securely transmitted to a logically separate system for analysis, detection, alerting, and escalation. The aim is to ensure that if the application is breached, the logs are not compromised.
+
+**Chapter/Section:** V16 / V16.4
+
+**Level:** L2 | **Priority:** High
+
+**Relevance:**
+This helps safeguard transactional integrity and user activity logs from tampering or unauthorized access, which is crucial for accountability.
+
+**Integration Tips:**
+Use secure channels (like TLS) to transmit logs and implement strong access controls around log storage to prevent data alteration.
+
+**Verification Method:** Automated SAST scanning
+
+
+#### 6.2.9. REQ-009: Order tracking functionality
+
+| Control ID | Level | Priority | Requirement |
+|------------|-------|----------|-------------|
+| V14.2.3 | L2 | Medium | Verify that defined sensitive data is not sent to untrusted ... |
+
+##### Control V14.2.3
+
+**Requirement:** Verify that defined sensitive data is not sent to untrusted parties (e.g., user trackers) to prevent unwanted collection of data outside of the application's control.
+
+**Chapter/Section:** V14 / V14.2
+
+**Level:** L2 | **Priority:** Medium
+
+**Relevance:**
+Supports user privacy and data protection regulations by ensuring sensitive data is not shared improperly.
+
+**Integration Tips:**
+Configure all outgoing request handlers to exclude sensitive information before making API calls to external services.
+
+**Verification Method:** Code review
+
+
+#### 6.2.10. REQ-010: Returns and refunds management
+
+| Control ID | Level | Priority | Requirement |
+|------------|-------|----------|-------------|
+| V2.3.5 | L3 | Critical | Verify that high-value business logic flows require multi-us... |
+
+##### Control V2.3.5
+
+**Requirement:** Verify that high-value business logic flows require multi-user approval to prevent unauthorized or accidental actions.
+
+**Chapter/Section:** V2 / V2.3
+
+**Level:** L3 | **Priority:** Critical
+
+**Relevance:**
+Ensures checks and balances are in place for financial operations, minimizing error and fraud risk.
+
+**Integration Tips:**
+Implement a workflow mechanism that requires multiple authorizations for significant operations to enhance security and accountability.
+
+**Verification Method:** Manual penetration testing
+
+
+#### 6.2.11. REQ-011: Admin panel for user and product management
+
+| Control ID | Level | Priority | Requirement |
+|------------|-------|----------|-------------|
+| V8.4.2 | L3 | Critical | Verify that access to administrative interfaces incorporates... |
+
+##### Control V8.4.2
+
+**Requirement:** Verify that access to administrative interfaces incorporates multiple layers of security, including continuous consumer identity verification, device security posture assessment, and contextual risk analysis.
+
+**Chapter/Section:** V8 / V8.4
+
+**Level:** L3 | **Priority:** Critical
+
+**Relevance:**
+Multi-layered security is essential to protect sensitive administrative functions from unauthorized access.
+
+**Integration Tips:**
+Incorporate OAuth2 for user verification with additional checks on device security and contextual activity monitoring.
+
+**Verification Method:** Manual penetration testing
+
+
+#### 6.2.12. REQ-012: Sales analytics reporting
+
+| Control ID | Level | Priority | Requirement |
+|------------|-------|----------|-------------|
+| V16.3.1 | L2 | High | Verify that all authentication operations are logged, includ... |
+
+##### Control V16.3.1
+
+**Requirement:** Verify that all authentication operations are logged, including successful and unsuccessful attempts.
+
+**Chapter/Section:** V16 / V16.3
+
+**Level:** L2 | **Priority:** High
+
+**Relevance:**
+Logging authentication attempts enables tracing of potential unauthorized access attempts and enhances incident response.
+
+**Integration Tips:**
+Implement logging of all user interactions with the analytics reporting feature, particularly around sensitive commands.
+
+**Verification Method:** Automated SAST scanning
+
+
+### 6.3. Cross-Functional Security Controls
+
+The following controls apply globally across all system components:
+
+**Data Encryption**
+
+*Description:* Ensure all sensitive data, in transit and at rest, is protected with strong encryption standards.
+
+*Applies to:* User registration and login, Secure payment processing, Order tracking and returns
+
+*Implementation Guidance:* Adopt industry-standard encryption mechanisms (e.g., AES-256) for data storage and TLS for data in transit.
+
+**Logging and Monitoring**
+
+*Description:* Implement comprehensive logging practices to ensure traceability of user actions and critical system operations.
+
+*Applies to:* Admin panel, Sales analytics, Profile management
+
+*Implementation Guidance:* Deploy a centralized logging system that transcribes logs from all system components for regular audits and monitoring for suspicious activity.
+
+
+### 6.4. Requirements Traceability Overview
+
+This section demonstrates complete traceability from high-level requirements through threats to security controls and verification methods.
+
+**Coverage Summary:** Traceability matrix contains 12 requirements. 11 requirements (91.7%) linked to threats. 12 requirements (100.0%) mapped to OWASP controls. Coverage: Complete.
+
+#### Sample Traceability Mappings
+
+The following table shows traceability for high-priority requirements:
+
+| Req ID | Requirement | Threats | OWASP Controls | Priority | Verification |
+|--------|-------------|---------|----------------|----------|-------------|
+| REQ-001 | User registration and login with multi-f... | 8 threats | 3 controls | Critical | Automated SAST scanning |
+| REQ-002 | Password reset functionality | 2 threats | 2 controls | Critical | Automated SAST scanning |
+| REQ-007 | Secure payment processing (credit cards,... | 4 threats | 1 controls | Critical | Manual penetration testing |
+| REQ-010 | Returns and refunds management | 6 threats | 1 controls | Critical | Manual penetration testing |
+| REQ-011 | Admin panel for user and product managem... | 10 threats | 1 controls | Critical | Manual penetration testing |
+| REQ-003 | Profile management | 6 threats | 1 controls | High | Manual penetration testing |
+| REQ-008 | Order history tracking for users | 7 threats | 1 controls | High | Automated SAST scanning |
+| REQ-012 | Sales analytics reporting | 0 threats | 1 controls | High | Automated SAST scanning |
+| REQ-004 | A searchable product catalog with detail... | 3 threats | 1 controls | Medium | Code review |
+| REQ-005 | Inventory management for products | 8 threats | 1 controls | Medium | Code review |
+
+*Showing 10 of 12 requirements. See Appendix D for complete traceability matrix.*
+
+#### Traceability Statistics
+
+- **Total Requirements Tracked:** 12
+- **Requirements Linked to Threats:** 11 (91.7%)
+- **Requirements Mapped to Controls:** 12 (100.0%)
+- **Average Controls per Requirement:** 1.2
+- **Verification Coverage:** 100% (all requirements have verification methods)
+
+
+---
+
+## 7. AI/ML Security Requirements
+
+### 7.1. AI/ML Components Detected  
+1. Recommendation systems (for product suggestions based on user behavior)  
+2. Chatbots (for customer service and assisting users within the platform)  
+
+### 7.2. AI/ML Threat Model  
+
+| Component               | Identified Threats                                   |
+|------------------------|-----------------------------------------------------|
+| Recommendation Systems  | - Data leakage (leaking PII in recommendations)    |
+|                        | - Bias and fairness (influencing user experience)  |
+| Chatbots                | - Prompt injection (malicious instructions)         |
+|                        | - Adversarial inputs (misleading responses)         |
+
+### 7.3. AI/ML Security Controls  
+
+#### Recommendation Systems  
+**Data Leakage Prevention**  
+Implement strict rules to ensure that recommendations are derived from sanitized datasets without any personally identifiable information (PII) included. Regularly audit data sources used for training.
+
+**Bias and Fairness Considerations**  
+Conduct regular audits of the model’s outputs for bias. Ensure diverse datasets for training to promote fairness in recommendations. Use fairness metrics to evaluate model bias.
+
+#### Chatbots  
+**Prompt Injection Prevention**  
+Utilize a predefined set of allowed prompts and queries for the chatbot interactions. Implement natural language processing controls to detect and mitigate attempts to manipulate interactions through prompt injection.
+
+**Input Validation for AI Inputs**  
+Ensure all inputs the chatbot receives are validated against a strict schema to prevent malicious content from being processed. Use techniques such as sanitization and normalization.
+
+**Output Filtering and Sanitization**  
+Create filters for chatbot responses to ensure that outputs do not disclose sensitive information or demonstrate bias, ensuring all communication adheres to platform policies.
+
+**Monitoring for Adversarial Inputs**  
+Implement monitoring solutions that flag unusual patterns in user interactions intended to manipulate or deceive the AI, enabling prompt responses to unidentified threats.
+
+### 7.4. Integration with Existing Security Controls  
+The AI/ML security controls align with standard security practices by complementing existing measures such as authentication protocols (multi-factor authentication), input validation, and data protection (encryption of sensitive data). For instance, output filtering for AI responses can work hand-in-hand with traditional input validation techniques, ensuring a more holistic security approach. Moreover, the monitoring of adversarial behavior can supplement existing network intrusion detection systems by providing additional context to potential threats.
+
+### 7.5. AI/ML Monitoring Requirements  
+
+| Monitoring Area                          | Description                                                 |
+|------------------------------------------|-------------------------------------------------------------|
+| Recommendation System Outputs            | Monitor for biases and data leakage in generated recommendations. Regularly audit results for fairness and align with user expectations. |
+| Chatbot Interactions                     | Track interactions for unusual patterns or prompt injections. Log all interactions for future analysis and anomaly detection. |
+| Data Sources for Training                 | Conduct regular audits on datasets used for model training to ensure compliance with privacy regulations and fairness. |
+
+---
+
+## 8. Compliance Requirements
+
+### 8.1. Applicable Regulations  
+The e-commerce platform involves the handling of various types of data, making it subject to multiple regulatory frameworks. Below is an overview of the applicable regulations.  
+
+| Regulation | Applicability Reason |  
+|------------|----------------------|  
+| GDPR       | Handling of personal data of EU residents. |  
+| CCPA       | Processing of personal data of California residents. |  
+| PCI-DSS    | Secure handling of payment card information. |  
+| SOX        | Compliance for financial reporting and accounting. |  
+| COPPA      | Protection of children's data as the platform may cater to minors. |  
+
+### 8.2. Compliance Controls by Regulation  
+
+#### GDPR  
+- Implement data encryption for personal data storage and transmission.  
+- Ensure user consent is obtained and logged during registration.  
+- Provide users with the ability to request data deletion.  
+- Conduct regular data protection impact assessments.  
+
+#### CCPA  
+- Facilitate users’ right to access personal information upon request.  
+- Incorporate a ‘Do Not Sell My Personal Information’ option on the website.  
+- Ensure users can delete their personal information upon request.  
+
+#### PCI-DSS  
+- Encrypt transmission of payment card data across open and public networks.  
+- Maintain a secure network environment with firewalls and anti-virus software.  
+- Regularly monitor and test networks for vulnerabilities.  
+
+#### SOX  
+- Maintain accurate financial records and reporting mechanisms.  
+- Ensure internal controls to safeguard financial data and accounts.  
+
+#### COPPA  
+- Obtain verifiable parental consent for collecting information from children.  
+- Provide parents with the ability to review and delete their children’s information.  
+
+### 8.3. Data Subject Rights  
+
+| Right                           | Description |  
+|--------------------------------|-------------|  
+| Right to Access                | Users can request access to their personal data. |  
+| Right to Rectification         | Users can request corrections to inaccurate personal data. |  
+| Right to Erasure               | Users can request deletion of their personal data. |  
+| Right to Data Portability      | Users can request their personal data in a commonly used format. |  
+| Right to Opt-Out               | Users can opt-out of the sale of their personal data (CCPA). |  
+
+### 8.4. Privacy Requirements  
+**Consent:** Obtain explicit consent from users when collecting personal data, especially for sensitive information.  
+**Privacy Notice:** Provide clear and comprehensive privacy notices detailing data usage, rights, and policies, displayed at the registration point.  
+
+### 8.5. Audit and Monitoring Requirements  
+**Logging:** Maintain detailed logs of user registrations, logins, and consent-related actions for auditing purposes.  
+**Breach Notification:** Establish protocols for timely notification of data breaches to affected users and regulators, as required by GDPR and CCPA.  
+
+### 8.6. Data Handling Rules  
+**Retention:** Personal data must be retained only as long as necessary to fulfill the purpose for which it was collected.  
+**Deletion:** Implement procedures for secure deletion of users' personal data upon request or when no longer necessary.  
+
+### 8.7. Compliance Risk Assessment  
+The e-commerce platform is exposed to various compliance risks due to its operations, especially regarding data handling.  
+**Key Compliance Risks:**  
+- Inadvertent collection of sensitive personal information without proper consent.  
+- Non-compliance with payment security standards leading to data breaches.  
+- Failure to manage user data access requests in accordance with regulations.  
+- Potential legal liabilities due to improper handling of children's data.  
+- Inadequate documentation could lead to lack of transparency in data processing practices.
+
+---
+
+## 9. Security Architecture Recommendations
+
+### 9.1. Architectural Security Principles  
+- **Zero Trust Architecture principles**  
+- **Defense in Depth**  
+- **Principle of Least Privilege**  
+- **Secure by Default/Design**  
+- **Separation of Duties**  
+- **Fail Secure**  
+- **Complete Mediation**  
+- **Auditability and Traceability**  
+
+### 9.2. Component-Level Security Controls  
+#### Frontend User Interface  
+**Required Controls:**  
+- Input Validation  
+- Content Security Policy (CSP)  
+- Secure Cookies with HttpOnly and SameSite attributes  
+- Anti-CSRF Tokens  
+
+**Recommended Patterns:**  
+- WAF for Web Frontend  
+- Single Page Application (SPA) with API interactions  
+
+#### Backend API  
+**Required Controls:**  
+- OAuth2 for API authentication  
+- Rate Limiting  
+- Input Validation  
+- Error Handling and Logging  
+
+**Recommended Patterns:**  
+- API Gateway for service aggregation  
+- Microservices architecture with secure inter-service communication  
+
+#### Database  
+**Required Controls:**  
+- Encryption at Rest (AES-256)  
+- Role-Based Access Control (RBAC)  
+- Regular Backups  
+- Database Activity Monitoring  
+
+**Recommended Patterns:**  
+- Encrypted Database with Transparent Data Encryption (TDE)  
+- Replica sets for high availability and data redundancy  
+
+#### Payment Gateway  
+**Required Controls:**  
+- PCI-DSS Compliance  
+- Tokenization of sensitive payment data  
+- Strict access controls and audit logs  
+
+**Recommended Patterns:**  
+- Secure API communication using TLS  
+- Token-based transaction management  
+
+#### Admin Panel  
+**Required Controls:**  
+- Multi-Factor Authentication (MFA)  
+- Role-Based Access Control (RBAC)  
+- Comprehensive Logging and Monitoring  
+
+**Recommended Patterns:**  
+- Secure access via VPN or whitelisted IPs  
+- Web Application Firewall (WAF) with additional security rules  
+
+### 9.3. Data Protection Strategy  
+**Data Classification:** Public, Internal, Confidential, Restricted  
+**Encryption Requirements:** AES-256 for data at rest, TLS 1.2 or higher for data in transit  
+**Retention Policies:** Data retention aligned with GDPR for EU customers and CCPA for US customers: retain data only as long as necessary for transaction completion and legal obligations, typically 7 years for transactional data.  
+**Handling Procedures:** Data access must be logged, encrypted during transmission and at rest, and deleted securely when no longer needed. For sensitive data, perform regular audits and apply strict change management controls.  
+
+### 9.4. Third-Party Integration Security  
+**Payment Gateway**  
+*Security Requirements:*  
+- Use of secure API keys stored in environment variables  
+- Implementation of OAuth for user sessions  
+- Data transmitted only via secure endpoints (HTTPS)  
+
+*Risk Assessment:* Critical - involves sensitive financial information; requires robust security measures to prevent breaches.  
+
+**User Authentication Service**  
+*Security Requirements:*  
+- Use of OAuth2 for user authentication  
+- Encrypted communication channels (TLS 1.2 or higher)  
+- Rate limiting and anomaly detection  
+
+*Risk Assessment:* High - attacks could compromise user credentials and sessions, necessitating strong access controls and monitoring.  
+
+**Inventory Management API**  
+*Security Requirements:*  
+- IP Whitelisting for service access  
+- Regular vulnerability assessments and pen-testing on APIs  
+- Input validation to prevent injection attacks  
+
+*Risk Assessment:* Medium - involves product and inventory data that could be manipulated if not secured, but less sensitive than financial data.  
+
+**Analytics Reporting Tool**  
+*Security Requirements:*  
+- Secure data connections with encryption  
+- Role-based access controls for reporting features  
+- Logging of all data access activities  
+
+*Risk Assessment:* Medium - while not highly sensitive, exposure could lead to competitive disadvantage or internal misuse of sales data.
+
+---
+
+## 10. Implementation Roadmap
+
+### 10.1. Prioritization Framework  
+Prioritization will be based on risk level (from threat modeling), compliance deadlines and regulatory requirements, technical complexity and dependencies, resource availability, and business impact.
+
+### 10.2. Phased Implementation Plan  
+#### Phase: IMMEDIATE  
+**Timeline:** 0-1 months  
+**Rationale:** Immediate actions focus on critical vulnerabilities and compliance blockers that could severely impact the organization and its users if not addressed promptly. These actions lay the essential groundwork for securing user authentication and sensitive data.  
+**Controls to Implement:**  
+- Implement multi-factor authentication (MFA) for user registration and login  
+- Ensure password reset functionality meets security standards  
+- Implement basic data encryption for sensitive data in transit and at rest (AES-256)  
+- Address compliance blockers for GDPR and PCI-DSS, including data protection measures and secure payment handling  
+**Dependencies:**  
+- Completion of current user registration and login systems  
+- Defined regulatory requirements and security policies  
+
+#### Phase: SHORT-TERM  
+**Timeline:** 1-3 months  
+**Rationale:** These controls build upon immediate security measures, focusing on improving access control adjustments and ensuring logging and monitoring methodologies are established to mitigate identified threats effectively.  
+**Controls to Implement:**  
+- Enhance user authentication through comprehensive multi-factor authentication   
+- Deploy role-based access controls for admin panel and user management  
+- Implement comprehensive logging and monitoring for user actions and admin interactions  
+- Secure payment processing by enhancing encryption and ensuring minimal data exposure  
+**Dependencies:**  
+- Completion of MFA Implementation  
+- Establishment of secure user authentication endpoints  
+
+#### Phase: MEDIUM-TERM  
+**Timeline:** 3-6 months  
+**Rationale:** Important controls requiring more detailed planning and resource allocation, focusing on building advanced security capabilities and compliance adherence.  
+**Controls to Implement:**  
+- Implement automated security testing for application vulnerabilities  
+- Conduct third-party security audits to evaluate current security practices  
+- Enhance data protection measures, focusing on GDPR and CCPA compliance  
+- Develop advanced threat detection systems, including real-time monitoring  
+**Dependencies:**  
+- Completion of role-based access controls  
+- Implementation of logging systems  
+
+#### Phase: LONG-TERM  
+**Timeline:** 6-12 months  
+**Rationale:** Strategic initiatives and the establishment of a culture of continuous improvement in security practices aiming for mature security postures across the organization.  
+**Controls to Implement:**  
+- Implement artificial intelligence (AI) and machine learning (ML) solutions for anomaly detection  
+- Conduct comprehensive penetration testing to identify vulnerabilities  
+- Establish ongoing security awareness training programs for employees  
+- Develop a comprehensive incident response plan  
+**Dependencies:**  
+- Completion of threat detection systems  
+- Establishment of ongoing monitoring activities  
+
+#### Phase: ONGOING  
+**Timeline:** Continuous  
+**Rationale:** Ensure that security measures remain effective and relevant by continuously adapting to new threats and compliance requirements.  
+**Controls to Implement:**  
+- Regular security monitoring and vulnerability scanning  
+- Patch management to address identified vulnerabilities  
+- Ongoing compliance audits to ensure adherence to regulations  
+- Maintain incident response readiness and conduct regular testing  
+**Dependencies:**  
+- Engagement with security monitoring tools  
+- Fixed schedules for audits and testing  
+
+### 10.3. Resource Requirements  
+Skills: Security engineers, Security architects, Web developers, Compliance specialists; Recommended tools: SIEM solutions for logging and monitoring, Vulnerability scanners for testing, Encryption libraries for data protection, API management tools for secure interfaces; Estimated time effort: Approximately 3-6 months for initial phases, with ongoing efforts extending resources based on system complexity and evolving security needs.
+
+---
+
+## 11. Verification and Testing Strategy
+
+### 11.1. Testing Approach
+Integrate security testing throughout the software development lifecycle (SDLC) with an emphasis on continuous security practices. Balance automated scanning with manual evaluations to prioritize high-risk areas based on business impact, adhering to shift-left security principles by incorporating security testing earlier and continuously. This proactive approach will help in identifying vulnerabilities in different phases, reduce remediation costs, and ensure compliance with security standards.
+
+### 11.2. Testing Methods
+| Method                                          | Frequency                | Tools                                               |
+|-------------------------------------------------|-------------------------|----------------------------------------------------|
+| STATIC APPLICATION SECURITY TESTING (SAST)      | Every commit/build       | SonarQube, Semgrep, Checkmarx, CodeQL             |
+| DYNAMIC APPLICATION SECURITY TESTING (DAST)     | Nightly/weekly           | OWASP ZAP, Burp Suite, Acunetix                   |
+| DEPENDENCY SCANNING                             | Every build             | Snyk, Dependabot, OWASP Dependency-Check           |
+| SECRETS SCANNING                                | Every commit            | TruffleHog, GitLeaks, GitHub Secret Scanning       |
+| CONTAINER/INFRASTRUCTURE SCANNING              | Every deployment        | Trivy, Clair, Prowler, ScoutSuite                   |
+| PENETRATION TESTING                             | Quarterly or before major releases | Custom scripts, Metasploit, Burp Suite Pro     |
+| SECURITY CODE REVIEW                            | For critical features   | GitHub/GitLab code review, security checklists      |
+| COMPLIANCE SCANNING                             | Continuous              | AWS Config, Azure Policy, Cloud Custodian           |
+
+### 11.3. Compliance Verification
+OWASP ASVS compliance will be verified through automated tools and manual checks against regulatory requirements such as GDPR, CCPA, and PCI-DSS. Audit preparation will involve ensuring thorough documentation and evidence collection for external audits, including retention and deletion processes as stipulated in compliance guidelines. Recommendations will include engaging third-party auditors for comprehensive evaluations of compliance posture.
+
+### 11.4. Continuous Monitoring
+Implement Security Information and Event Management (SIEM) for real-time monitoring, supported by Intrusion Detection/Prevention Systems (IDS/IPS) to identify and mitigate threats. All logs will be aggregated and analyzed for anomalies using security best practices, including anomaly detection and behavioral analytics. This data will integrate seamlessly into incident response processes to ensure prompt action against identified security events and compliance breaches.
+
+### 11.5. Key Performance Indicators (KPIs)
+- Mean time to detect (MTTD) security issues 
+- Mean time to remediate (MTTR) vulnerabilities 
+- Percentage of critical vulnerabilities patched within SLA 
+- Security test coverage percentage 
+- False positive rate in automated scanning 
+- Compliance audit pass rate
+
+---
+
+## 12. Validation Report
+
+### 12.1. Overall Assessment
+
+**Overall Score:** 0.76/1.0
+
+**Validation Status:** ❌ NEEDS IMPROVEMENT
+
+### 12.2. Dimension Scores
+
+| Dimension | Score | Status |
+|-----------|-------|--------|
+| Completeness | 0.70 | ⚠️ |
+| Consistency | 0.80 | ✅ |
+| Correctness | 0.80 | ✅ |
+| Implementability | 0.60 | ❌ |
+| Alignment | 0.70 | ⚠️ |
+
+**Score Interpretation:**
+- ✅ 0.8-1.0: Excellent
+- ⚠️ 0.7-0.79: Acceptable (minor improvements needed)
+- ❌ <0.7: Needs significant improvement
+
+### 12.3. Detailed Feedback
+
+The security requirements show some gaps in coverage, especially around specific authentication and data protection requirements. Ensure additional focus on data encryption practices beyond what is mentioned, especially concerning product catalog management. Improve the consistency of handling similar controls, particularly regarding sensitive data handling across different functionalities. Additionally, specify actions on ambiguous requirements to enhance implementability. Lastly, align all security requirements closely with the identified business needs to avoid over-engineering.
+
+### 12.4. Recommendations for Improvement
+
+Based on the validation results, consider the following actions:
+
+**Priority Areas:**
+
+- **Implementability** (Score: 0.60): Provide more specific, actionable implementation guidance
+- **Completeness** (Score: 0.70): Add missing security controls and expand coverage for all requirements
+- **Alignment** (Score: 0.70): Better align security controls with business objectives and risk profile
+
+---
+
+## Appendix A: Original Requirements Document
+
+```
+
+E-commerce Platform Requirements:
+
+1. User Management
+   - User registration and login
+   - Multi-factor authentication
+   - Password reset functionality
+   - Profile management
+
+2. Product Catalog
+   - Browse products by category
+   - Search functionality
+   - Product details and images
+   - Inventory management
+
+3. Shopping Cart & Checkout
+   - Add/remove items from cart
+   - Secure payment processing (credit cards, PayPal)
+   - Order confirmation emails
+   - Shipping address management
+
+4. Order Management
+   - Order history
+   - Order tracking
+   - Returns and refunds
+
+5. Admin Panel
+   - User management
+   - Product management
+   - Order processing
+   - Sales analytics
+
+```
+
+---
+
+## Appendix B: Glossary
+
+| Term | Definition |
+|------|------------|
+| ASVS | Application Security Verification Standard (OWASP) |
+| STRIDE | Spoofing, Tampering, Repudiation, Information Disclosure, Denial of Service, Elevation of Privilege |
+| SAST | Static Application Security Testing |
+| DAST | Dynamic Application Security Testing |
+| MFA | Multi-Factor Authentication |
+| RBAC | Role-Based Access Control |
+| PII | Personally Identifiable Information |
+| PHI | Protected Health Information |
+| GDPR | General Data Protection Regulation |
+| HIPAA | Health Insurance Portability and Accountability Act |
+| PCI-DSS | Payment Card Industry Data Security Standard |
+
+---
+
+## Appendix C: Complete Threat List
+
+This appendix contains the complete list of all identified threats:
+
+| Threat ID | Component | Category | Likelihood | Impact | Risk Level | Description | Mitigation Strategy |
+|-----------|-----------|----------|------------|--------|------------|-------------|---------------------|
+| THR-001 | User Management | Spoofing | High | High | Critical | An attacker can spoof a user's identity by bypassing authentication mechanisms, ... | Enforce strong password policies, implement multi-factor aut... |
+| THR-002 | User Management | Repudiation | Medium | Medium | Medium | A user could deny having performed an action (e.g., a purchase) if there is no l... | Implement comprehensive logging of user actions, including p... |
+| THR-003 | Product Catalog | Tampering | Medium | High | High | An attacker could tamper with product information in the catalog, leading to inc... | Implement input validation, use checksums or hashes to verif... |
+| THR-004 | Shopping Cart & Checkout | Denial of Service | Medium | High | High | An attacker could overwhelm the shopping cart service with excessive requests, l... | Implement rate limiting on API endpoints, use CAPTCHA to mit... |
+| THR-005 | Backend API | Information Disclosure | High | High | Critical | Sensitive data could be disclosed through insecure APIs, such as user informatio... | Use HTTPS to encrypt data in transit and implement robust au... |
+| THR-006 | Payment Gateway | Tampering | Medium | High | High | An attacker could intercept and modify payment data in transit, leading to finan... | Ensure the payment gateway uses strong encryption and perfor... |
+| THR-007 | Admin Panel | Elevation of Privilege | Medium | High | High | An unprivileged user could gain access to the admin panel through misconfigured ... | Implement strict access controls and user privilege manageme... |
+| THR-008 | User Interface | Cross-site Scripting (XSS) | High | High | Critical | An attacker could inject malicious scripts into web pages viewed by other users,... | Implement input sanitization and output encoding practices. |
+| THR-009 | Database | SQL Injection | High | Critical | Critical | An attacker could exploit vulnerabilities in the database layer to execute arbit... | Implement parameterized queries and prepared statements, reg... |
+| THR-010 | Order Management | Information Disclosure | Medium | High | High | Sensitive order information could be disclosed due to improper access controls. | Implement strict access controls for user order views, ensur... |
+| THR-011 | Shopping Cart & Checkout | Denial of Service | Medium | High | High | Flooding checkout processes could result in service unavailability for legitimat... | Apply throttling mechanisms to limit request rates during ch... |
+| THR-012 | Product Catalog | Denial of Service | Medium | Medium | Medium | An attacker could cause the application to become unresponsive by submitting exc... | Implement API rate limiting to reduce the impact of excessiv... |
+| THR-013 | User Management | Elevation of Privilege | High | High | Critical | An attacker could exploit insecure password reset processes to gain unauthorized... | Implement strong verification steps for password reset, such... |
+| THR-014 | Backend API | API Abuse | High | Medium | High | An attacker could abuse the API by making excessive requests, resulting in resou... | Implement rate limiting and monitoring to detect and block a... |
+| THR-015 | Payment Gateway | Information Disclosure | High | Critical | Critical | Sensitive payment information could be exposed due to misconfigurations or vulne... | Conduct regular security assessments and audits of the payme... |
+| THR-016 | Admin Panel | Tampering | Medium | High | High | An attacker could tamper with admin panel data leading to unauthorized changes o... | Ensure proper session management and limit access to the adm... |
+| THR-017 | Database | Denial of Service | Medium | High | High | An attacker could overload the database with excessive queries, rendering it unr... | Implement query optimization and monitoring to detect unusua... |
+| THR-018 | User Interface | CSRF | Medium | High | High | An attacker could exploit Cross-Site Request Forgery vulnerabilities to perform ... | Implement CSRF tokens in forms and validate them on the serv... |
+| THR-019 | User Management | Information Disclosure | Medium | High | High | Sensitive user information could be disclosed if session management is incorrect... | Ensure proper session expiration and invalidate sessions on ... |
+| THR-020 | Product Catalog | Elevation of Privilege | Medium | High | High | An attacker may gain elevated access to update product listings by exploiting vu... | Conduct security reviews to validate admin access controls a... |
+
+**Total Threats:** 20
+
+---
+
+## Appendix D: Complete Requirements Traceability Matrix
+
+This appendix provides complete end-to-end traceability from requirements through threats to controls and verification.
+
+### Full Traceability Table
+
+| Req ID | Requirement | Category | Sensitivity | Threat IDs | OWASP Controls | Priority | Verification | Status |
+|--------|-------------|----------|-------------|------------|----------------|----------|--------------|--------|
+| REQ-001 | User registration and login with multi-factor auth... | Authentication | High | THR-001, THR-002, THR-005 +5 | V6.5.7, V6.5.4, V6.5.1 | Critical | Automated SAST scanning, Manual penetration testing | Pending |
+| REQ-002 | Password reset functionality | Authentication | High | THR-001, THR-013 | V6.4.6, V6.4.3 | Critical | Automated SAST scanning, Manual penetration testing | Pending |
+| REQ-003 | Profile management | Data Management | Medium | THR-001, THR-002, THR-010 +3 | V7.5.1 | High | Manual penetration testing | Pending |
+| REQ-004 | A searchable product catalog with detailed item de... | Data Management | Low | THR-003, THR-012, THR-020 | V15.1.2 | Medium | Code review | Pending |
+| REQ-005 | Inventory management for products | Data Management | Medium | THR-001, THR-002, THR-003 +5 | V15.1.2 | Medium | Code review | Pending |
+| REQ-006 | Add/remove items from shopping cart | Data Management | Medium | THR-004, THR-011 | V14.3.3 | Medium | Automated dynamic analysis | Pending |
+| REQ-007 | Secure payment processing (credit cards, PayPal) | Payment Processing | High | THR-005, THR-006, THR-013 +1 | V14.2.6 | Critical | Manual penetration testing | Pending |
+| REQ-008 | Order history tracking for users | Data Management | Medium | THR-001, THR-002, THR-008 +4 | V16.4.3 | High | Automated SAST scanning | Pending |
+| REQ-009 | Order tracking functionality | Data Management | Medium | THR-010 | V14.2.3 | Medium | Code review | Pending |
+| REQ-010 | Returns and refunds management | Order Management | Medium | THR-001, THR-002, THR-010 +3 | V2.3.5 | Critical | Manual penetration testing | Pending |
+| REQ-011 | Admin panel for user and product management | Administration | High | THR-001, THR-002, THR-003 +7 | V8.4.2 | Critical | Manual penetration testing | Pending |
+| REQ-012 | Sales analytics reporting | Administration | Medium | None | V16.3.1 | High | Automated SAST scanning | Pending |
+
+**Total Requirements Tracked:** 12
+
+### Detailed Requirement Mappings
+
+The following section provides detailed traceability for each requirement:
+
+#### REQ-001: User registration and login with multi-factor authentication
+
+**Related Threats:**
+- **THR-001**: An attacker can spoof a user's identity by bypassing authentication mechanisms, ...
+- **THR-002**: A user could deny having performed an action (e.g., a purchase) if there is no l...
+- **THR-005**: Sensitive data could be disclosed through insecure APIs, such as user informatio...
+- **THR-007**: An unprivileged user could gain access to the admin panel through misconfigured ...
+- **THR-008**: An attacker could inject malicious scripts into web pages viewed by other users,...
+- *...and 3 more threats*
+
+**OWASP ASVS Controls:**
+- **V6.5.7**: Verify that biometric authentication mechanisms are only used as secondary facto...
+- **V6.5.4**: Verify that lookup secrets and out-of-band authentication codes have a minimum o...
+- **V6.5.1**: Verify that lookup secrets, out-of-band authentication requests or codes, and ti...
+
+**Verification:** Automated SAST scanning, Manual penetration testing, Code review
+
+**Priority:** Critical | **Status:** Pending
+
+---
+
+#### REQ-002: Password reset functionality
+
+**Related Threats:**
+- **THR-001**: An attacker can spoof a user's identity by bypassing authentication mechanisms, ...
+- **THR-013**: An attacker could exploit insecure password reset processes to gain unauthorized...
+
+**OWASP ASVS Controls:**
+- **V6.4.6**: Verify that administrative users can initiate the password reset process for the...
+- **V6.4.3**: Verify that a secure process for resetting a forgotten password is implemented, ...
+
+**Verification:** Automated SAST scanning, Manual penetration testing
+
+**Priority:** Critical | **Status:** Pending
+
+---
+
+#### REQ-003: Profile management
+
+**Related Threats:**
+- **THR-001**: An attacker can spoof a user's identity by bypassing authentication mechanisms, ...
+- **THR-002**: A user could deny having performed an action (e.g., a purchase) if there is no l...
+- **THR-010**: Sensitive order information could be disclosed due to improper access controls.
+- **THR-013**: An attacker could exploit insecure password reset processes to gain unauthorized...
+- **THR-019**: Sensitive user information could be disclosed if session management is incorrect...
+- *...and 1 more threats*
+
+**OWASP ASVS Controls:**
+- **V7.5.1**: Verify that the application requires full re-authentication before allowing modi...
+
+**Verification:** Manual penetration testing
+
+**Priority:** High | **Status:** Pending
+
+---
+
+#### REQ-004: A searchable product catalog with detailed item descriptions
+
+**Related Threats:**
+- **THR-003**: An attacker could tamper with product information in the catalog, leading to inc...
+- **THR-012**: An attacker could cause the application to become unresponsive by submitting exc...
+- **THR-020**: An attacker may gain elevated access to update product listings by exploiting vu...
+
+**OWASP ASVS Controls:**
+- **V15.1.2**: Verify that an inventory catalog, such as software bill of materials (SBOM), is ...
+
+**Verification:** Code review
+
+**Priority:** Medium | **Status:** Pending
+
+---
+
+#### REQ-005: Inventory management for products
+
+**Related Threats:**
+- **THR-001**: An attacker can spoof a user's identity by bypassing authentication mechanisms, ...
+- **THR-002**: A user could deny having performed an action (e.g., a purchase) if there is no l...
+- **THR-003**: An attacker could tamper with product information in the catalog, leading to inc...
+- **THR-010**: Sensitive order information could be disclosed due to improper access controls.
+- **THR-012**: An attacker could cause the application to become unresponsive by submitting exc...
+- *...and 3 more threats*
+
+**OWASP ASVS Controls:**
+- **V15.1.2**: Verify that an inventory catalog, such as software bill of materials (SBOM), is ...
+
+**Verification:** Code review
+
+**Priority:** Medium | **Status:** Pending
+
+---
+
+#### REQ-006: Add/remove items from shopping cart
+
+**Related Threats:**
+- **THR-004**: An attacker could overwhelm the shopping cart service with excessive requests, l...
+- **THR-011**: Flooding checkout processes could result in service unavailability for legitimat...
+
+**OWASP ASVS Controls:**
+- **V14.3.3**: Verify that data stored in browser storage (such as localStorage, sessionStorage...
+
+**Verification:** Automated dynamic analysis
+
+**Priority:** Medium | **Status:** Pending
+
+---
+
+#### REQ-007: Secure payment processing (credit cards, PayPal)
+
+**Related Threats:**
+- **THR-005**: Sensitive data could be disclosed through insecure APIs, such as user informatio...
+- **THR-006**: An attacker could intercept and modify payment data in transit, leading to finan...
+- **THR-013**: An attacker could exploit insecure password reset processes to gain unauthorized...
+- **THR-015**: Sensitive payment information could be exposed due to misconfigurations or vulne...
+
+**OWASP ASVS Controls:**
+- **V14.2.6**: Verify that the application only returns the minimum required sensitive data for...
+
+**Verification:** Manual penetration testing
+
+**Priority:** Critical | **Status:** Pending
+
+---
+
+#### REQ-008: Order history tracking for users
+
+**Related Threats:**
+- **THR-001**: An attacker can spoof a user's identity by bypassing authentication mechanisms, ...
+- **THR-002**: A user could deny having performed an action (e.g., a purchase) if there is no l...
+- **THR-008**: An attacker could inject malicious scripts into web pages viewed by other users,...
+- **THR-010**: Sensitive order information could be disclosed due to improper access controls.
+- **THR-013**: An attacker could exploit insecure password reset processes to gain unauthorized...
+- *...and 2 more threats*
+
+**OWASP ASVS Controls:**
+- **V16.4.3**: Verify that logs are securely transmitted to a logically separate system for ana...
+
+**Verification:** Automated SAST scanning
+
+**Priority:** High | **Status:** Pending
+
+---
+
+#### REQ-009: Order tracking functionality
+
+**Related Threats:**
+- **THR-010**: Sensitive order information could be disclosed due to improper access controls.
+
+**OWASP ASVS Controls:**
+- **V14.2.3**: Verify that defined sensitive data is not sent to untrusted parties (e.g., user ...
+
+**Verification:** Code review
+
+**Priority:** Medium | **Status:** Pending
+
+---
+
+#### REQ-010: Returns and refunds management
+
+**Related Threats:**
+- **THR-001**: An attacker can spoof a user's identity by bypassing authentication mechanisms, ...
+- **THR-002**: A user could deny having performed an action (e.g., a purchase) if there is no l...
+- **THR-010**: Sensitive order information could be disclosed due to improper access controls.
+- **THR-013**: An attacker could exploit insecure password reset processes to gain unauthorized...
+- **THR-019**: Sensitive user information could be disclosed if session management is incorrect...
+- *...and 1 more threats*
+
+**OWASP ASVS Controls:**
+- **V2.3.5**: Verify that high-value business logic flows require multi-user approval to preve...
+
+**Verification:** Manual penetration testing
+
+**Priority:** Critical | **Status:** Pending
+
+---
+
+#### REQ-011: Admin panel for user and product management
+
+**Related Threats:**
+- **THR-001**: An attacker can spoof a user's identity by bypassing authentication mechanisms, ...
+- **THR-002**: A user could deny having performed an action (e.g., a purchase) if there is no l...
+- **THR-003**: An attacker could tamper with product information in the catalog, leading to inc...
+- **THR-005**: Sensitive data could be disclosed through insecure APIs, such as user informatio...
+- **THR-007**: An unprivileged user could gain access to the admin panel through misconfigured ...
+- *...and 5 more threats*
+
+**OWASP ASVS Controls:**
+- **V8.4.2**: Verify that access to administrative interfaces incorporates multiple layers of ...
+
+**Verification:** Manual penetration testing
+
+**Priority:** Critical | **Status:** Pending
+
+---
+
+#### REQ-012: Sales analytics reporting
+
+**OWASP ASVS Controls:**
+- **V16.3.1**: Verify that all authentication operations are logged, including successful and u...
+
+**Verification:** Automated SAST scanning
+
+**Priority:** High | **Status:** Pending
+
+---
+
+---
+
+## Appendix E: References
+
+- [OWASP ASVS 5.0](https://owasp.org/www-project-application-security-verification-standard/)
+- [NIST Cybersecurity Framework](https://www.nist.gov/cyberframework)
+- [ISO/IEC 27001:2022](https://www.iso.org/standard/27001)
+- [OWASP Top 10](https://owasp.org/www-project-top-ten/)
+- [MITRE ATT&CK Framework](https://attack.mitre.org/)
+
+---
+
+*End of Report - Generated by Security Requirements Analysis System v2.0*
+*Generated: 2025-10-30 18:36:44*

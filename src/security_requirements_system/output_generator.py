@@ -783,6 +783,152 @@ print(f"**Data Quality:** {{"✅ Excellent" if val_score >= 0.8 else "⚠️ Goo
         traceback.print_exc()
 
 
+def _parse_and_format_stakeholders(stakeholders_text: str) -> tuple[str, str, str]:
+    """
+    Parse raw stakeholder/compliance text and format into clean sections.
+    Returns (formatted_stakeholders_table, trust_model_text, compliance_text)
+    """
+    if not stakeholders_text:
+        return "", "", ""
+    
+    import re
+    
+    # Try to extract stakeholders table data
+    stakeholders_table = []
+    trust_model = ""
+    compliance_text = ""
+    
+    # Split PART A (Stakeholders) and PART B (Compliance)
+    part_a_match = re.search(r'PART A[^\n]*STAKEHOLDER[^\n]*\n(.*?)(?=PART B|###|##|$)', stakeholders_text, re.DOTALL | re.IGNORECASE)
+    part_b_match = re.search(r'PART B[^\n]*COMPLIANCE[^\n]*\n(.*?)(?=PART A|###|##|Appendix|$)', stakeholders_text, re.DOTALL | re.IGNORECASE)
+    
+    if part_a_match:
+        stakeholder_section = part_a_match.group(1)
+        
+        # Extract individual stakeholder entries
+        # Pattern: "- Role name: ..." followed by details
+        role_pattern = r'- Role name:\s*([^\n]+)\s*\n(.*?)(?=\n- Role name:|\n- Role name:|$)'
+        matches = re.finditer(role_pattern, stakeholder_section, re.DOTALL | re.IGNORECASE)
+        
+        for match in matches:
+            role_name = match.group(1).strip()
+            details = match.group(2)
+            
+            # Extract privilege level
+            privilege_match = re.search(r'- Privilege level:\s*([^\n]+)', details, re.IGNORECASE)
+            privilege = privilege_match.group(1).strip() if privilege_match else "N/A"
+            
+            # Extract trust level
+            trust_match = re.search(r'- Trust level:\s*([^\n]+)', details, re.IGNORECASE)
+            trust = trust_match.group(1).strip() if trust_match else "N/A"
+            
+            # Extract key security concerns (first bullet point or description)
+            # Look for "- Key security concerns:" followed by bullet points
+            concerns = "See detailed analysis below"  # Default
+            concerns_match = re.search(r'- Key security concerns:\s*\n\s*-\s*([^\n]+)', details, re.IGNORECASE)
+            if concerns_match:
+                concerns = concerns_match.group(1).strip()
+            else:
+                # Try to get first concern from multi-line format
+                concerns_section = re.search(r'- Key security concerns:\s*\n((?:\s*-\s*[^\n]+\n?)+)', details, re.IGNORECASE | re.MULTILINE)
+                if concerns_section:
+                    first_concern = re.search(r'-\s*([^\n]+)', concerns_section.group(1))
+                    if first_concern:
+                        concerns = first_concern.group(1).strip()
+                else:
+                    concerns_match = re.search(r'Key security concerns[:\s]+([^\n]+)', details, re.IGNORECASE)
+                    if concerns_match:
+                        concerns = concerns_match.group(1).strip()
+            
+            # Truncate concerns if too long
+            if len(concerns) > 150:
+                concerns = concerns[:147] + "..."
+            
+            stakeholders_table.append({
+                "role": role_name,
+                "privilege": privilege,
+                "trust": trust,
+                "concerns": concerns
+            })
+    
+    # If no structured data found, try simpler extraction
+    if not stakeholders_table:
+        # Look for markdown-style role entries
+        role_pattern = r'^\*\*?([^*\n]+)\*\*?.*?Privilege[^\n]*?([^\n]+).*?Trust[^\n]*?([^\n]+)'
+        matches = re.finditer(role_pattern, stakeholders_text, re.MULTILINE | re.IGNORECASE | re.DOTALL)
+        for match in matches:
+            role_name = match.group(1).strip()
+            privilege = match.group(2).strip() if len(match.groups()) > 1 else "N/A"
+            trust = match.group(3).strip() if len(match.groups()) > 2 else "N/A"
+            stakeholders_table.append({
+                "role": role_name,
+                "privilege": privilege,
+                "trust": trust,
+                "concerns": "See detailed analysis below"
+            })
+    
+    # Extract trust model
+    trust_model_match = re.search(r'Trust Model[^\n]*\n(.*?)(?=PART B|###|##|$)', stakeholders_text, re.DOTALL | re.IGNORECASE)
+    if trust_model_match:
+        trust_model = trust_model_match.group(1).strip()
+        # Clean up the trust model text
+        trust_model = re.sub(r'^[-*]\s*', '', trust_model, flags=re.MULTILINE)
+        trust_model = re.sub(r'\n{3,}', '\n\n', trust_model)
+        # Limit length
+        if len(trust_model) > 1000:
+            trust_model = trust_model[:1000] + "\n\n*[Content truncated for brevity]*"
+    
+    # Extract compliance section (PART B)
+    if part_b_match:
+        compliance_raw = part_b_match.group(1).strip()
+        # Clean up compliance text - remove verbose headers and section letters
+        compliance_text = re.sub(r'^[A-Z]\.\s*[^\n]+\n', '', compliance_raw, flags=re.MULTILINE)
+        # Limit compliance section length significantly
+        if len(compliance_text) > 3000:
+            # Try to extract key sections
+            regulations_match = re.search(r'(?i)applicable regulations?[^\n]*\n(.*?)(?=\n[A-Z]\.|\n##|\Z)', compliance_text, re.DOTALL)
+            if regulations_match:
+                compliance_text = regulations_match.group(1).strip()[:2000] + "\n\n*[Compliance analysis truncated - see full details in appendices]*"
+            else:
+                compliance_text = compliance_text[:2000] + "\n\n*[Compliance analysis truncated - see full details in appendices]*"
+    
+    # Format stakeholders as table
+    formatted_table = ""
+    if stakeholders_table:
+        formatted_table = "### 3.1. Identified Stakeholders and User Personas\n\n"
+        formatted_table += "| Role | Privilege Level | Trust Level | Key Security Concerns |\n"
+        formatted_table += "|------|----------------|-------------|----------------------|\n"
+        for stakeholder in stakeholders_table:
+            role = stakeholder["role"].replace("|", "\\|")
+            privilege = stakeholder["privilege"].replace("|", "\\|")
+            trust = stakeholder["trust"].replace("|", "\\|")
+            concerns = stakeholder["concerns"].replace("|", "\\|")
+            formatted_table += f"| {role} | {privilege} | {trust} | {concerns} |\n"
+    else:
+        # Fallback: if we can't parse, show a condensed version
+        # Remove verbose headers and keep only essential content
+        cleaned = re.sub(r'^#.*?Stakeholder.*?Analysis.*?\n', '', stakeholders_text, flags=re.IGNORECASE | re.MULTILINE)
+        cleaned = re.sub(r'^PART A[^\n]*\n', '', cleaned, flags=re.IGNORECASE | re.MULTILINE)
+        cleaned = re.sub(r'^This document contains.*?\n', '', cleaned, flags=re.IGNORECASE | re.MULTILINE | re.DOTALL)
+        cleaned = re.sub(r'^Where helpful.*?\n', '', cleaned, flags=re.IGNORECASE | re.MULTILINE | re.DOTALL)
+        # Limit length
+        if len(cleaned) > 1500:
+            cleaned = cleaned[:1500] + "\n\n*[Content truncated for brevity - see full analysis in appendices]*"
+        formatted_table = "### 3.1. Identified Stakeholders and User Personas\n\n" + cleaned
+    
+    # Format trust model
+    formatted_trust_model = ""
+    if trust_model:
+        formatted_trust_model = "\n### 3.2. Trust Model\n\n" + trust_model
+    elif "trust" in stakeholders_text.lower() and not part_b_match:
+        # Try to extract trust model from anywhere in the text (only if no PART B)
+        trust_section = re.search(r'(?i)trust[^\n]*model[^\n]*\n(.*?)(?=\n\n[A-Z]|\n##|\Z)', stakeholders_text, re.DOTALL)
+        if trust_section:
+            formatted_trust_model = "\n### 3.2. Trust Model\n\n" + trust_section.group(1).strip()[:1000]
+    
+    return formatted_table, formatted_trust_model, compliance_text
+
+
 def _build_report_sections(state: SecurityRequirementsState) -> str:
     """Build the remaining report sections."""
     markdown = """
@@ -847,7 +993,11 @@ The following high-level functional requirements have been identified and analyz
     markdown += "authentication mechanisms, and data protection measures.\n\n"
 
     if state.stakeholders:
-        markdown += state.stakeholders + "\n\n"
+        # Parse and format stakeholders into clean table format
+        stakeholders_table, trust_model, compliance_from_stakeholders = _parse_and_format_stakeholders(state.stakeholders)
+        markdown += stakeholders_table
+        markdown += trust_model
+        markdown += "\n\n"
     else:
         markdown += "*Stakeholder analysis not available.*\n\n"
 
@@ -1254,7 +1404,13 @@ The following high-level functional requirements have been identified and analyz
     markdown += "Non-compliance can result in significant legal penalties, reputational damage, and business disruption. "
     markdown += "This analysis maps applicable regulations to specific security requirements and operational procedures.\n\n"
 
-    if state.compliance_requirements:
+    # Check if we have compliance data from stakeholder analysis
+    _, _, compliance_from_stakeholders = _parse_and_format_stakeholders(state.stakeholders) if state.stakeholders else ("", "", "")
+    
+    if compliance_from_stakeholders:
+        # Use compliance from stakeholder analysis (PART B)
+        markdown += compliance_from_stakeholders + "\n\n"
+    elif state.compliance_requirements:
         markdown += state.compliance_requirements + "\n\n"
     else:
         markdown += "### 8.1. Applicable Regulations\n\n"
@@ -1281,7 +1437,11 @@ The following high-level functional requirements have been identified and analyz
     markdown += "strategies, and third-party integration security to ensure security is built into the system design.\n\n"
 
     if state.security_architecture:
-        markdown += state.security_architecture + "\n\n"
+        # Limit security architecture length to keep report concise
+        arch_text = state.security_architecture
+        if len(arch_text) > 5000:
+            arch_text = arch_text[:5000] + "\n\n*[Security architecture content truncated for brevity - see full details in appendices]*"
+        markdown += arch_text + "\n\n"
     else:
         markdown += "### 9.1. Architectural Security Principles\n\n"
         markdown += "*Security architecture recommendations not available.*\n\n"
@@ -1307,7 +1467,11 @@ The following high-level functional requirements have been identified and analyz
     markdown += "addressed first while building a foundation for comprehensive security coverage.\n\n"
 
     if state.implementation_roadmap:
-        markdown += state.implementation_roadmap + "\n\n"
+        # Limit roadmap length to keep report concise
+        roadmap_text = state.implementation_roadmap
+        if len(roadmap_text) > 3000:
+            roadmap_text = roadmap_text[:3000] + "\n\n*[Implementation roadmap content truncated for brevity - see full details in appendices]*"
+        markdown += roadmap_text + "\n\n"
     else:
         markdown += "*Implementation roadmap not available.*\n\n"
 
@@ -1316,7 +1480,11 @@ The following high-level functional requirements have been identified and analyz
     # Section 11: Verification and Testing Strategy
     markdown += "## 11. Verification and Testing Strategy\n\n"
     if state.verification_testing:
-        markdown += state.verification_testing + "\n\n"
+        # Limit verification/testing length to keep report concise
+        verify_text = state.verification_testing
+        if len(verify_text) > 2000:
+            verify_text = verify_text[:2000] + "\n\n*[Verification and testing content truncated for brevity - see full details in appendices]*"
+        markdown += verify_text + "\n\n"
     else:
         markdown += "*Verification and testing strategy not available.*\n\n"
 
