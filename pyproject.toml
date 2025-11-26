@@ -13,6 +13,8 @@ dependencies = [
     "pandas>=2.0.0",
     "openpyxl>=3.0.0",
     "plotly>=5.0.0",
+    "matplotlib>=3.10.7",
+    "seaborn>=0.13.2",
 ]
 
 [project.scripts]
