@@ -1,0 +1,24 @@
+﻿What is your current role?,"If you selected Other, please specify",How many years of software development experience do you have?,I intend to use insights from this security report in my next project,I plan to incorporate this report’s recommendations into our requirements process in the next quarter,I am likely to rely on this report’s OWASP/NIST/ISO mappings when defining security requirements,I would recommend using reports like this for my team’s projects,"If available, I would request generating such security reports for new initiatives",I am likely to allocate dedicated time during requirements elicitation to review this report,I intend to continue requesting such reports after this study,What single change would most increase your likelihood of using these security reports in your projects?
+Software Engineer,,10-May,5,4,5,4,5,5,5,over 80%
+Other,Researcher,3-Jan,5,4,3,4,3,3,3,"Security compliance requirements at my place of work. As far as the report itself, it is well done and useful."
+Software Engineer,,>10,5,3,5,4,4,5,4,Seeing examples of projects that have successfully used these reports would make me more confident in their reliability.
+Other,DevOps,10-May,5,5,5,5,5,5,5,Adding prioritized remediation tasks with responsible owners and estimated effort would make the report immediately actionable and significantly increase the likelihood of using it in my projects.
+Software Engineer,,>10,3,3,5,5,5,3,5,"This is a very technical report and it would be awesome if i could pass the programming language, framework etch i am using or i am going to use and have a recommendation of the implementation (libraries, design patterns etc) in Security Architecture chapter (9)"
+Software Engineer,,5-Mar,3,4,2,3,4,5,4,"I would try to output this report as a .md file, which I would next try to feed it to an agent. Then I would proceed to either ask the agent about the report findings, or use his coding knowledge to help me code my project."
+Software Engineer,,10-May,5,4,5,4,4,3,4,Maybe a format that'd be suitable to feed to Claude Code/Cursor so it can analyze the codebase and connect each report to the relevant parts in the code (when applicable)
+Tech Lead,,10-May,3,4,4,4,4,4,5,A short summary with highlighted concerns
+Solution Architect,,5-Mar,4,4,4,4,4,4,3,"Better description of the Security Overview Dashboard figures (x and y axis descriptions, etc.) with an overview description."
+Other,Cloud Field Engineer,5-Mar,5,5,5,5,4,4,4,"The integration with our internal tools would make reports of these type very significant, especially if data from our project planning would automatically get pulled directly to the tool for my security report to get generated."
+Software Engineer,,10-May,5,4,4,4,4,4,4,"The report's AI/ML section provides good high-level threat identification and controls. For production implementation of multi-agent systems, add:
+
+• Detailed model governance framework: versioning, artifact signing, CI/CD pipeline for models
+• Concrete Prolog agent sandboxing: seccomp profiles, container isolation, resource limits, approval workflows for rule changes
+• Implementation patterns: provenance tracking and confidence scoring in agent outputs
+• Acceptance criteria: testable scenarios (e.g., 'model rollback <1hr', 'cross-tenant access impossible')
+• Operational runbooks: detecting and responding to agent misbehavior and adversarial attacks
+• Cloud-native deployment: Kubernetes pod policies, mTLS service mesh, immutable audit logging
+
+These concrete patterns would enable direct implementation of agentic systems."
+Solution Architect,,3-Jan,4,4,4,5,4,4,4,References to outside sources to help meet standard where knowledge is lacking.
+Software Engineer,,>10,3,3,4,4,5,5,3,"The report uses a set of assumptions on the software architecture that relates to mostly ""mainstream"" software practices, which have their value, but not necessarily fit practices for small teams and startups (e.g. SPA, intergration with services with cloud providers). I think that these assumptions may be misleading in some circumstances, so the report should either not rely on this assumption or ask explicitly which approaches for software architecture the project is willing to use."
+Other,FPGA Engineer,3-Jan,3,4,5,5,5,4,4,"There could be a session combining (9.2) Required Controls, Recommended Patterns, (10.2) Phased Implementation Plan and (12.3) Detailed into some sort of table ranking the countermeasures and pointing to the threat. It is not about the report content, but about the form it is presented. Some sort of TLDR based on urgency."
