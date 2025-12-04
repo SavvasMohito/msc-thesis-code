@@ -131,9 +131,11 @@ This project is licensed under the **MIT License**. This means you are free to u
 If you use this code or methodology in your research, please cite the Master's Thesis:
 
 ```bibtex
-@mastersthesis{mantzouranidis2024massre,
+@mastersthesis{mantzouranidis2026massre,
   title={A Multi-Agent Approach for a Security-Aware Translation of Software Business Requirements},
   author={Mantzouranidis, Savvas},
   school={Blekinge Institute of Technology},
-  year={2024}
+  year={2026},
+  month={01},
+  type = {Master's thesis}
 }
